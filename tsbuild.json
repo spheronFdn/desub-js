@@ -1,0 +1,16 @@
+/*
+  Use to extend the capabilities of the tsconfig so we don't have to edit it to produce
+  varying output
+*/
+
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions":{
+    "rootDir": "./src",
+    "removeComments": true
+  },
+  "exclude": [
+    "src/**/*.test.ts",
+    "node_modules"
+  ]
+}
