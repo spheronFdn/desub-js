@@ -9,6 +9,7 @@
 
 import { Keyed, Contract, TransactOpts } from '../interfaces'
 import { Abi } from '../@types'
+import { Discount } from '../interfaces/discount'
 
 export default abstract class implements Keyed {
   [key: string]: any
@@ -26,5 +27,6 @@ export default abstract class implements Keyed {
    *
    */
   abstract contract(address: string, abi: Abi, o?: TransactOpts): Contract
-  abstract convertToBN(amount: string): any
+  abstract convertStringArrayToBigNumberArray(array: Array<string>): Array<any>
+  abstract parseDiscountSlabs(data: Array<any>): Array<Discount>
 }
