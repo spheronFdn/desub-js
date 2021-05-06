@@ -26,5 +26,5 @@ export default abstract class implements Keyed {
    *
    */
   abstract contract(address: string, abi: Abi, o?: TransactOpts): Contract
-
+  abstract convertToBN(amount: string): any
 }
