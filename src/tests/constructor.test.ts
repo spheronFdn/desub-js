@@ -1,6 +1,6 @@
 import 'mocha'
 import { assert } from 'chai'
-import { PAYMENT_ABI } from '../constants'
+import { ERC20_ABI, PAYMENT_ABI } from '../constants'
 import Vendor from '../vendors/ethers'
 import Payment from '../payment'
 import { getDefaultProvider } from '@ethersproject/providers'
@@ -17,6 +17,7 @@ describe('Payment constructor', () => {
 
   it('constructs', () => {
     const payment: Payment = new Payment(vendor)
-    assert.equal(payment.abi, PAYMENT_ABI)
+    assert.equal(payment.paymentsAbi, PAYMENT_ABI)
+    assert.equal(payment.erc20Abi, ERC20_ABI)
   })
 })

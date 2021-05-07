@@ -20,7 +20,8 @@ export default class extends Deployed {
    */
   async paymentWithFee(b: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a)
-    return await this.paymentsContract?.functions.chargeUserWithFee(b, wei)
+    const buildTime = this.vendor.convertToBN(b)
+    return await this.paymentsContract?.functions.chargeUserWithFee(buildTime, wei)
   }
   /**
    * @remarks
@@ -29,7 +30,8 @@ export default class extends Deployed {
    * @param b - built time (in sec) after deployment completed
    */
   async paymentWithoutFee(b: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.chargeUser(b)
+    const buildTime = this.vendor.convertToBN(b)
+    return await this.paymentsContract?.functions.chargeUser(buildTime)
   }
   /**
    * @remarks
@@ -47,7 +49,7 @@ export default class extends Deployed {
    * @param a - address of escrow ArGo token, if for some reason new one needs to be passed
    */
   async updateTokenAddress(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateEscrowAddress(a)
+    return await this.paymentsContract?.functions.updateTokenAddress(a)
   }
 
   /**
@@ -60,7 +62,7 @@ export default class extends Deployed {
   async updateDiscountSlabs(d: Array<string>, p: Array<string>): Promise<TxResponse> {
     const discountSlabs = this.vendor.convertStringArrayToBigNumberArray(d)
     const percents = this.vendor.convertStringArrayToBigNumberArray(p)
-    return await this.paymentsContract?.functions.updateEscrowAddress(discountSlabs, percents)
+    return await this.paymentsContract?.functions.updateDiscountSlabs(discountSlabs, percents)
   }
 
   /**
@@ -119,8 +121,9 @@ export default class extends Deployed {
    *
    * @param a - new approval amount.
    */
-  async setNewApprovals(h: string): Promise<TxResponse> {
-    return await this.erc20Contract?.functions.approve(this.paymentsContract?.address, h)
+  async setNewApprovals(a: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(a)
+    return await this.erc20Contract?.functions.approve(this.paymentsContract?.address, wei)
   }
 
   /**
@@ -129,7 +132,7 @@ export default class extends Deployed {
    *
    */
   async getApprovalAmount(): Promise<any> {
-    const wei = await this.erc20Contract?.functions.allowanceOf(this.paymentsContract?.address)
+    const wei = (await this.erc20Contract?.functions.allowance(this.paymentsContract?.address))[0]
     return this.vendor.convertWeiToEth(wei)
   }
 
@@ -139,7 +142,7 @@ export default class extends Deployed {
    *
    */
   async getOwners(): Promise<Array<string>> {
-    return await this.paymentsContract?.functions.getOwners()
+    return (await this.paymentsContract?.functions.getOwners())[0]
   }
 
   /**
@@ -148,7 +151,7 @@ export default class extends Deployed {
    *
    */
   async getGovernanceAddress(): Promise<string> {
-    return await this.paymentsContract?.functions.governanceAddress()
+    return (await this.paymentsContract?.functions.governanceAddress())[0]
   }
 
   /**
@@ -157,7 +160,7 @@ export default class extends Deployed {
    *
    */
   async getTokenAddress(): Promise<string> {
-    return await this.paymentsContract?.functions.token()
+    return (await this.paymentsContract?.functions.token())[0]
   }
 
   /**
@@ -166,7 +169,7 @@ export default class extends Deployed {
    *
    */
   async getEscrowAddress(): Promise<string> {
-    return await this.paymentsContract?.functions.escrowAddress()
+    return (await this.paymentsContract?.functions.escrowAddress())[0]
   }
 
   /**
@@ -174,8 +177,8 @@ export default class extends Deployed {
    * Get discount status.
    *
    */
-  async checkIfDiscountsEnabled(): Promise<string> {
-    return await this.paymentsContract?.functions.discountsEnabled()
+  async checkIfDiscountsEnabled(): Promise<boolean> {
+    return (await this.paymentsContract?.functions.discountsEnabled())[0]
   }
 
   /**
@@ -184,7 +187,7 @@ export default class extends Deployed {
    *
    */
   async getStakingManagerAddress(): Promise<string> {
-    return await this.paymentsContract?.functions.stakingManager()
+    return (await this.paymentsContract?.functions.stakingManager())[0]
   }
   /**
    * @remarks
@@ -192,7 +195,7 @@ export default class extends Deployed {
    *
    */
   async getDiscountSlabs(): Promise<any> {
-    const slabs = await this.paymentsContract?.functions.discountSlabs()
+    const slabs = (await this.paymentsContract?.functions.discountSlabs())[0]
     return this.vendor.parseDiscountSlabs(slabs)
   }
 }

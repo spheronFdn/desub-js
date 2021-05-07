@@ -79,7 +79,7 @@ export default class extends Vendor {
    * @returns BigNumber
    */
   convertToBN(amount: string) {
-    helpers.ethers.convertToBN(amount)
+    return helpers.ethers.convertToBN(amount)
   }
   /**
    * @remarks
@@ -92,7 +92,7 @@ export default class extends Vendor {
   */
 
   convertToWei(amount: string) {
-    helpers.ethers.convertToWei(amount)
+    return helpers.ethers.convertToWei(amount)
   }
   /**
    * @remarks
@@ -104,7 +104,7 @@ export default class extends Vendor {
   * @returns BigNumber
   */
   convertWeiToEth(wei: any) {
-    helpers.ethers.convertWeiToEth(wei)
+    return helpers.ethers.convertWeiToEth(wei)
   }
 
   /**
