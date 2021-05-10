@@ -16,9 +16,11 @@ describe('Payment at method', () => {
   })
 
   it('Wraps a deployed contract', () => {
-    const wrapped = payment.at('0x123')
+    const wrapped = payment.at('0x123', '0xabc')
     assert.isTrue(wrapped)
-    assert.isNotNull(payment.contract)
-    assert.equal(payment.contract?.address, '0x123')
+    assert.isNotNull(payment.paymentsContract)
+    assert.isNotNull(payment.erc20Contract)
+    assert.equal(payment.paymentsContract?.address, '0x123')
+    assert.equal(payment.erc20Contract?.address, '0xabc')
   })
 })

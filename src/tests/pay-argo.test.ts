@@ -1,0 +1,471 @@
+import 'mocha'
+import { stub } from 'sinon'
+import { assert } from 'chai'
+import Vendor from '../vendors/ethers'
+import Payment from '../payment'
+import { getDefaultProvider } from '@ethersproject/providers'
+import { Wallet } from '@ethersproject/wallet'
+import { cloneWithWriteAccess } from '../helpers'
+import { Contract, TxResponse } from '../interfaces'
+
+describe('Payments methods', () => {
+  let payment: Payment
+  let vendor: Vendor
+
+  beforeEach(() => {
+    const ethersProvider = getDefaultProvider()
+    const signer = Wallet.createRandom().connect(ethersProvider)
+    vendor = new Vendor(ethersProvider, signer)
+    payment = new Payment(vendor)
+    payment.at('0xabc', '0x123')
+  })
+
+  it('it should pay with fee', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'chargeUserWithFee')
+    fake.resolves({ hash: '0xhash' })
+    const buildTime = '12'
+    const uploadFee = '123'
+    const result: TxResponse = await payment.paymentWithFee(buildTime, uploadFee)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], vendor.convertToBN(buildTime))
+    assert.deepEqual(args[1], vendor.convertToWei(uploadFee))
+  })
+  it('it should pay without fee', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+    const fake = stub(contract.functions, 'chargeUser')
+    fake.resolves({ hash: '0xhash' })
+    const buildTime = '12'
+    const result: TxResponse = await payment.paymentWithoutFee(buildTime)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], vendor.convertToBN(buildTime))
+  })
+  it('it should pass correct escrow address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateEscrowAddress')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0x1abc'
+    const result: TxResponse = await payment.updateEscrowAddress(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
+  it('it should pass correct token address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateTokenAddress')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0x1abc'
+    const result: TxResponse = await payment.updateTokenAddress(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
+  it('it should pass correct slabs array', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateDiscountSlabs')
+    fake.resolves({ hash: '0xhash' })
+    const discountSlabs = ['1200', '1300', '1400']
+    const percents = ['12', '13', '14']
+    const result: TxResponse = await payment.updateDiscountSlabs(discountSlabs, percents)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], vendor.convertStringArrayToBigNumberArray(discountSlabs))
+    assert.deepEqual(args[1], vendor.convertStringArrayToBigNumberArray(percents))
+  })
+  it('it should pass correct price', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'changePricePerMicroSecond')
+    fake.resolves({ hash: '0xhash' })
+    const price = '12'
+    const result: TxResponse = await payment.changePricePerMicroSecond(price)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], vendor.convertToWei(price))
+  })
+  it('it should pass correct staking address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'enableDiscounts')
+    fake.resolves({ hash: '0xhash' })
+    const stakingAddr = '0xabc'
+    const result: TxResponse = await payment.enableDiscounts(stakingAddr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], stakingAddr)
+  })
+  it('it should return hash', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'disableDiscounts')
+    fake.resolves({ hash: '0xhash' })
+
+    const result: TxResponse = await payment.disableDiscounts()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+  })
+  it('it should pass correct address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'setGovernanceAddress')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0xabc'
+    const result: TxResponse = await payment.setGovernanceAddress(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
+  it('it should pass correct array of address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'setOwners')
+    fake.resolves({ hash: '0xhash' })
+    const arr = ['0x1bw', '0xasb']
+    const result: TxResponse = await payment.setOwners(arr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], arr)
+  })
+  it('it should pass correct array of address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+    payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.erc20Contract ? payment.erc20Contract : invalidContract
+    const paymentsContract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'approve')
+    fake.resolves({ hash: '0xhash' })
+    const amount = '12'
+    const result: TxResponse = await payment.setNewApprovals(amount)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+
+    assert.equal(args[0], paymentsContract.address)
+    assert.deepEqual(args[1], vendor.convertToWei(amount))
+  })
+  it('it should get correct approval amount', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+    payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.erc20Contract ? payment.erc20Contract : invalidContract
+    const paymentsContract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'allowance')
+    fake.resolves([vendor.convertToBN('1000000000000000000000000')])
+
+    const result: any = await payment.getApprovalAmount()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000')))
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], paymentsContract.address)
+  })
+
+  it('it should give correct address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'getOwners')
+    fake.resolves(['0x123'])
+    const result = await payment.getOwners()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, ['0x123'])
+  })
+  it('it should give correct governance address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'governanceAddress')
+    fake.resolves(['0x123'])
+    const result = await payment.getGovernanceAddress()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, '0x123')
+  })
+  it('it should give correct token address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'token')
+    fake.resolves(['0x123'])
+    const result = await payment.getTokenAddress()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, '0x123')
+  })
+  it('it should give correct escrow address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'escrowAddress')
+    fake.resolves(['0x123'])
+    const result = await payment.getEscrowAddress()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, '0x123')
+  })
+  it('it should give correct discount status', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'discountsEnabled')
+    fake.resolves([true])
+    const result = await payment.checkIfDiscountsEnabled()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, true)
+  })
+  it('it should give correct staking manager address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'stakingManager')
+    fake.resolves(['0x123'])
+    const result = await payment.getStakingManagerAddress()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, '0x123')
+  })
+  it('it should give correct discount slabs', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'discountSlabs')
+    fake.resolves([
+      [
+        { amount: vendor.convertToBN('10'), percent: vendor.convertToBN('10') },
+        { amount: vendor.convertToBN('11'), percent: vendor.convertToBN('11') },
+      ],
+    ])
+    const result = await payment.getDiscountSlabs()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.deepEqual(
+      result,
+      vendor.parseDiscountSlabs([
+        { amount: vendor.convertToBN('10'), percent: vendor.convertToBN('10') },
+        { amount: vendor.convertToBN('11'), percent: vendor.convertToBN('11') },
+      ]),
+    )
+  })
+})

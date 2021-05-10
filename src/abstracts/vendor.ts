@@ -27,4 +27,7 @@ export default abstract class implements Keyed {
    */
   abstract contract(address: string, abi: Abi, o?: TransactOpts): Contract
   abstract convertToBN(amount: string): any
+  abstract convertToWei(amount: string): any
+  abstract convertStringArrayToBigNumberArray(array: Array<string>): Array<any>
+  abstract convertWeiToEth(wei: any): any
 }

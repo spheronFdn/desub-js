@@ -7,7 +7,10 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { Contract as EthersContract } from '@ethersproject/contracts'
 import { Provider } from '@ethersproject/providers'
 import { Abi } from '../@types'
-import { ethers } from 'ethers'
+import { BigNumber } from 'ethers'
+import { DiscountDataClass } from './discount-data'
+import { Discount } from '../interfaces/discount'
+import { helpers } from '..'
 
 export default class extends Vendor {
   /**
@@ -37,8 +40,71 @@ export default class extends Vendor {
     return new EthersContract(address, abi, this.signer)
   }
 
-  convertToBN(amount: string): any {
-    return ethers.BigNumber.from(amount)
+  /**
+   * @remarks
+   * Convert array of string to Array of BigNumber
+   *
+   * @param Array - Array of string to be converted to Array of Big Number
+
+   *
+   * @returns Array<BigNumber>
+   */
+  convertStringArrayToBigNumberArray(array: Array<string>): Array<any> {
+    const bnArray = Array<BigNumber>(array.length)
+    for (let i = 0; i < array.length; i++) {
+      bnArray[i] = BigNumber.from(array[i])
+    }
+    return bnArray
+  }
+  /**
+   * @remarks
+   * Convert wei value(10**18) to eth value
+   *
+   * @param string - value in eth.
+
+   *
+   * @returns Array<BigNumber>
+   */
+  parseDiscountSlabs(data: Array<any>): Array<Discount> {
+    const slabs = data.map((a) => new DiscountDataClass(a.amount, a.percent))
+    return slabs.map((a) => a.toString())
+  }
+  /**
+   * @remarks
+   * Convert any number to big number.
+   *
+   * @param string - string of the required big number
+
+   *
+   * @returns BigNumber
+   */
+  convertToBN(amount: string) {
+    return helpers.ethers.convertToBN(amount)
+  }
+  /**
+   * @remarks
+   * Convert wei value(10**18) to eth value
+   *
+   * @param string - value in eth.
+
+  *
+  * @returns Array<BigNumber>
+  */
+
+  convertToWei(amount: string) {
+    return helpers.ethers.convertToWei(amount)
+  }
+  /**
+   * @remarks
+   * Get 10**18 multiplied number for values in wei.
+   *
+   * @param string - string of the required non-wei amount
+
+  *
+  * @returns BigNumber
+  */
+  convertWeiToEth(wei: any) {
+    return helpers.ethers.convertWeiToEth(wei)
   }
 
   /**

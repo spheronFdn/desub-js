@@ -18,3 +18,7 @@ export interface TransactOpts {
 export interface TxResponse {
   hash: string
 }
+
+export interface Uint256Response {
+  hash: string
+}
