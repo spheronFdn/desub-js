@@ -133,7 +133,7 @@ export default class extends Deployed {
    *
    */
   async getApprovalAmount(a: string): Promise<any> {
-    const wei = (await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address))[0]
+    const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
     return this.vendor.convertWeiToEth(wei)
   }
 
@@ -142,8 +142,8 @@ export default class extends Deployed {
    * Get given Allowance amount.
    *
    */
-   async getUserBalance(a: string): Promise<any> {
-    const wei = (await this.erc20Contract?.functions.balanceOf(a))[0]
+  async getUserBalance(a: string): Promise<any> {
+    const wei = await this.erc20Contract?.functions.balanceOf(a)
     return this.vendor.convertWeiToEth(wei)
   }
 
@@ -153,7 +153,7 @@ export default class extends Deployed {
    *
    */
   async getOwners(): Promise<Array<string>> {
-    return (await this.paymentsContract?.functions.getOwners())[0]
+    return await this.paymentsContract?.functions.getOwners()
   }
 
   /**
@@ -162,7 +162,7 @@ export default class extends Deployed {
    *
    */
   async getGovernanceAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.governanceAddress())[0]
+    return await this.paymentsContract?.functions.governanceAddress()
   }
 
   /**
@@ -171,7 +171,7 @@ export default class extends Deployed {
    *
    */
   async getTokenAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.token())[0]
+    return await this.paymentsContract?.functions.token()
   }
 
   /**
@@ -180,7 +180,7 @@ export default class extends Deployed {
    *
    */
   async getEscrowAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.escrowAddress())[0]
+    return await this.paymentsContract?.functions.escrowAddress()
   }
 
   /**
@@ -189,7 +189,7 @@ export default class extends Deployed {
    *
    */
   async checkIfDiscountsEnabled(): Promise<boolean> {
-    return (await this.paymentsContract?.functions.discountsEnabled())[0]
+    return await this.paymentsContract?.functions.discountsEnabled()
   }
 
   /**
@@ -198,7 +198,7 @@ export default class extends Deployed {
    *
    */
   async getStakingManagerAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.stakingManager())[0]
+    return await this.paymentsContract?.functions.stakingManager()
   }
   /**
    * @remarks
@@ -206,7 +206,7 @@ export default class extends Deployed {
    *
    */
   async getDiscountSlabs(): Promise<any> {
-    const slabs = (await this.paymentsContract?.functions.discountSlabs())[0]
+    const slabs = await this.paymentsContract?.functions.discountSlabs()
     return this.vendor.parseDiscountSlabs(slabs)
   }
 }
