@@ -139,6 +139,16 @@ export default class extends Deployed {
 
   /**
    * @remarks
+   * Get given Allowance amount.
+   *
+   */
+   async getUserBalance(a: string): Promise<any> {
+    const wei = (await this.erc20Contract?.functions.balanceOf(a))[0]
+    return this.vendor.convertWeiToEth(wei)
+  }
+
+  /**
+   * @remarks
    * Get owners list.
    *
    */

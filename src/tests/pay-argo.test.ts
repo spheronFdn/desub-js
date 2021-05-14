@@ -3,7 +3,7 @@ import { stub } from 'sinon'
 import { assert } from 'chai'
 import Vendor from '../vendors/ethers'
 import Payment from '../payment'
-import { getDefaultProvider } from '@ethersproject/providers'
+import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { cloneWithWriteAccess } from '../helpers'
 import { Contract, TxResponse } from '../interfaces'
@@ -13,11 +13,12 @@ describe('Payments methods', () => {
   let vendor: Vendor
 
   beforeEach(() => {
-    const ethersProvider = getDefaultProvider()
-    const signer = Wallet.createRandom().connect(ethersProvider)
-    vendor = new Vendor(ethersProvider, signer)
+    const url = 'https://rpc-mumbai.maticvigil.com'
+    const httpProvider = new JsonRpcProvider(url)
+    const signer = Wallet.fromMnemonic('company loud estate century olive gun tribe pulse bread play addict amount')
+    vendor = new Vendor(httpProvider, signer)
     payment = new Payment(vendor)
-    payment.at('0xabc', '0x123')
+    payment.at('0xdeB58b87D4f239a7f17395a824e89a61439EF07D', '0xBfE53F175F2d9511d3F02701f23c0B1E91D32047')
   })
 
   it('it should pay with fee', async () => {
@@ -316,6 +317,32 @@ describe('Payments methods', () => {
     const { args } = fake.getCall(0)
     assert.equal(args[0], arg1)
     assert.equal(args[1], paymentsContract.address)
+  })
+  it('it should get correct balance of user', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+    payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.erc20Contract ? payment.erc20Contract : invalidContract
+
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'balanceOf')
+    fake.resolves([vendor.convertToBN('1000000000000000000000000')])
+    const arg1 = '0x123'
+    const result: any = await payment.getUserBalance(arg1)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000')))
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], arg1)
   })
 
   it('it should give correct address', async () => {
