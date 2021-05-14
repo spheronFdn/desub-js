@@ -118,6 +118,7 @@ export default class extends Deployed {
   /**
    * @remarks
    * Update approval for ArGo token
+   * Dont use this function without frontend
    *
    * @param a - new approval amount.
    */
@@ -131,8 +132,8 @@ export default class extends Deployed {
    * Get given Allowance amount.
    *
    */
-  async getApprovalAmount(): Promise<any> {
-    const wei = (await this.erc20Contract?.functions.allowance(this.paymentsContract?.address))[0]
+  async getApprovalAmount(a: string): Promise<any> {
+    const wei = (await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address))[0]
     return this.vendor.convertWeiToEth(wei)
   }
 

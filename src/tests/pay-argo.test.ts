@@ -307,14 +307,15 @@ describe('Payments methods', () => {
 
     const fake = stub(contract.functions, 'allowance')
     fake.resolves([vendor.convertToBN('1000000000000000000000000')])
-
-    const result: any = await payment.getApprovalAmount()
+    const arg1 = '0x123'
+    const result: any = await payment.getApprovalAmount(arg1)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000')))
 
     const { args } = fake.getCall(0)
-    assert.equal(args[0], paymentsContract.address)
+    assert.equal(args[0], arg1)
+    assert.equal(args[1], paymentsContract.address)
   })
 
   it('it should give correct address', async () => {
