@@ -7,7 +7,6 @@ import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { cloneWithWriteAccess } from '../helpers'
 import { Contract, TxResponse } from '../interfaces'
-import Services from '../services/services'
 import { INVALID_API_KEY } from '../errors'
 
 describe('Payments methods', () => {
