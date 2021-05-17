@@ -515,14 +515,26 @@ describe('Payments methods', () => {
   })
   it('should throw with invalid api key', async () => {
     try {
-      await payment.getArweaveQuote('2')
+      await payment.getArweaveConvertedUsd('2')
     } catch (err) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   })
   it('It should return arweave usd quote', async () => {
     payment = new Payment(vendor, correctKey)
-    const result = await payment.getArweaveQuote('2')
+    const result = await payment.getArweaveConvertedUsd('2')
+    assert.notEqual(result, 0)
+  })
+  it('should throw with invalid api key', async () => {
+    try {
+      await payment.getArweaveQuote()
+    } catch (err) {
+      expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
+    }
+  })
+  it('It should return arweave usd quote', async () => {
+    payment = new Payment(vendor, correctKey)
+    const result = await payment.getArweaveQuote()
     assert.notEqual(result, 0)
   })
 })

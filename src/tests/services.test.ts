@@ -24,4 +24,17 @@ describe('Services tests', () => {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   })
+  it('calls api for quote', async () => {
+    const result = await services.arweaveQuote(apikey)
+    assert.notEqual(result, 0)
+  })
+
+  it('should throw with invalid api key for quote', async () => {
+    const invalidKey = 'apikey'
+    try {
+      await services.arweaveQuote(invalidKey)
+    } catch (err) {
+      expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
+    }
+  })
 })

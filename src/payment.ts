@@ -230,9 +230,20 @@ export default class extends Deployed {
    *
    * @param a amount of areweave
    */
-  async getArweaveQuote(a: string): Promise<number> {
+  async getArweaveConvertedUsd(a: string): Promise<number> {
     if (!this.key) throw new Error(API_KEY_REQUIRED)
     const qoute = await this.services.arweaveToUsd(a, this.key)
+    return qoute
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getArweaveQuote(): Promise<number> {
+    if (!this.key) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.arweaveQuote(this.key)
     return qoute
   }
 }

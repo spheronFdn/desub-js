@@ -16,4 +16,5 @@ export default abstract class implements Keyed {
    *
    */
   abstract arweaveToUsd(a: string, k: string): Promise<number>
+  abstract arweaveQuote(k: string): Promise<number>
 }
