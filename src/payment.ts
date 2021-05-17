@@ -19,22 +19,22 @@ export default class extends Deployed {
    * This method is when we do not want to charge user with the fee for deployment, but only for build time.
    *
    * @param b - built time (in sec) after deployment completed
-   * @param a - network uploading amount (in ArGo Token after all the Conversions)
+   * @param p - provider fee in USD
    */
-  async paymentWithFee(b: string, a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a)
+  async paymentWithFee(a: string, b: string, p: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(p)
     const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.chargeUserWithFee(buildTime, wei)
+    return await this.paymentsContract?.functions.chargeWithProvider(a, buildTime, wei)
   }
   /**
    * @remarks
    * This method is when we want to charge user for the fee for deployment as well as for the build time.
-   *
+   * @param a - address that is to be charged
    * @param b - built time (in sec) after deployment completed
    */
-  async paymentWithoutFee(b: string): Promise<TxResponse> {
+  async paymentWithoutFee(a: string, b: string): Promise<TxResponse> {
     const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.chargeUser(buildTime)
+    return await this.paymentsContract?.functions.charge(a, buildTime)
   }
   /**
    * @remarks
@@ -42,8 +42,8 @@ export default class extends Deployed {
    *
    * @param a - address of escrow contract(vault)
    */
-  async updateEscrowAddress(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateEscrowAddress(a)
+  async updateEscrow(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateEscrow(a)
   }
   /**
    * @remarks
@@ -51,8 +51,8 @@ export default class extends Deployed {
    *
    * @param a - address of escrow ArGo token, if for some reason new one needs to be passed
    */
-  async updateTokenAddress(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateTokenAddress(a)
+  async updateToken(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateToken(a)
   }
 
   /**
@@ -75,9 +75,9 @@ export default class extends Deployed {
    * @param p - updated price per microsecond.
 
    */
-  async changePricePerMicroSecond(p: string): Promise<TxResponse> {
+  async changeBuildTimeRate(p: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(p)
-    return await this.paymentsContract?.functions.changePricePerMicroSecond(wei)
+    return await this.paymentsContract?.functions.changeBuildTimeRate(wei)
   }
   /**
    * @remarks
@@ -114,8 +114,8 @@ export default class extends Deployed {
    *
    * @param h - array of addresses of new oweners.
    */
-  async setOwners(h: Array<string>): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.setOwners(h)
+  async setManagers(h: Array<string>): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.setManagers(h)
   }
 
   /**
@@ -155,8 +155,8 @@ export default class extends Deployed {
    * Get owners list.
    *
    */
-  async getOwners(): Promise<Array<string>> {
-    return await this.paymentsContract?.functions.getOwners()
+  async getManagers(): Promise<Array<string>> {
+    return await this.paymentsContract?.functions.getManagers()
   }
 
   /**
@@ -170,11 +170,11 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Get token address.
+   * Get underlying token address (Argo).
    *
    */
-  async getTokenAddress(): Promise<string> {
-    return await this.paymentsContract?.functions.token()
+  async getToken(): Promise<string> {
+    return await this.paymentsContract?.functions.underlying()
   }
 
   /**
@@ -182,8 +182,8 @@ export default class extends Deployed {
    * Get escrow address.
    *
    */
-  async getEscrowAddress(): Promise<string> {
-    return await this.paymentsContract?.functions.escrowAddress()
+  async getEscrow(): Promise<string> {
+    return await this.paymentsContract?.functions.escrow()
   }
 
   /**

@@ -3,12 +3,12 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'argoAddress_',
+        name: 'u',
         type: 'address',
       },
       {
         internalType: 'address',
-        name: 'escrowAddress_',
+        name: 'e',
         type: 'address',
       },
       {
@@ -23,12 +23,30 @@ export const PAYMENT_ABI = [
       },
       {
         internalType: 'uint256',
-        name: 'pricePerMicrosecond_',
+        name: 'b',
         type: 'uint256',
+      },
+      {
+        internalType: 'address',
+        name: 'p',
+        type: 'address',
       },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'ChangeOwner',
+    type: 'event',
   },
   {
     anonymous: false,
@@ -41,6 +59,18 @@ export const PAYMENT_ABI = [
       },
       {
         indexed: true,
+        internalType: 'uint256',
+        name: 'feeCharged',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'feeWithoutDiscount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
         internalType: 'address',
         name: 'escrow',
         type: 'address',
@@ -48,11 +78,54 @@ export const PAYMENT_ABI = [
       {
         indexed: false,
         internalType: 'uint256',
-        name: 'amount',
+        name: 'providerQuote',
         type: 'uint256',
       },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'providerCharged',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'string',
+        name: 'provider',
+        type: 'string',
+      },
     ],
-    name: 'AmountTransfer',
+    name: 'ChargeWithProvider',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
+        name: 'user',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'feeCharged',
+        type: 'uint256',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'feeWithoutDiscount',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'escrow',
+        type: 'address',
+      },
+    ],
+    name: 'ChargeWithoutProvider',
     type: 'event',
   },
   {
@@ -74,11 +147,24 @@ export const PAYMENT_ABI = [
       {
         indexed: false,
         internalType: 'address[]',
-        name: 'owners',
+        name: 'managers',
         type: 'address[]',
       },
     ],
-    name: 'SetOwners',
+    name: 'RemoveManagers',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address[]',
+        name: 'managers',
+        type: 'address[]',
+      },
+    ],
+    name: 'SetManagers',
     type: 'event',
   },
   {
@@ -95,14 +181,27 @@ export const PAYMENT_ABI = [
     type: 'event',
   },
   {
-    inputs: [
+    inputs: [],
+    name: 'buildTimeRate',
+    outputs: [
       {
         internalType: 'uint256',
-        name: 'price_',
+        name: '',
         type: 'uint256',
       },
     ],
-    name: 'changePricePerMicroSecond',
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'r',
+        type: 'uint256',
+      },
+    ],
+    name: 'changeBuildTimeRate',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -111,16 +210,11 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'user',
+        name: 'o',
         type: 'address',
       },
-      {
-        internalType: 'uint256',
-        name: 'buildTime',
-        type: 'uint256',
-      },
     ],
-    name: 'chargeUser',
+    name: 'changeOwner',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -129,21 +223,54 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'user',
+        name: 'u',
         type: 'address',
       },
       {
         internalType: 'uint256',
-        name: 'buildTime',
+        name: 'b',
+        type: 'uint256',
+      },
+    ],
+    name: 'charge',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'u',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'b',
         type: 'uint256',
       },
       {
         internalType: 'uint256',
-        name: 'deploymentPrice',
+        name: 'd',
         type: 'uint256',
       },
+      {
+        internalType: 'uint256',
+        name: 'providerQuote',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'providerCharged',
+        type: 'uint256',
+      },
+      {
+        internalType: 'string',
+        name: 'provider',
+        type: 'string',
+      },
     ],
-    name: 'chargeUserWithFee',
+    name: 'chargeWithProvider',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -196,7 +323,7 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'stakingManager_',
+        name: 's',
         type: 'address',
       },
     ],
@@ -207,7 +334,7 @@ export const PAYMENT_ABI = [
   },
   {
     inputs: [],
-    name: 'escrowAddress',
+    name: 'escrow',
     outputs: [
       {
         internalType: 'address',
@@ -220,12 +347,25 @@ export const PAYMENT_ABI = [
   },
   {
     inputs: [],
-    name: 'getOwners',
+    name: 'getManagers',
     outputs: [
       {
         internalType: 'address[]',
         name: '',
         type: 'address[]',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getUnderlyingPrice',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -245,19 +385,6 @@ export const PAYMENT_ABI = [
     type: 'function',
   },
   {
-    inputs: [],
-    name: 'manager',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'address',
@@ -265,7 +392,7 @@ export const PAYMENT_ABI = [
         type: 'address',
       },
     ],
-    name: 'ownerByAddress',
+    name: 'managerByAddress',
     outputs: [
       {
         internalType: 'bool',
@@ -284,7 +411,20 @@ export const PAYMENT_ABI = [
         type: 'uint256',
       },
     ],
-    name: 'owners',
+    name: 'managers',
+    outputs: [
+      {
+        internalType: 'address',
+        name: '',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'owner',
     outputs: [
       {
         internalType: 'address',
@@ -311,8 +451,21 @@ export const PAYMENT_ABI = [
   {
     inputs: [
       {
+        internalType: 'address[]',
+        name: 'm',
+        type: 'address[]',
+      },
+    ],
+    name: 'removeManagers',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
-        name: '_governance',
+        name: 'g',
         type: 'address',
       },
     ],
@@ -325,11 +478,11 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address[]',
-        name: '_owners',
+        name: 'm',
         type: 'address[]',
       },
     ],
-    name: 'setOwners',
+    name: 'setManagers',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -349,7 +502,7 @@ export const PAYMENT_ABI = [
   },
   {
     inputs: [],
-    name: 'token',
+    name: 'underlying',
     outputs: [
       {
         internalType: 'contract IERC20',
@@ -382,11 +535,11 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'escrowAddress_',
+        name: 'e',
         type: 'address',
       },
     ],
-    name: 'updateEscrowAddress',
+    name: 'updateEscrow',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
@@ -395,11 +548,29 @@ export const PAYMENT_ABI = [
     inputs: [
       {
         internalType: 'address',
-        name: 'argoAddress_',
+        name: 'u',
         type: 'address',
       },
     ],
-    name: 'updateTokenAddress',
+    name: 'updateToken',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 't',
+        type: 'address',
+      },
+      {
+        internalType: 'uint256',
+        name: 'a',
+        type: 'uint256',
+      },
+    ],
+    name: 'withdrawERC20',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

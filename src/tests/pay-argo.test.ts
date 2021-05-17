@@ -36,18 +36,20 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'chargeUserWithFee')
+    const fake = stub(contract.functions, 'chargeWithProvider')
     fake.resolves({ hash: '0xhash' })
+    const address = '0x123'
     const buildTime = '12'
     const uploadFee = '123'
-    const result: TxResponse = await payment.paymentWithFee(buildTime, uploadFee)
+    const result: TxResponse = await payment.paymentWithFee(address, buildTime, uploadFee)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
 
     const { args } = fake.getCall(0)
-    assert.deepEqual(args[0], vendor.convertToBN(buildTime))
-    assert.deepEqual(args[1], vendor.convertToWei(uploadFee))
+    assert.deepEqual(args[0], address)
+    assert.deepEqual(args[1], vendor.convertToBN(buildTime))
+    assert.deepEqual(args[2], vendor.convertToWei(uploadFee))
   })
   it('it should pay without fee', async () => {
     // allow stubbing contract properties
@@ -61,16 +63,18 @@ describe('Payments methods', () => {
     const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
-    const fake = stub(contract.functions, 'chargeUser')
+    const fake = stub(contract.functions, 'charge')
     fake.resolves({ hash: '0xhash' })
+    const address = '0x123'
     const buildTime = '12'
-    const result: TxResponse = await payment.paymentWithoutFee(buildTime)
+    const result: TxResponse = await payment.paymentWithoutFee(address, buildTime)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
 
     const { args } = fake.getCall(0)
-    assert.deepEqual(args[0], vendor.convertToBN(buildTime))
+    assert.deepEqual(args[0], address)
+    assert.deepEqual(args[1], vendor.convertToBN(buildTime))
   })
   it('it should pass correct escrow address', async () => {
     // allow stubbing contract properties
@@ -85,10 +89,10 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'updateEscrowAddress')
+    const fake = stub(contract.functions, 'updateEscrow')
     fake.resolves({ hash: '0xhash' })
     const addr = '0x1abc'
-    const result: TxResponse = await payment.updateEscrowAddress(addr)
+    const result: TxResponse = await payment.updateEscrow(addr)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -109,10 +113,10 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'updateTokenAddress')
+    const fake = stub(contract.functions, 'updateToken')
     fake.resolves({ hash: '0xhash' })
     const addr = '0x1abc'
-    const result: TxResponse = await payment.updateTokenAddress(addr)
+    const result: TxResponse = await payment.updateToken(addr)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -159,10 +163,10 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'changePricePerMicroSecond')
+    const fake = stub(contract.functions, 'changeBuildTimeRate')
     fake.resolves({ hash: '0xhash' })
     const price = '12'
-    const result: TxResponse = await payment.changePricePerMicroSecond(price)
+    const result: TxResponse = await payment.changeBuildTimeRate(price)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -252,10 +256,10 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'setOwners')
+    const fake = stub(contract.functions, 'setManagers')
     fake.resolves({ hash: '0xhash' })
     const arr = ['0x1bw', '0xasb']
-    const result: TxResponse = await payment.setOwners(arr)
+    const result: TxResponse = await payment.setManagers(arr)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -360,9 +364,9 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'getOwners')
+    const fake = stub(contract.functions, 'getManagers')
     fake.resolves('0x123')
-    const result = await payment.getOwners()
+    const result = await payment.getManagers()
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result, ['0x123'])
@@ -400,9 +404,9 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'token')
+    const fake = stub(contract.functions, 'underlying')
     fake.resolves('0x123')
-    const result = await payment.getTokenAddress()
+    const result = await payment.getToken()
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result, '0x123')
@@ -420,9 +424,9 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'escrowAddress')
+    const fake = stub(contract.functions, 'escrow')
     fake.resolves('0x123')
-    const result = await payment.getEscrowAddress()
+    const result = await payment.getEscrow()
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result, '0x123')
