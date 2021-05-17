@@ -17,14 +17,26 @@ export default class extends Deployed {
   /**
    * @remarks
    * This method is when we do not want to charge user with the fee for deployment, but only for build time.
-   *
+   * @param u - address of user
    * @param b - built time (in sec) after deployment completed
-   * @param p - provider fee in USD
+   * @param d - depployment cost by provider  USD
+   * @param providerQuote price of storage provider's token
+   * @param providerCharged tokens of storage provider charged for deploying
+   * @param  provider name of storage provider
    */
-  async paymentWithFee(a: string, b: string, p: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(p)
+  async paymentWithFee(
+    u: string,
+    b: string,
+    d: string,
+    providerQuote: any,
+    providerCharged: any,
+    provider: string,
+  ): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(d)
     const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.chargeWithProvider(a, buildTime, wei)
+    const quote = this.vendor.convertToBN(providerQuote)
+    const charge = this.vendor.convertToBN(providerCharged)
+    return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
   }
   /**
    * @remarks

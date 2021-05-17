@@ -41,7 +41,17 @@ describe('Payments methods', () => {
     const address = '0x123'
     const buildTime = '12'
     const uploadFee = '123'
-    const result: TxResponse = await payment.paymentWithFee(address, buildTime, uploadFee)
+    const deploymentQuote = '123'
+    const deploymentCharge = '123'
+    const provider = 'abc'
+    const result: TxResponse = await payment.paymentWithFee(
+      address,
+      buildTime,
+      uploadFee,
+      deploymentQuote,
+      deploymentCharge,
+      provider,
+    )
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -50,6 +60,9 @@ describe('Payments methods', () => {
     assert.deepEqual(args[0], address)
     assert.deepEqual(args[1], vendor.convertToBN(buildTime))
     assert.deepEqual(args[2], vendor.convertToWei(uploadFee))
+    assert.deepEqual(args[3], vendor.convertToBN(deploymentQuote))
+    assert.deepEqual(args[4], vendor.convertToBN(deploymentCharge))
+    assert.deepEqual(args[5], provider)
   })
   it('it should pay without fee', async () => {
     // allow stubbing contract properties
