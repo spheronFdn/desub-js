@@ -24,5 +24,4 @@ describe('Services tests', () => {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   })
- 
 })
