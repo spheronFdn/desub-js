@@ -38,6 +38,7 @@
     "@ethersproject/contracts": "^5.0.10",
     "@ethersproject/providers": "^5.0.20",
     "@ethersproject/wallet": "^5.0.11",
+    "axios": "^0.21.1",
     "ethers": "^5.0.31"
   },
   "devDependencies": {

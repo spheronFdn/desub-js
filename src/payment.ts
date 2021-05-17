@@ -2,13 +2,16 @@ import { ERC20_ABI, PAYMENT_ABI } from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
+import { API_KEY_REQUIRED } from './errors'
 
 export default class extends Deployed {
+  key?: string
   /**
    * @param vendor - Instance of a Vendor class
    */
-  constructor(vendor: Vendor) {
+  constructor(vendor: Vendor, key?: string) {
     super(vendor, PAYMENT_ABI, ERC20_ABI)
+    this.key = key
   }
 
   /**
@@ -208,5 +211,16 @@ export default class extends Deployed {
   async getDiscountSlabs(): Promise<any> {
     const slabs = await this.paymentsContract?.functions.discountSlabs()
     return this.vendor.parseDiscountSlabs(slabs)
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getArweaveQuote(a: string): Promise<number> {
+    if (!this.key) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.arweaveToUsd(a, this.key)
+    return qoute
   }
 }

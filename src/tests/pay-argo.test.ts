@@ -1,23 +1,26 @@
 import 'mocha'
 import { stub } from 'sinon'
-import { assert } from 'chai'
+import { assert, expect } from 'chai'
 import Vendor from '../vendors/ethers'
 import Payment from '../payment'
 import { JsonRpcProvider } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { cloneWithWriteAccess } from '../helpers'
 import { Contract, TxResponse } from '../interfaces'
+import Services from '../services/services'
+import { INVALID_API_KEY } from '../errors'
 
 describe('Payments methods', () => {
   let payment: Payment
   let vendor: Vendor
-
+  const invalidKey = 'api-key'
+  const correctKey = '0c5b25a6-4d37-4836-8b43-a6c575667cdd'
   beforeEach(() => {
     const url = 'https://rpc-mumbai.maticvigil.com'
     const httpProvider = new JsonRpcProvider(url)
     const signer = Wallet.fromMnemonic('company loud estate century olive gun tribe pulse bread play addict amount')
     vendor = new Vendor(httpProvider, signer)
-    payment = new Payment(vendor)
+    payment = new Payment(vendor, invalidKey)
     payment.at('0xdeB58b87D4f239a7f17395a824e89a61439EF07D', '0xBfE53F175F2d9511d3F02701f23c0B1E91D32047')
   })
 
@@ -307,7 +310,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'allowance')
-    fake.resolves([vendor.convertToBN('1000000000000000000000000')])
+    fake.resolves(vendor.convertToBN('1000000000000000000000000'))
     const arg1 = '0x123'
     const result: any = await payment.getApprovalAmount(arg1)
     assert(fake.calledOnce)
@@ -334,7 +337,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'balanceOf')
-    fake.resolves([vendor.convertToBN('1000000000000000000000000')])
+    fake.resolves(vendor.convertToBN('1000000000000000000000000'))
     const arg1 = '0x123'
     const result: any = await payment.getUserBalance(arg1)
     assert(fake.calledOnce)
@@ -359,7 +362,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'getOwners')
-    fake.resolves(['0x123'])
+    fake.resolves('0x123')
     const result = await payment.getOwners()
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -379,7 +382,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'governanceAddress')
-    fake.resolves(['0x123'])
+    fake.resolves('0x123')
     const result = await payment.getGovernanceAddress()
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -399,7 +402,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'token')
-    fake.resolves(['0x123'])
+    fake.resolves('0x123')
     const result = await payment.getTokenAddress()
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -419,7 +422,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'escrowAddress')
-    fake.resolves(['0x123'])
+    fake.resolves('0x123')
     const result = await payment.getEscrowAddress()
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -439,7 +442,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'discountsEnabled')
-    fake.resolves([true])
+    fake.resolves(true)
     const result = await payment.checkIfDiscountsEnabled()
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -459,7 +462,7 @@ describe('Payments methods', () => {
     assert.notDeepEqual(contract, invalidContract)
 
     const fake = stub(contract.functions, 'stakingManager')
-    fake.resolves(['0x123'])
+    fake.resolves('0x123')
     const result = await payment.getStakingManagerAddress()
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -480,10 +483,8 @@ describe('Payments methods', () => {
 
     const fake = stub(contract.functions, 'discountSlabs')
     fake.resolves([
-      [
-        { amount: vendor.convertToBN('10'), percent: vendor.convertToBN('10') },
-        { amount: vendor.convertToBN('11'), percent: vendor.convertToBN('11') },
-      ],
+      { amount: vendor.convertToBN('10'), percent: vendor.convertToBN('10') },
+      { amount: vendor.convertToBN('11'), percent: vendor.convertToBN('11') },
     ])
     const result = await payment.getDiscountSlabs()
     assert(fake.calledOnce)
@@ -495,5 +496,17 @@ describe('Payments methods', () => {
         { amount: vendor.convertToBN('11'), percent: vendor.convertToBN('11') },
       ]),
     )
+  })
+  it('should throw with invalid api key', async () => {
+    try {
+      await payment.getArweaveQuote('2')
+    } catch (err) {
+      expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
+    }
+  })
+  it('It should return arweave usd quote', async () => {
+    payment = new Payment(vendor, correctKey)
+    const result = await payment.getArweaveQuote('2')
+    assert.notEqual(result, 0)
   })
 })
