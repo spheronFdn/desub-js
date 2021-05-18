@@ -22,7 +22,10 @@ export const convertToBN = (amount: string): any => {
  * @returns BigNumber
  */
 export const convertToWei = (amount: string) => {
-  return BigNumber.from(amount).mul(BigNumber.from(`10`).pow(18))
+  let lessDecimals: any = parseFloat(amount).toPrecision(4)
+  lessDecimals = Math.ceil(lessDecimals * 10000)
+  const int = parseInt(lessDecimals.toString())
+  return BigNumber.from(int).mul(BigNumber.from(`10`).pow(14))
 }
 
 /**
