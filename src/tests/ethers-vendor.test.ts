@@ -42,8 +42,6 @@ describe('Ethers Provider abstraction', () => {
     const number = '10.040'
     const wei = BigNumber.from(1004).mul(BigNumber.from(`10`).pow(16))
     const result = vendor.convertToWei(number)
-    console.log(wei.toString())
-    console.log(result.toString())
     assert.isNotNull(result)
     assert.deepEqual(result, wei)
   })
