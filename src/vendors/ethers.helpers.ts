@@ -10,7 +10,8 @@ import { BigNumber } from 'ethers'
    * @returns BigNumber
    */
 export const convertToBN = (amount: string): any => {
-  return BigNumber.from(amount)
+  const int = parseInt(amount)
+  return BigNumber.from(int)
 }
 /**
  * @remarks
