@@ -34,8 +34,9 @@ export default class extends Deployed {
   ): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(d)
     const buildTime = this.vendor.convertToBN(b)
-    const quote = this.vendor.convertToBN(providerQuote)
-    const charge = this.vendor.convertToBN(providerCharged)
+    const quote = this.vendor.convertToWei(providerQuote)
+    const charge = this.vendor.convertToWei(providerCharged)
+    console.log(u, buildTime.toString(), wei.toString(), quote.toString(), charge.toString(), provider.toString())
     return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
   }
   /**

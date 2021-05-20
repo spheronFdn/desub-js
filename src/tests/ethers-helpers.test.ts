@@ -23,13 +23,7 @@ describe('helper functions', () => {
     assert.isNotNull(result)
     assert.deepEqual(
       result,
-      parseFloat(
-        ethers.utils.formatEther(
-          BigNumber.from(str).mul(
-            BigNumber.from('10').pow(18)
-            )
-          )
-        )
+      parseFloat(ethers.utils.formatEther(BigNumber.from(str).mul(BigNumber.from('10').pow(18)))),
     )
   })
 })
