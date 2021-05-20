@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 
 /**
    * @remarks
@@ -22,10 +22,7 @@ export const convertToBN = (amount: string): any => {
  * @returns BigNumber
  */
 export const convertToWei = (amount: string) => {
-  let lessDecimals: any = parseFloat(amount).toPrecision(4)
-  lessDecimals = Math.ceil(lessDecimals * 10000)
-  const int = parseInt(lessDecimals.toString())
-  return BigNumber.from(int).mul(BigNumber.from(`10`).pow(14))
+  return BigNumber.from(ethers.utils.parseUnits(amount, 18))
 }
 
 /**
@@ -38,6 +35,6 @@ export const convertToWei = (amount: string) => {
  * @returns Array<BigNumber>
  */
 export const convertWeiToEth = (wei: BigNumber) => {
-  const eth = wei.div(BigNumber.from(10).pow(18))
+  const eth: number = parseFloat(ethers.utils.formatEther(wei.toString()))
   return eth
 }

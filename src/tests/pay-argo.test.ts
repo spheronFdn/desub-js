@@ -14,13 +14,16 @@ describe('Payments methods', () => {
   let vendor: Vendor
   const invalidKey = 'api-key'
   const correctKey = '0c5b25a6-4d37-4836-8b43-a6c575667cdd'
-  beforeEach(() => {
-    const url = 'https://rpc-mumbai.maticvigil.com'
+
+  beforeEach(async () => {
+    const url = 'https://rinkeby.infura.io/v3/0e4ce57afbd04131b6842f08265b4d4b'
     const httpProvider = new JsonRpcProvider(url)
-    const signer = Wallet.fromMnemonic('company loud estate century olive gun tribe pulse bread play addict amount')
+    const signer = Wallet.fromMnemonic(
+      'company loud estate century olive gun tribe pulse bread play addict amount',
+    ).connect(httpProvider)
     vendor = new Vendor(httpProvider, signer)
     payment = new Payment(vendor, invalidKey)
-    payment.at('0xdeB58b87D4f239a7f17395a824e89a61439EF07D', '0xBfE53F175F2d9511d3F02701f23c0B1E91D32047')
+    payment.at('0x6fE31B1B05715Cb52C6348f25eA5b02d700323ea', '0x02f95e68f345dfbfc69e1ed662bafacb8749e5ab')
   })
 
   it('it should pay with fee', async () => {

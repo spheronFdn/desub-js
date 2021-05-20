@@ -7,6 +7,7 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
 import { BigNumber } from '@ethersproject/bignumber'
 import { DiscountDataClass } from '../vendors/discount-data'
+import { ethers } from 'ethers'
 
 describe('Ethers Provider abstraction', () => {
   let vendor: Vendor
@@ -47,8 +48,10 @@ describe('Ethers Provider abstraction', () => {
   })
   it('returns a wei value to eth', () => {
     const number = '10'
-    const eth = BigNumber.from(10).div(BigNumber.from(`10`).pow(18))
-    const result = vendor.convertWeiToEth(vendor.convertToBN(number))
+    const eth = parseFloat(
+      ethers.utils.formatEther(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString()),
+    )
+    const result = vendor.convertWeiToEth(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString())
     assert.isNotNull(result)
     assert.deepEqual(result, eth)
   })
