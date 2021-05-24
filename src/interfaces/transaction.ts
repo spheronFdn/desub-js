@@ -17,6 +17,7 @@ export interface TransactOpts {
 // TODO flush this out...
 export interface TxResponse {
   hash: string
+  wait: (confirmations?: number) => Promise<any>
 }
 
 export interface Uint256Response {
