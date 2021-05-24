@@ -8,19 +8,21 @@ import { Wallet } from '@ethersproject/wallet'
 import { cloneWithWriteAccess } from '../helpers'
 import { Contract, TxResponse } from '../interfaces'
 import { INVALID_API_KEY } from '../errors'
+import * as dotenv from 'dotenv'
 
 describe('Payments methods', () => {
   let payment: Payment
   let vendor: Vendor
   const invalidKey = 'api-key'
-  const correctKey = '0c5b25a6-4d37-4836-8b43-a6c575667cdd'
+  let correctKey: any
 
   beforeEach(async () => {
-    const url = 'https://rinkeby.infura.io/v3/0e4ce57afbd04131b6842f08265b4d4b'
+    dotenv.config()
+    correctKey = process.env.COINMARKETCAP_KEY
+    const url = process.env.RPC_ENDPOINT
     const httpProvider = new JsonRpcProvider(url)
-    const signer = Wallet.fromMnemonic(
-      'company loud estate century olive gun tribe pulse bread play addict amount',
-    ).connect(httpProvider)
+    const mnemonic: any = process.env.MNEMONIC_TEST
+    const signer = Wallet.fromMnemonic(mnemonic).connect(httpProvider)
     vendor = new Vendor(httpProvider, signer)
     payment = new Payment(vendor, invalidKey)
     payment.at('0x6fE31B1B05715Cb52C6348f25eA5b02d700323ea', '0x02f95e68f345dfbfc69e1ed662bafacb8749e5ab')
