@@ -31,8 +31,7 @@
         "test": "mocha -r ts-node/register 'src/**/*.test.ts'",
         "build:clean": "rm -rf ./build",
         "build:dry": "tsc -noEmit -p ./tsbuild.json",
-        "build": "npm run build:clean && tsc -p ./tsbuild.json",
-        "prepare": "npm run build"
+        "build": "tsc -p ./tsbuild.json"
     },
     "dependencies": {
         "@ethersproject/abstract-signer": "^5.0.12",
