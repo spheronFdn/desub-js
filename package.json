@@ -32,7 +32,7 @@
         "build:clean": "rm -rf ./build",
         "build:dry": "tsc -noEmit -p ./tsbuild.json",
         "build": "npm run build:clean && tsc -p ./tsbuild.json",
-        "postinstall": "npm run build",
+        "postinstall": "tsc -p ./tsbuild.json",
         "prepare": "npm run build"
     },
     "dependencies": {
