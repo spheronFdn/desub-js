@@ -30,6 +30,7 @@ describe('Payments methods', () => {
 
   it('it should pay with fee', async () => {
     // allow stubbing contract properties
+
     payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
 
     const invalidContract = {

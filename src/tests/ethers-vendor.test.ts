@@ -40,9 +40,10 @@ describe('Ethers Provider abstraction', () => {
     assert.deepEqual(result, BigNumber.from(number))
   })
   it('returns eth value converted to wei', () => {
-    const number = '10.040'
-    const wei = BigNumber.from(1004).mul(BigNumber.from(`10`).pow(16))
+    const number = '10.04'
     const result = vendor.convertToWei(number)
+    const wei = BigNumber.from(1004).mul(BigNumber.from(`10`).pow(16))
+
     assert.isNotNull(result)
     assert.deepEqual(result, wei)
   })
