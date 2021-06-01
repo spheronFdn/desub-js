@@ -39,6 +39,14 @@ export const convertWeiToEth = (wei: BigNumber) => {
   const eth: number = parseFloat(ethers.utils.formatEther(wei.toString()))
   return eth
 }
+/**
+ * @remarks
+ * convert a given number to fixed precision
+ *
+ * @param number - value with high precision.
+ * @param fixed - required precision
+ * @returns Array<BigNumber>
+ */
 function toFixed(num: number, fixed: number) {
   const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?')
   return num.toString().match(re)?.[0]

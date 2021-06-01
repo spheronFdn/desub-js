@@ -9,7 +9,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { DiscountDataClass } from '../vendors/discount-data'
 import { ethers } from 'ethers'
 
-describe('Ethers Provider abstraction', () => {
+describe('Ethers Provider abstraction', async () => {
   let vendor: Vendor
 
   let signer: Signer
@@ -73,5 +73,13 @@ describe('Ethers Provider abstraction', () => {
     const result = vendor.parseDiscountSlabs(data)
     assert.isNotNull(result)
     assert.deepEqual(result, stringifiedData)
+  })
+  it('should sign and verify message', async () => {
+    const message = 'raw message'
+    const sginedMessage = await vendor.signMessage(message)
+    const signedDirect = await signer.signMessage(message)
+    assert.deepEqual(sginedMessage, signedDirect)
+    const recoveredAddress = await vendor.verifySignedMessage(message, sginedMessage)
+    assert.deepEqual(await signer.getAddress(), recoveredAddress)
   })
 })
