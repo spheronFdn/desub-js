@@ -2,36 +2,51 @@ import { ERC20_ABI, PAYMENT_ABI } from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
+import { API_KEY_REQUIRED } from './errors'
 
 export default class extends Deployed {
+  key?: string
   /**
    * @param vendor - Instance of a Vendor class
    */
-  constructor(vendor: Vendor) {
+  constructor(vendor: Vendor, key?: string) {
     super(vendor, PAYMENT_ABI, ERC20_ABI)
+    this.key = key
   }
 
   /**
    * @remarks
    * This method is when we do not want to charge user with the fee for deployment, but only for build time.
-   *
+   * @param u - address of user
    * @param b - built time (in sec) after deployment completed
-   * @param a - network uploading amount (in ArGo Token after all the Conversions)
+   * @param d - depployment cost by provider  USD
+   * @param providerQuote price of storage provider's token
+   * @param providerCharged tokens of storage provider charged for deploying
+   * @param  provider name of storage provider
    */
-  async paymentWithFee(b: string, a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a)
+  async paymentWithFee(
+    u: string,
+    b: string,
+    d: string,
+    providerQuote: any,
+    providerCharged: any,
+    provider: string,
+  ): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(d)
     const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.chargeUserWithFee(buildTime, wei)
+    const quote = this.vendor.convertToWei(providerQuote)
+    const charge = this.vendor.convertToWei(providerCharged)
+    return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
   }
   /**
    * @remarks
    * This method is when we want to charge user for the fee for deployment as well as for the build time.
-   *
+   * @param a - address that is to be charged
    * @param b - built time (in sec) after deployment completed
    */
-  async paymentWithoutFee(b: string): Promise<TxResponse> {
+  async paymentWithoutFee(a: string, b: string): Promise<TxResponse> {
     const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.chargeUser(buildTime)
+    return await this.paymentsContract?.functions.charge(a, buildTime)
   }
   /**
    * @remarks
@@ -39,8 +54,8 @@ export default class extends Deployed {
    *
    * @param a - address of escrow contract(vault)
    */
-  async updateEscrowAddress(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateEscrowAddress(a)
+  async updateEscrow(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateEscrow(a)
   }
   /**
    * @remarks
@@ -48,8 +63,8 @@ export default class extends Deployed {
    *
    * @param a - address of escrow ArGo token, if for some reason new one needs to be passed
    */
-  async updateTokenAddress(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateTokenAddress(a)
+  async updateToken(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateToken(a)
   }
 
   /**
@@ -72,9 +87,9 @@ export default class extends Deployed {
    * @param p - updated price per microsecond.
 
    */
-  async changePricePerMicroSecond(p: string): Promise<TxResponse> {
+  async changeBuildTimeRate(p: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(p)
-    return await this.paymentsContract?.functions.changePricePerMicroSecond(wei)
+    return await this.paymentsContract?.functions.changeBuildTimeRate(wei)
   }
   /**
    * @remarks
@@ -111,13 +126,14 @@ export default class extends Deployed {
    *
    * @param h - array of addresses of new oweners.
    */
-  async setOwners(h: Array<string>): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.setOwners(h)
+  async setManagers(h: Array<string>): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.setManagers(h)
   }
 
   /**
    * @remarks
    * Update approval for ArGo token
+   * Dont use this function without frontend
    *
    * @param a - new approval amount.
    */
@@ -131,8 +147,18 @@ export default class extends Deployed {
    * Get given Allowance amount.
    *
    */
-  async getApprovalAmount(): Promise<any> {
-    const wei = (await this.erc20Contract?.functions.allowance(this.paymentsContract?.address))[0]
+  async getApprovalAmount(a: string): Promise<any> {
+    const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
+    return this.vendor.convertWeiToEth(wei)
+  }
+
+  /**
+   * @remarks
+   * Get given Allowance amount.
+   *
+   */
+  async getUserBalance(a: string): Promise<any> {
+    const wei = await this.erc20Contract?.functions.balanceOf(a)
     return this.vendor.convertWeiToEth(wei)
   }
 
@@ -141,8 +167,8 @@ export default class extends Deployed {
    * Get owners list.
    *
    */
-  async getOwners(): Promise<Array<string>> {
-    return (await this.paymentsContract?.functions.getOwners())[0]
+  async getManagers(): Promise<Array<string>> {
+    return await this.paymentsContract?.functions.getManagers()
   }
 
   /**
@@ -151,16 +177,16 @@ export default class extends Deployed {
    *
    */
   async getGovernanceAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.governanceAddress())[0]
+    return await this.paymentsContract?.functions.governanceAddress()
   }
 
   /**
    * @remarks
-   * Get token address.
+   * Get underlying token address (Argo).
    *
    */
-  async getTokenAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.token())[0]
+  async getToken(): Promise<string> {
+    return await this.paymentsContract?.functions.underlying()
   }
 
   /**
@@ -168,8 +194,8 @@ export default class extends Deployed {
    * Get escrow address.
    *
    */
-  async getEscrowAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.escrowAddress())[0]
+  async getEscrow(): Promise<string> {
+    return await this.paymentsContract?.functions.escrow()
   }
 
   /**
@@ -178,7 +204,7 @@ export default class extends Deployed {
    *
    */
   async checkIfDiscountsEnabled(): Promise<boolean> {
-    return (await this.paymentsContract?.functions.discountsEnabled())[0]
+    return await this.paymentsContract?.functions.discountsEnabled()
   }
 
   /**
@@ -187,7 +213,7 @@ export default class extends Deployed {
    *
    */
   async getStakingManagerAddress(): Promise<string> {
-    return (await this.paymentsContract?.functions.stakingManager())[0]
+    return await this.paymentsContract?.functions.stakingManager()
   }
   /**
    * @remarks
@@ -195,7 +221,29 @@ export default class extends Deployed {
    *
    */
   async getDiscountSlabs(): Promise<any> {
-    const slabs = (await this.paymentsContract?.functions.discountSlabs())[0]
+    const slabs = await this.paymentsContract?.functions.discountSlabs()
     return this.vendor.parseDiscountSlabs(slabs)
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getArweaveConvertedUsd(a: string): Promise<number> {
+    if (!this.key) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.arweaveToUsd(a, this.key)
+    return qoute
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getArweaveQuote(): Promise<number> {
+    if (!this.key) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.arweaveQuote(this.key)
+    return qoute
   }
 }

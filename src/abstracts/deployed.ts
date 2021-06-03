@@ -7,6 +7,7 @@
 import { Keyed, Contract, TransactOpts } from '../interfaces'
 import Vendor from './vendor'
 import { Abi } from '../@types'
+import Services from '../services/services'
 
 export default abstract class implements Keyed {
   [key: string]: any
@@ -15,6 +16,7 @@ export default abstract class implements Keyed {
   public vendor: Vendor
   public paymentsContract?: Contract
   public erc20Contract?: Contract
+  public services: Services
 
   /**
    * @param v - Optional Vendor the HOC will use
@@ -25,6 +27,7 @@ export default abstract class implements Keyed {
     this.vendor = v
     this.paymentsAbi = a
     this.erc20Abi = e
+    this.services = new Services()
   }
 
   /**
@@ -37,6 +40,7 @@ export default abstract class implements Keyed {
   at(a: string, e: string, o?: TransactOpts): boolean {
     this.paymentsContract = this.vendor.contract(a, this.paymentsAbi, o)
     this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
+    this.services = new Services()
     return !!this.paymentsContract
   }
 }

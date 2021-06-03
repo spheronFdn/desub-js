@@ -30,4 +30,6 @@ export default abstract class implements Keyed {
   abstract convertToWei(amount: string): any
   abstract convertStringArrayToBigNumberArray(array: Array<string>): Array<any>
   abstract convertWeiToEth(wei: any): any
+  abstract verifySignedMessage(m: string, s: string): any
+  abstract signMessage(m: string): Promise<string>
 }

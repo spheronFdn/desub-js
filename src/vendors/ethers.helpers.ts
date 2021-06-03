@@ -1,4 +1,4 @@
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 
 /**
    * @remarks
@@ -22,7 +22,8 @@ export const convertToBN = (amount: string): any => {
  * @returns BigNumber
  */
 export const convertToWei = (amount: string) => {
-  return BigNumber.from(amount).mul(BigNumber.from(`10`).pow(18))
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  return BigNumber.from(ethers.utils.parseUnits(toFixed(parseFloat(amount), 18)!, 18))
 }
 
 /**
@@ -35,6 +36,18 @@ export const convertToWei = (amount: string) => {
  * @returns Array<BigNumber>
  */
 export const convertWeiToEth = (wei: BigNumber) => {
-  const eth = wei.div(BigNumber.from(10).pow(18))
+  const eth: number = parseFloat(ethers.utils.formatEther(wei.toString()))
   return eth
+}
+/**
+ * @remarks
+ * convert a given number to fixed precision
+ *
+ * @param number - value with high precision.
+ * @param fixed - required precision
+ * @returns Array<BigNumber>
+ */
+function toFixed(num: number, fixed: number) {
+  const re = new RegExp('^-?\\d+(?:.\\d{0,' + (fixed || -1) + '})?')
+  return num.toString().match(re)?.[0]
 }

@@ -1,13 +1,13 @@
 // NOTE this is currently a shell for where we will encapsulate ethers.js
 
-import { SIGNER_OR_PROVIDER_REQUIRED } from '../errors'
+import { SIGNER_OR_PROVIDER_REQUIRED, SIGNER_REQUIRED } from '../errors'
 import { Contract } from '../interfaces'
 import Vendor from '../abstracts/vendor'
 import { Signer } from '@ethersproject/abstract-signer'
 import { Contract as EthersContract } from '@ethersproject/contracts'
 import { Provider } from '@ethersproject/providers'
 import { Abi } from '../@types'
-import { BigNumber } from 'ethers'
+import { BigNumber, ethers } from 'ethers'
 import { DiscountDataClass } from './discount-data'
 import { Discount } from '../interfaces/discount'
 import { helpers } from '..'
@@ -108,6 +108,33 @@ export default class extends Vendor {
   }
 
   /**
+   * @remarks
+   * Sign the message with users private key.
+   *
+   * @param string - message that is to be signed
+
+  *
+  * @returns Signed message
+  */
+  async signMessage(m: string): Promise<string> {
+    this.requireSigner()
+    const signedMessage = await this.signer.signMessage(m)
+    return signedMessage
+  }
+
+  /**
+   * @remarks
+   * get address from signed message
+   * @param string - unsigned message
+   * @param string - signed message
+   *
+   * @returns address
+   */
+  verifySignedMessage = (m: string, s: string): any => {
+    const address = ethers.utils.verifyMessage(m, s)
+    return address
+  }
+  /**
    *
    * @remarks
    * Convenience methods which abstracts repetitive checking for the presence of a signer || provider
@@ -115,5 +142,14 @@ export default class extends Vendor {
    */
   private requireSignerOrProvider() {
     if (!this.signer && !this.provider) throw new ReferenceError(SIGNER_OR_PROVIDER_REQUIRED)
+  }
+  /**
+   *
+   * @remarks
+   * Convenience methods which abstracts repetitive checking for the presence of a signer || provider
+   * @private
+   */
+  private requireSigner() {
+    if (!this.signer) throw new ReferenceError(SIGNER_REQUIRED)
   }
 }

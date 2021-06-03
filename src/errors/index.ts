@@ -10,3 +10,5 @@ export * from './vendor'
 
 export const OWNER_REQUIRED = 'owner required'
 export const PROVIDER_REQUIRED = 'provider required'
+export const API_KEY_REQUIRED = 'Api key required'
+export const INVALID_API_KEY = 'Api key is invalid'

@@ -7,8 +7,9 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { Wallet } from '@ethersproject/wallet'
 import { BigNumber } from '@ethersproject/bignumber'
 import { DiscountDataClass } from '../vendors/discount-data'
+import { ethers } from 'ethers'
 
-describe('Ethers Provider abstraction', () => {
+describe('Ethers Provider abstraction', async () => {
   let vendor: Vendor
 
   let signer: Signer
@@ -38,21 +39,24 @@ describe('Ethers Provider abstraction', () => {
     assert.isNotNull(result)
     assert.deepEqual(result, BigNumber.from(number))
   })
-  it('returns a wei value for eth string', () => {
-    const number = '10'
-    const wei = BigNumber.from(number).mul(BigNumber.from(`10`).pow(18))
+  it('returns eth value converted to wei', () => {
+    const number = '10.04'
     const result = vendor.convertToWei(number)
+    const wei = BigNumber.from(1004).mul(BigNumber.from(`10`).pow(16))
+
     assert.isNotNull(result)
     assert.deepEqual(result, wei)
   })
-  it('returns a eth value for wei string', () => {
+  it('returns a wei value to eth', () => {
     const number = '10'
-    const eth = BigNumber.from(number).div(BigNumber.from(`10`).pow(18))
-    const result = vendor.convertWeiToEth(vendor.convertToBN(number))
+    const eth = parseFloat(
+      ethers.utils.formatEther(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString()),
+    )
+    const result = vendor.convertWeiToEth(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString())
     assert.isNotNull(result)
     assert.deepEqual(result, eth)
   })
-  it('returns a eth value for wei string', () => {
+  it('returns an array of numbers to big numbers', () => {
     const number = ['10', '20']
     const array = [vendor.convertToBN('10'), vendor.convertToBN('20')]
     const result = vendor.convertStringArrayToBigNumberArray(number)
@@ -69,5 +73,13 @@ describe('Ethers Provider abstraction', () => {
     const result = vendor.parseDiscountSlabs(data)
     assert.isNotNull(result)
     assert.deepEqual(result, stringifiedData)
+  })
+  it('should sign and verify message', async () => {
+    const message = 'raw message'
+    const signedMessage = await vendor.signMessage(message)
+    const signedDirect = await signer.signMessage(message)
+    assert.deepEqual(signedMessage, signedDirect)
+    const recoveredAddress = await vendor.verifySignedMessage(message, signedMessage)
+    assert.deepEqual(await signer.getAddress(), recoveredAddress)
   })
 })
