@@ -13,5 +13,8 @@ export default class extends Vendor {
     convertToBN(amount: string): any;
     convertToWei(amount: string): BigNumber;
     convertWeiToEth(wei: any): number;
+    signMessage(m: string): Promise<string>;
+    verifySignedMessage: (m: string, s: string) => any;
     private requireSignerOrProvider;
+    private requireSigner;
 }
