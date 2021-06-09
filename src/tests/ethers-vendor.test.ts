@@ -82,4 +82,12 @@ describe('Ethers Provider abstraction', async () => {
     const recoveredAddress = await vendor.verifySignedMessage(message, signedMessage)
     assert.deepEqual(await signer.getAddress(), recoveredAddress)
   })
+  it('should sign and verify message', async () => {
+    const message = 'raw message'
+    const signedMessage = await vendor.signMessage(message)
+    const signedDirect = await signer.signMessage(message)
+    assert.deepEqual(signedMessage, signedDirect)
+    const recoveredAddress = await vendor.verifySignedMessage(message, signedMessage)
+    assert.deepEqual(await signer.getAddress(), recoveredAddress)
+  })
 })

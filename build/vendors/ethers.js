@@ -68,6 +68,8 @@ class default_1 extends vendor_1.default {
     }
     signedMessageForTx(u, n, f, a, c) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(u);
+            console.log(a);
             const domainData = {
                 name: 'ArGo Token',
                 version: '1',
@@ -75,23 +77,15 @@ class default_1 extends vendor_1.default {
                 salt: '0x' + (c).toString(16).padStart(64, '0'),
             };
             let message = {
-                nonce: 0,
-                from: "",
-                functionSignature: ""
+                nonce: n,
+                from: u,
+                functionSignature: f
             };
-            message.nonce = n;
-            message.from = u;
-            message.functionSignature = f;
-            const dataToSign = JSON.stringify({
-                types: {
-                    EIP712Domain: payment_1.domainType,
-                    MetaTransaction: payment_1.metaTransactionType
-                },
-                domain: domainData,
-                primaryType: "MetaTransaction",
-                message: message
-            });
-            let signature = yield this.signer._signTypedData(domainData, payment_1.domainType, dataToSign);
+            const types = {
+                MetaTransaction: payment_1.metaTransactionType
+            };
+            const signature = yield this.signer._signTypedData(domainData, types, message);
+            console.log(signature);
             return signature;
         });
     }
@@ -100,7 +94,7 @@ class default_1 extends vendor_1.default {
             const biconomy = new mexa_1.Biconomy(this.provider, { apiKey: "K97155Ti7.fb32dac1-77df-404b-9e63-621d64ad6718", debug: true });
             return new Promise((resolve, reject) => {
                 biconomy.onEvent(biconomy.READY, () => __awaiter(this, void 0, void 0, function* () {
-                    let contract = new contracts_1.Contract(contractAddress, abi, biconomy);
+                    const contract = new ethers_1.ethers.Contract(contractAddress, abi, biconomy.getSignerByAddress(this.signer.address));
                     const tx = yield contract.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v);
                     resolve(tx);
                 })).onEvent(biconomy.ERROR, (error, message) => {
