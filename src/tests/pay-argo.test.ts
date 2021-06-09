@@ -25,12 +25,11 @@ describe('Payments methods', () => {
     const signer = Wallet.fromMnemonic(mnemonic).connect(httpProvider)
     vendor = new Vendor(httpProvider, signer)
     payment = new Payment(vendor, invalidKey)
-    payment.at('0x6fE31B1B05715Cb52C6348f25eA5b02d700323ea', '0x02f95e68f345dfbfc69e1ed662bafacb8749e5ab')
+    payment.at('0x0B59779C5320B384c9D72457fcd92ABA299ef360', '0x135d0CabDF539dc82121a48b5936ee3E3F785558')
   })
 
   it('it should pay with fee', async () => {
     // allow stubbing contract properties
-
     payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
 
     const invalidContract = {
@@ -69,7 +68,7 @@ describe('Payments methods', () => {
     assert.deepEqual(args[3], vendor.convertToWei(deploymentQuote))
     assert.deepEqual(args[4], vendor.convertToWei(deploymentCharge))
     assert.deepEqual(args[5], provider)
-  })
+  }).timeout(500000);
   it('it should pay without fee', async () => {
     // allow stubbing contract properties
     payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)

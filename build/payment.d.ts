@@ -15,7 +15,9 @@ export default class extends Deployed {
     setGovernanceAddress(h: string): Promise<TxResponse>;
     setManagers(h: Array<string>): Promise<TxResponse>;
     setNewApprovals(a: string): Promise<TxResponse>;
+    gasslessApproval(a: string, c: number): Promise<TxResponse>;
     getApprovalAmount(a: string): Promise<any>;
+    getNonceForGaslessERC20(u: string): Promise<number>;
     getUserBalance(a: string): Promise<any>;
     getManagers(): Promise<Array<string>>;
     getGovernanceAddress(): Promise<string>;

@@ -1,14 +1,14 @@
-/*
-  Use to extend the capabilities of the tsconfig so we don't have to edit it to produce
-  varying output
-*/
-
 {
   "extends": "./tsconfig.json",
-  "compilerOptions":{
+  "compilerOptions": {
     "rootDir": "./src",
-    "removeComments": true
+    "removeComments": true,
+    "noImplicitAny": false
   },
+  "typeRoots": [
+    "./typings",
+    "./node_modules/@types/"
+  ],
   "exclude": [
     "src/**/*.test.ts",
     "node_modules"

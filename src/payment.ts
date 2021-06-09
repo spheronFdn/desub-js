@@ -3,6 +3,7 @@ import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
 import { API_KEY_REQUIRED } from './errors'
+import { BigNumber } from 'ethers'
 
 export default class extends Deployed {
   key?: string
@@ -141,6 +142,23 @@ export default class extends Deployed {
     const wei = this.vendor.convertToWei(a)
     return await this.erc20Contract?.functions.approve(this.paymentsContract?.address, wei)
   }
+  /**
+   * @remarks
+   * Update approval for ArGo token
+   * Dont use this function without frontend
+   *
+   * @param a - new approval amount.
+   * @param c - chain Id
+   */
+  async gasslessApproval(a: string, c: number): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(a)
+    const abiEncodedApprove = this.vendor.abiEncodeErc20Functions("approve", [this.paymentsContract?.address, wei])
+    const userAddress = await this.vendor.signer.address;
+    const nonce = await this.getNonceForGaslessERC20(userAddress);
+    const signedMessage = await this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, this.erc20Contract!.address, c);
+    const rsv = this.vendor.getSignatureParameters(signedMessage);
+    return await this.vendor.sendRawBiconomyTransaction(userAddress, abiEncodedApprove, rsv, this.erc20Contract!.address, this.erc20Abi)
+  }
 
   /**
    * @remarks
@@ -150,6 +168,17 @@ export default class extends Deployed {
   async getApprovalAmount(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
     return this.vendor.convertWeiToEth(wei)
+  }
+
+  /**
+  * @remarks
+  * Get nonce for gassless transaction on erc20
+  *
+  * @param u user address
+  */
+  async getNonceForGaslessERC20(u: string): Promise<number> {
+    const nonce = ((await this.erc20Contract?.functions.getNonce(u))[0] as BigNumber).toNumber();
+    return nonce
   }
 
   /**
@@ -246,4 +275,5 @@ export default class extends Deployed {
     const qoute = await this.services.arweaveQuote(this.key)
     return qoute
   }
+
 }
