@@ -31,7 +31,7 @@
         "test": "mocha -r ts-node/register 'src/**/*.test.ts'",
         "build:clean": "rm -rf ./build",
         "build:dry": "tsc -noEmit -p ./tsbuild.json",
-        "build": "tsc -p ./tsbuild.json"
+        "build": "rm -rf ./build && tsc -p ./tsbuild.json"
     },
     "dependencies": {
         "@biconomy/mexa": "^2.0.9",

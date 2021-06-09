@@ -2,13 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "rootDir": "./src",
-    "removeComments": true,
-    "noImplicitAny": false
+    "removeComments": true
   },
-  "typeRoots": [
-    "./typings",
-    "./node_modules/@types/"
-  ],
   "exclude": [
     "src/**/*.test.ts",
     "node_modules"

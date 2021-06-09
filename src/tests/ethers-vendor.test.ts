@@ -79,15 +79,17 @@ describe('Ethers Provider abstraction', async () => {
     const signedMessage = await vendor.signMessage(message)
     const signedDirect = await signer.signMessage(message)
     assert.deepEqual(signedMessage, signedDirect)
-    const recoveredAddress = await vendor.verifySignedMessage(message, signedMessage)
+    const recoveredAddress = vendor.verifySignedMessage(message, signedMessage)
     assert.deepEqual(await signer.getAddress(), recoveredAddress)
   })
-  it('should sign and verify message', async () => {
-    const message = 'raw message'
-    const signedMessage = await vendor.signMessage(message)
-    const signedDirect = await signer.signMessage(message)
-    assert.deepEqual(signedMessage, signedDirect)
-    const recoveredAddress = await vendor.verifySignedMessage(message, signedMessage)
-    assert.deepEqual(await signer.getAddress(), recoveredAddress)
+  it('should should abi encode params', async () => {
+    const abi = ["function approve(address spender, uint256 amount) external returns (bool)"]
+    let iface = new ethers.utils.Interface(abi);
+    const func = "approve";
+    const addr = "0x0B59779C5320B384c9D72457fcd92ABA299ef360";
+    const params = [addr, BigNumber.from(1)]
+    var data = iface.encodeFunctionData(func, params)
+    const encoded = vendor.abiEncodeErc20Functions(func, params)
+    assert.deepEqual(encoded, data)
   })
 })

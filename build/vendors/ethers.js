@@ -68,8 +68,6 @@ class default_1 extends vendor_1.default {
     }
     signedMessageForTx(u, n, f, a, c) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(u);
-            console.log(a);
             const domainData = {
                 name: 'ArGo Token',
                 version: '1',

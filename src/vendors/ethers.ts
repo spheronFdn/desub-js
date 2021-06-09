@@ -5,7 +5,7 @@ import { Contract } from '../interfaces'
 import Vendor from '../abstracts/vendor'
 import { Signer } from '@ethersproject/abstract-signer'
 import { Contract as EthersContract } from '@ethersproject/contracts'
-import { JsonRpcProvider, JsonRpcSigner, Provider, TransactionResponse } from '@ethersproject/providers'
+import { Provider, TransactionResponse } from '@ethersproject/providers'
 import { Abi } from '../@types'
 import { BigNumber, ethers } from 'ethers'
 import { DiscountDataClass } from './discount-data'
@@ -15,7 +15,7 @@ import { SignatureParams } from '../interfaces'
 import { Biconomy } from "@biconomy/mexa";
 
 import { helpers } from '..'
-import { domainType, ERC20Interface, metaTransactionType } from '../constants/payment'
+import { ERC20Interface, metaTransactionType } from '../constants/payment'
 
 export default class extends Vendor {
   /**
@@ -162,8 +162,6 @@ export default class extends Vendor {
   * @param number - chain id
   */
   async signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string> {
-    console.log(u)
-    console.log(a)
     const domainData = {
       name: 'ArGo Token',
       version: '1',
@@ -196,7 +194,6 @@ export default class extends Vendor {
    * @param number - chain id
    */
   async sendRawBiconomyTransaction(u: string, f: string, rsv: SignatureParams, contractAddress: string, abi: any): Promise<TransactionResponse> {
-
     const biconomy = new Biconomy(this.provider, { apiKey: "K97155Ti7.fb32dac1-77df-404b-9e63-621d64ad6718", debug: true });
     return new Promise((resolve, reject) => {
       biconomy.onEvent(biconomy.READY, async () => {
