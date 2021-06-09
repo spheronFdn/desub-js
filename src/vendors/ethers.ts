@@ -178,7 +178,6 @@ export default class extends Vendor {
     }
 
     const signature = await this.signer._signTypedData(domainData, types, message);
-    console.log(signature)
     return signature;
 
   }
@@ -197,6 +196,9 @@ export default class extends Vendor {
     const biconomy = new Biconomy(this.provider, { apiKey: "K97155Ti7.fb32dac1-77df-404b-9e63-621d64ad6718", debug: true });
     return new Promise((resolve, reject) => {
       biconomy.onEvent(biconomy.READY, async () => {
+        console.log("vendor user address:", u);
+        console.log("vendor erc20 address", contractAddress)
+        console.log("vendor signer address", this.signer.address)
         const contract: EthersContract = new ethers.Contract(contractAddress, abi, biconomy.getSignerByAddress(this.signer.address));
         const tx = await contract.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v);
         resolve(tx);

@@ -152,9 +152,13 @@ export default class extends Deployed {
    */
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a)
+    console.log("Payment adddres:", this.paymentsContract?.address)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions("approve", [this.paymentsContract?.address, wei])
     const userAddress = await this.vendor.signer.address;
+    console.log("user adddres:", userAddress)
+    console.log("vendor", this.vendor)
     const nonce = await this.getNonceForGaslessERC20(userAddress);
+    console.log("erc20 adddres:", this.erc20Contract!.address)
     const signedMessage = await this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, this.erc20Contract!.address, c);
     const rsv = this.vendor.getSignatureParameters(signedMessage);
     return await this.vendor.sendRawBiconomyTransaction(userAddress, abiEncodedApprove, rsv, this.erc20Contract!.address, this.erc20Abi)
@@ -177,6 +181,7 @@ export default class extends Deployed {
   * @param u user address
   */
   async getNonceForGaslessERC20(u: string): Promise<number> {
+    console.log("nonce", this.erc20Contract?.address)
     const nonce = ((await this.erc20Contract?.functions.getNonce(u))[0] as BigNumber).toNumber();
     return nonce
   }

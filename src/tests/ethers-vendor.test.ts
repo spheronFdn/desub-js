@@ -92,4 +92,14 @@ describe('Ethers Provider abstraction', async () => {
     const encoded = vendor.abiEncodeErc20Functions(func, params)
     assert.deepEqual(encoded, data)
   })
+  it('it should return signed message', async () => {
+    const abi = ["function approve(address spender, uint256 amount) external returns (bool)"]
+    let iface = new ethers.utils.Interface(abi);
+    const func = "approve";
+    const addr = "0x0B59779C5320B384c9D72457fcd92ABA299ef360";
+    const params = [addr, BigNumber.from(1)]
+    var data = iface.encodeFunctionData(func, params)
+    const encoded = vendor.abiEncodeErc20Functions(func, params)
+    assert.deepEqual(encoded, data)
+  })
 })
