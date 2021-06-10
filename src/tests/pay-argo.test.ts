@@ -674,5 +674,5 @@ describe('Payments methods', () => {
     assert.deepEqual(args[2], rsv.r)
     assert.deepEqual(args[3], rsv.s)
     assert.deepEqual(args[4], rsv.v)
-  })
+  }).timeout(50000)
 })
