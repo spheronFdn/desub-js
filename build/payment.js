@@ -110,19 +110,26 @@ class default_1 extends deployed_1.default {
         });
     }
     sendRawBiconomyERC20Transaction(u, f, rsv) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            return new Promise((resolve, reject) => {
-                this.vendor.biconomy
-                    .onEvent(this.vendor.biconomy.READY, () => __awaiter(this, void 0, void 0, function* () {
-                    var _a;
-                    const tx = yield ((_a = this.biconomyERC20Contract) === null || _a === void 0 ? void 0 : _a.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v));
-                    resolve(tx);
-                }))
-                    .onEvent(this.vendor.biconomy.ERROR, (error) => {
-                    console.log(error);
-                    reject(error);
+            if (this.vendor.biconomy.status === this.vendor.biconomy.READY) {
+                const tx = yield ((_a = this.biconomyERC20Contract) === null || _a === void 0 ? void 0 : _a.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v));
+                return tx;
+            }
+            else {
+                return new Promise((resolve, reject) => {
+                    this.vendor.biconomy
+                        .onEvent(this.vendor.biconomy.READY, () => __awaiter(this, void 0, void 0, function* () {
+                        var _a;
+                        const tx = yield ((_a = this.biconomyERC20Contract) === null || _a === void 0 ? void 0 : _a.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v));
+                        resolve(tx);
+                    }))
+                        .onEvent(this.vendor.biconomy.ERROR, (error) => {
+                        console.log(error);
+                        reject(error);
+                    });
                 });
-            });
+            }
         });
     }
     getApprovalAmount(a) {

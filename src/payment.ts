@@ -175,17 +175,22 @@ export default class extends Deployed {
    * @param SignatureParams - rsv values
    */
   async sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.vendor.biconomy
-        .onEvent(this.vendor.biconomy.READY, async () => {
-          const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v)
-          resolve(tx)
-        })
-        .onEvent(this.vendor.biconomy.ERROR, (error: string) => {
-          console.log(error)
-          reject(error)
-        })
-    })
+    if (this.vendor.biconomy.status === this.vendor.biconomy.READY) {
+      const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v)
+      return tx
+    } else {
+      return new Promise((resolve, reject) => {
+        this.vendor.biconomy
+          .onEvent(this.vendor.biconomy.READY, async () => {
+            const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v)
+            resolve(tx)
+          })
+          .onEvent(this.vendor.biconomy.ERROR, (error: string) => {
+            console.log(error)
+            reject(error)
+          })
+      })
+    }
   }
 
   /**
