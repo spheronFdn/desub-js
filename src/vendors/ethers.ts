@@ -5,14 +5,15 @@ import { Contract } from '../interfaces'
 import Vendor from '../abstracts/vendor'
 import { Signer } from '@ethersproject/abstract-signer'
 import { Contract as EthersContract } from '@ethersproject/contracts'
-import { Provider, TransactionResponse } from '@ethersproject/providers'
+import { Provider } from '@ethersproject/providers'
 import { Abi } from '../@types'
 import { BigNumber, ethers } from 'ethers'
 import { DiscountDataClass } from './discount-data'
 import { Discount } from '../interfaces/discount'
 import { SignatureParams } from '../interfaces'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { Biconomy } from "@biconomy/mexa";
+import { Biconomy } from '@biconomy/mexa'
 
 import { helpers } from '..'
 import { ERC20Interface, metaTransactionType } from '../constants/payment'
@@ -24,11 +25,15 @@ export default class extends Vendor {
    *
    * @param p - An Ethers Provider
    * @param s - Optional Ethers Signer
+   * @param b - biconomy api key
    */
-  constructor(p: Provider, s?: Signer) {
+  constructor(p: Provider, s?: Signer, b?: string) {
     super()
     this.provider = p
     this.signer = s
+    if (b) {
+      this.biconomy = new Biconomy(p, { apiKey: b, debug: false })
+    }
   }
 
   /**
@@ -40,8 +45,11 @@ export default class extends Vendor {
    *
    * @returns Contract
    */
-  contract(address: string, abi: Abi): Contract {
+  contract(address: string, abi: Abi, p?: any): Contract {
     this.requireSignerOrProvider()
+    if (p) {
+      return new EthersContract(address, abi, p)
+    }
     return new EthersContract(address, abi, this.signer)
   }
 
@@ -140,98 +148,67 @@ export default class extends Vendor {
     return address
   }
   /**
-  *
-  * @remarks
-  * returns abi enocoded erc20 function
-  * @param string - name of function
-  * @param Array - function parameters
-  */
+   *
+   * @remarks
+   * returns abi enocoded erc20 function
+   * @param string - name of function
+   * @param Array - function parameters
+   */
   abiEncodeErc20Functions(f: string, p: Array<any>): string {
-    let iface = new ethers.utils.Interface(ERC20Interface);
-    var data = iface.encodeFunctionData(f, p)
-    return data;
-  }
-  /**
-  *
-  * @remarks
-  * returns abi enocoded erc20 function
-  * @param string - user address
-  * @param number - nonce
-  * @param string - abi encoded function data  
-  * @param string - token address  
-  * @param number - chain id
-  */
-  async signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string> {
-    const domainData = {
-      name: 'ArGo Token',
-      version: '1',
-      verifyingContract: a,
-      salt: '0x' + (c).toString(16).padStart(64, '0'),
-    }
-    let message = {
-      nonce: n,
-      from: u,
-      functionSignature: f
-    };
-    const types = {
-      MetaTransaction: metaTransactionType
-    }
-
-    const signature = await this.signer._signTypedData(domainData, types, message);
-    return signature;
-
+    const iface = new ethers.utils.Interface(ERC20Interface)
+    const data = iface.encodeFunctionData(f, p)
+    return data
   }
   /**
    *
    * @remarks
    * returns abi enocoded erc20 function
    * @param string - user address
-   * @param string - abi encoded function
-   * @param SignatureParams - rsv values
-   * @param string - abi encoded function data  
-   * @param string - token address  
+   * @param number - nonce
+   * @param string - abi encoded function data
+   * @param string - token address
    * @param number - chain id
    */
-  async sendRawBiconomyTransaction(u: string, f: string, rsv: SignatureParams, contractAddress: string, abi: any): Promise<TransactionResponse> {
-    const biconomy = new Biconomy(this.provider, { apiKey: "K97155Ti7.fb32dac1-77df-404b-9e63-621d64ad6718", debug: true });
-    return new Promise((resolve, reject) => {
-      biconomy.onEvent(biconomy.READY, async () => {
-        console.log("vendor user address:", u);
-        console.log("vendor erc20 address", contractAddress)
-        console.log("vendor signer address", this.signer.address)
-        const contract: EthersContract = new ethers.Contract(contractAddress, abi, biconomy.getSignerByAddress(this.signer.address));
-        const tx = await contract.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v);
-        resolve(tx);
-      }).onEvent(biconomy.ERROR, (error: string, message: string) => {
-        console.log(error)
-        reject(error)
-      });
-    })
+  async signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string> {
+    const domainData = {
+      name: 'ArGo Token',
+      version: '1',
+      verifyingContract: a,
+      salt: '0x' + c.toString(16).padStart(64, '0'),
+    }
+    const message = {
+      nonce: n,
+      from: u,
+      functionSignature: f,
+    }
+    const types = {
+      MetaTransaction: metaTransactionType,
+    }
 
+    const signature = await this.signer._signTypedData(domainData, types, message)
+    return signature
   }
 
   /**
-  *
-  * @remarks
-  * Returns signature parameters when provided with valid signature hex
-  * @param string - signature hex
-  */
+   *
+   * @remarks
+   * Returns signature parameters when provided with valid signature hex
+   * @param string - signature hex
+   */
   getSignatureParameters(signature: string): SignatureParams {
     if (!ethers.utils.isHexString(signature)) {
-      throw new Error(
-        'Given value "'.concat(signature, '" is not a valid hex string.')
-      );
+      throw new Error('Given value "'.concat(signature, '" is not a valid hex string.'))
     }
-    var r = signature.slice(0, 66);
-    var s = "0x".concat(signature.slice(66, 130));
-    var v = "0x".concat(signature.slice(130, 132));
-    let _v = BigNumber.from(v).toNumber();
-    if (![27, 28].includes(_v)) _v += 27;
+    const r = signature.slice(0, 66)
+    const s = '0x'.concat(signature.slice(66, 130))
+    const v = '0x'.concat(signature.slice(130, 132))
+    let _v = BigNumber.from(v).toNumber()
+    if (![27, 28].includes(_v)) _v += 27
     return {
       r: r,
       s: s,
-      v: _v
-    };
+      v: _v,
+    }
   }
   /**
    *
@@ -251,5 +228,4 @@ export default class extends Vendor {
   private requireSigner() {
     if (!this.signer) throw new ReferenceError(SIGNER_REQUIRED)
   }
-
 }

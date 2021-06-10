@@ -4,6 +4,7 @@ export default abstract class implements Keyed {
     [key: string]: any;
     provider: any;
     signer: any;
+    biconomy: any;
     abstract contract(address: string, abi: Abi, o?: TransactOpts): Contract;
     abstract convertToBN(amount: string): any;
     abstract convertToWei(amount: string): any;
@@ -14,5 +15,4 @@ export default abstract class implements Keyed {
     abstract getSignatureParameters(signature: string): SignatureParams;
     abstract abiEncodeErc20Functions(f: string, p: Array<any>): string;
     abstract signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string>;
-    abstract sendRawBiconomyTransaction(u: string, f: string, rsv: SignatureParams, contractAddress: string, abi: any): Promise<any>;
 }

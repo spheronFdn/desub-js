@@ -21,13 +21,19 @@ const mexa_1 = require("@biconomy/mexa");
 const __1 = require("..");
 const payment_1 = require("../constants/payment");
 class default_1 extends vendor_1.default {
-    constructor(p, s) {
+    constructor(p, s, b) {
         super();
         this.provider = p;
         this.signer = s;
+        if (b) {
+            this.biconomy = new mexa_1.Biconomy(p, { apiKey: b, debug: false });
+        }
     }
-    contract(address, abi) {
+    contract(address, abi, p) {
         this.requireSignerOrProvider();
+        if (p) {
+            return new contracts_1.Contract(address, abi, p);
+        }
         return new contracts_1.Contract(address, abi, this.signer);
     }
     convertStringArrayToBigNumberArray(array) {
@@ -62,8 +68,8 @@ class default_1 extends vendor_1.default {
         return address;
     }
     abiEncodeErc20Functions(f, p) {
-        let iface = new ethers_1.ethers.utils.Interface(payment_1.ERC20Interface);
-        var data = iface.encodeFunctionData(f, p);
+        const iface = new ethers_1.ethers.utils.Interface(payment_1.ERC20Interface);
+        const data = iface.encodeFunctionData(f, p);
         return data;
     }
     signedMessageForTx(u, n, f, a, c) {
@@ -72,50 +78,34 @@ class default_1 extends vendor_1.default {
                 name: 'ArGo Token',
                 version: '1',
                 verifyingContract: a,
-                salt: '0x' + (c).toString(16).padStart(64, '0'),
+                salt: '0x' + c.toString(16).padStart(64, '0'),
             };
-            let message = {
+            const message = {
                 nonce: n,
                 from: u,
-                functionSignature: f
+                functionSignature: f,
             };
             const types = {
-                MetaTransaction: payment_1.metaTransactionType
+                MetaTransaction: payment_1.metaTransactionType,
             };
             const signature = yield this.signer._signTypedData(domainData, types, message);
-            console.log(signature);
             return signature;
-        });
-    }
-    sendRawBiconomyTransaction(u, f, rsv, contractAddress, abi) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const biconomy = new mexa_1.Biconomy(this.provider, { apiKey: "K97155Ti7.fb32dac1-77df-404b-9e63-621d64ad6718", debug: true });
-            return new Promise((resolve, reject) => {
-                biconomy.onEvent(biconomy.READY, () => __awaiter(this, void 0, void 0, function* () {
-                    const contract = new ethers_1.ethers.Contract(contractAddress, abi, biconomy.getSignerByAddress(this.signer.address));
-                    const tx = yield contract.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v);
-                    resolve(tx);
-                })).onEvent(biconomy.ERROR, (error, message) => {
-                    console.log(error);
-                    reject(error);
-                });
-            });
         });
     }
     getSignatureParameters(signature) {
         if (!ethers_1.ethers.utils.isHexString(signature)) {
             throw new Error('Given value "'.concat(signature, '" is not a valid hex string.'));
         }
-        var r = signature.slice(0, 66);
-        var s = "0x".concat(signature.slice(66, 130));
-        var v = "0x".concat(signature.slice(130, 132));
+        const r = signature.slice(0, 66);
+        const s = '0x'.concat(signature.slice(66, 130));
+        const v = '0x'.concat(signature.slice(130, 132));
         let _v = ethers_1.BigNumber.from(v).toNumber();
         if (![27, 28].includes(_v))
             _v += 27;
         return {
             r: r,
             s: s,
-            v: _v
+            v: _v,
         };
     }
     requireSignerOrProvider() {

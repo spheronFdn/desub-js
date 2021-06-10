@@ -3,29 +3,33 @@ import { stub } from 'sinon'
 import { assert, expect } from 'chai'
 import Vendor from '../vendors/ethers'
 import Payment from '../payment'
-import { JsonRpcProvider } from '@ethersproject/providers'
+import { JsonRpcProvider, TransactionReceipt } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
 import { cloneWithWriteAccess } from '../helpers'
 import { Contract, TxResponse } from '../interfaces'
 import { INVALID_API_KEY } from '../errors'
 import * as dotenv from 'dotenv'
+import { BigNumber } from 'ethers'
+import _ from 'lodash'
 
 describe('Payments methods', () => {
   let payment: Payment
   let vendor: Vendor
   const invalidKey = 'api-key'
   let correctKey: any
+  let biconomyKey: any
 
   beforeEach(async () => {
     dotenv.config()
     correctKey = process.env.COINMARKETCAP_KEY
+    biconomyKey = process.env.BICONOMY_KEY
     const url = process.env.RPC_ENDPOINT
     const httpProvider = new JsonRpcProvider(url)
     const mnemonic: any = process.env.MNEMONIC_TEST
     const signer = Wallet.fromMnemonic(mnemonic).connect(httpProvider)
-    vendor = new Vendor(httpProvider, signer)
+    vendor = new Vendor(httpProvider, signer, biconomyKey)
     payment = new Payment(vendor, invalidKey)
-    payment.at('0x0B59779C5320B384c9D72457fcd92ABA299ef360', '0x135d0CabDF539dc82121a48b5936ee3E3F785558')
+    await payment.at('0x0B59779C5320B384c9D72457fcd92ABA299ef360', '0x135d0CabDF539dc82121a48b5936ee3E3F785558')
   })
 
   it('it should pay with fee', async () => {
@@ -68,7 +72,7 @@ describe('Payments methods', () => {
     assert.deepEqual(args[3], vendor.convertToWei(deploymentQuote))
     assert.deepEqual(args[4], vendor.convertToWei(deploymentCharge))
     assert.deepEqual(args[5], provider)
-  }).timeout(500000);
+  }).timeout(500000)
   it('it should pay without fee', async () => {
     // allow stubbing contract properties
     payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
@@ -489,6 +493,28 @@ describe('Payments methods', () => {
     assert.isNotNull(result)
     assert.equal(result, '0x123')
   })
+  it('it should give correct staking manager address', async () => {
+    // allow stubbing contract properties
+    payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.erc20Contract ? payment.erc20Contract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+    const user = '0x123'
+    const fake = stub(contract.functions, 'getNonce')
+    fake.resolves([BigNumber.from(0)])
+    const result = await payment.getNonceForGaslessERC20(user)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], user)
+    assert.equal(result, [BigNumber.from(0)][0].toNumber())
+  })
   it('it should give correct discount slabs', async () => {
     // allow stubbing contract properties
     payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
@@ -541,5 +567,112 @@ describe('Payments methods', () => {
     payment = new Payment(vendor, correctKey)
     const result = await payment.getArweaveQuote()
     assert.notEqual(result, 0)
+  })
+  it('it should pass correct values for gassless transaction', async () => {
+    payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.erc20Contract ? payment.erc20Contract : invalidContract
+    const fakeNonce = stub(contract.functions, 'getNonce')
+    fakeNonce.resolves([BigNumber.from(0)])
+
+    const fake = stub(payment, 'sendRawBiconomyERC20Transaction')
+    fake.resolves({
+      hash: '0x123',
+      confirmations: 0,
+      from: '0x123',
+      to: '0x123',
+      gasLimit: BigNumber.from(0),
+      gasPrice: BigNumber.from(0),
+      nonce: 0,
+      data: 'Ad',
+      value: BigNumber.from(0),
+      chainId: 0,
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      wait: () => new Promise<TransactionReceipt>(() => { }),
+    })
+
+    const chainID = 80001
+    const wei = vendor.convertToWei('10')
+    const abiEncodedApprove = vendor.abiEncodeErc20Functions('approve', [payment.paymentsContract?.address, wei])
+    const userAddress = await vendor.signer.getAddress()
+    const nonce = await payment.getNonceForGaslessERC20(userAddress)
+    const signedMessage = await vendor.signedMessageForTx(
+      userAddress,
+      nonce,
+      abiEncodedApprove,
+      payment.erc20Contract!.address,
+      chainID,
+    )
+    const rsv = vendor.getSignatureParameters(signedMessage)
+    const result: TxResponse = await payment.gasslessApproval('10', chainID)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0x123')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], userAddress)
+    assert.deepEqual(args[1], abiEncodedApprove)
+    assert.deepEqual(args[2], rsv)
+  })
+  it('it should pass correct values for meta transaction', async () => {
+    payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
+    payment.biconomyERC20Contract = _.cloneDeep(payment.biconomyERC20Contract)
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+    const erc20: Contract = payment.erc20Contract ? payment.erc20Contract : invalidContract
+
+    const contract: Contract = payment.biconomyERC20Contract ? payment.biconomyERC20Contract : invalidContract
+    const fakeNonce = stub(erc20.functions, 'getNonce')
+
+    fakeNonce.resolves([BigNumber.from(0)])
+
+    const fake = stub(contract.functions, 'executeMetaTransaction')
+    fake.resolves({
+      hash: '0x123',
+      confirmations: 0,
+      from: '0x123',
+      to: '0x123',
+      gasLimit: BigNumber.from(0),
+      gasPrice: BigNumber.from(0),
+      nonce: 0,
+      data: 'Ad',
+      value: BigNumber.from(0),
+      chainId: 0,
+      wait: () =>
+        new Promise<TransactionReceipt>(() => {
+          return undefined
+        }),
+    })
+
+    const chainID = 80001
+    const wei = vendor.convertToWei('10')
+    const abiEncodedApprove = vendor.abiEncodeErc20Functions('approve', [payment.paymentsContract?.address, wei])
+    const userAddress = await vendor.signer.getAddress()
+    const nonce = await payment.getNonceForGaslessERC20(userAddress)
+    const signedMessage = await vendor.signedMessageForTx(
+      userAddress,
+      nonce,
+      abiEncodedApprove,
+      payment.biconomyERC20Contract!.address,
+      chainID,
+    )
+    const rsv = vendor.getSignatureParameters(signedMessage)
+    const result: TxResponse = await payment.gasslessApproval('10', chainID)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0x123')
+
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], userAddress)
+    assert.deepEqual(args[1], abiEncodedApprove)
+    assert.deepEqual(args[2], rsv.r)
+    assert.deepEqual(args[3], rsv.s)
+    assert.deepEqual(args[4], rsv.v)
   })
 })

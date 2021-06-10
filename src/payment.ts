@@ -2,17 +2,16 @@ import { ERC20_ABI, PAYMENT_ABI } from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
-import { API_KEY_REQUIRED } from './errors'
-import { BigNumber } from 'ethers'
+import { API_KEY_REQUIRED, INVALID_BICONOMY_KEY } from './errors'
 
 export default class extends Deployed {
-  key?: string
+  coinMarketCapKey?: string
   /**
    * @param vendor - Instance of a Vendor class
    */
-  constructor(vendor: Vendor, key?: string) {
+  constructor(vendor: Vendor, coinMarketCapKey?: string) {
     super(vendor, PAYMENT_ABI, ERC20_ABI)
-    this.key = key
+    this.coinMarketCapKey = coinMarketCapKey
   }
 
   /**
@@ -151,17 +150,42 @@ export default class extends Deployed {
    * @param c - chain Id
    */
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
+    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+
     const wei = this.vendor.convertToWei(a)
-    console.log("Payment adddres:", this.paymentsContract?.address)
-    const abiEncodedApprove = this.vendor.abiEncodeErc20Functions("approve", [this.paymentsContract?.address, wei])
-    const userAddress = await this.vendor.signer.address;
-    console.log("user adddres:", userAddress)
-    console.log("vendor", this.vendor)
-    const nonce = await this.getNonceForGaslessERC20(userAddress);
-    console.log("erc20 adddres:", this.erc20Contract!.address)
-    const signedMessage = await this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, this.erc20Contract!.address, c);
-    const rsv = this.vendor.getSignatureParameters(signedMessage);
-    return await this.vendor.sendRawBiconomyTransaction(userAddress, abiEncodedApprove, rsv, this.erc20Contract!.address, this.erc20Abi)
+    const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [this.paymentsContract?.address, wei])
+    const userAddress = await this.vendor.signer.getAddress()
+    const nonce = await this.getNonceForGaslessERC20(userAddress)
+    const signedMessage = await this.vendor.signedMessageForTx(
+      userAddress,
+      nonce,
+      abiEncodedApprove,
+      this.erc20Contract!.address,
+      c,
+    )
+    const rsv = this.vendor.getSignatureParameters(signedMessage)
+    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
+  }
+  /**
+   *
+   * @remarks
+   * returns abi enocoded erc20 function
+   * @param string - user address
+   * @param string - abi encoded function
+   * @param SignatureParams - rsv values
+   */
+  async sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.vendor.biconomy
+        .onEvent(this.vendor.biconomy.READY, async () => {
+          const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v)
+          resolve(tx)
+        })
+        .onEvent(this.vendor.biconomy.ERROR, (error: string) => {
+          console.log(error)
+          reject(error)
+        })
+    })
   }
 
   /**
@@ -175,14 +199,13 @@ export default class extends Deployed {
   }
 
   /**
-  * @remarks
-  * Get nonce for gassless transaction on erc20
-  *
-  * @param u user address
-  */
+   * @remarks
+   * Get nonce for gassless transaction on erc20
+   *
+   * @param u user address
+   */
   async getNonceForGaslessERC20(u: string): Promise<number> {
-    console.log("nonce", this.erc20Contract?.address)
-    const nonce = ((await this.erc20Contract?.functions.getNonce(u))[0] as BigNumber).toNumber();
+    const nonce = (await this.erc20Contract?.functions.getNonce(u))[0].toNumber()
     return nonce
   }
 
@@ -265,8 +288,8 @@ export default class extends Deployed {
    * @param a amount of areweave
    */
   async getArweaveConvertedUsd(a: string): Promise<number> {
-    if (!this.key) throw new Error(API_KEY_REQUIRED)
-    const qoute = await this.services.arweaveToUsd(a, this.key)
+    if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.arweaveToUsd(a, this.coinMarketCapKey)
     return qoute
   }
   /**
@@ -276,9 +299,8 @@ export default class extends Deployed {
    * @param a amount of areweave
    */
   async getArweaveQuote(): Promise<number> {
-    if (!this.key) throw new Error(API_KEY_REQUIRED)
-    const qoute = await this.services.arweaveQuote(this.key)
+    if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.arweaveQuote(this.coinMarketCapKey)
     return qoute
   }
-
 }

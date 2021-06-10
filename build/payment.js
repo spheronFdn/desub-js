@@ -16,9 +16,9 @@ const constants_1 = require("./constants");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const errors_1 = require("./errors");
 class default_1 extends deployed_1.default {
-    constructor(vendor, key) {
+    constructor(vendor, coinMarketCapKey) {
         super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI);
-        this.key = key;
+        this.coinMarketCapKey = coinMarketCapKey;
     }
     paymentWithFee(u, b, d, providerQuote, providerCharged, provider) {
         var _a;
@@ -98,13 +98,31 @@ class default_1 extends deployed_1.default {
     gasslessApproval(a, c) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            if (!this.vendor.biconomy)
+                throw new Error(errors_1.INVALID_BICONOMY_KEY);
             const wei = this.vendor.convertToWei(a);
-            const abiEncodedApprove = this.vendor.abiEncodeErc20Functions("approve", [(_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.address, wei]);
-            const userAddress = yield this.vendor.signer.address;
+            const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [(_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.address, wei]);
+            const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
             const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, this.erc20Contract.address, c);
             const rsv = this.vendor.getSignatureParameters(signedMessage);
-            return yield this.vendor.sendRawBiconomyTransaction(userAddress, abiEncodedApprove, rsv, this.erc20Contract.address, this.erc20Abi);
+            return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
+        });
+    }
+    sendRawBiconomyERC20Transaction(u, f, rsv) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                this.vendor.biconomy
+                    .onEvent(this.vendor.biconomy.READY, () => __awaiter(this, void 0, void 0, function* () {
+                    var _a;
+                    const tx = yield ((_a = this.biconomyERC20Contract) === null || _a === void 0 ? void 0 : _a.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v));
+                    resolve(tx);
+                }))
+                    .onEvent(this.vendor.biconomy.ERROR, (error) => {
+                    console.log(error);
+                    reject(error);
+                });
+            });
         });
     }
     getApprovalAmount(a) {
@@ -173,17 +191,17 @@ class default_1 extends deployed_1.default {
     }
     getArweaveConvertedUsd(a) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.key)
+            if (!this.coinMarketCapKey)
                 throw new Error(errors_1.API_KEY_REQUIRED);
-            const qoute = yield this.services.arweaveToUsd(a, this.key);
+            const qoute = yield this.services.arweaveToUsd(a, this.coinMarketCapKey);
             return qoute;
         });
     }
     getArweaveQuote() {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!this.key)
+            if (!this.coinMarketCapKey)
                 throw new Error(errors_1.API_KEY_REQUIRED);
-            const qoute = yield this.services.arweaveQuote(this.key);
+            const qoute = yield this.services.arweaveQuote(this.coinMarketCapKey);
             return qoute;
         });
     }

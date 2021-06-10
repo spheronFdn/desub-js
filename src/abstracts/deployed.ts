@@ -16,6 +16,7 @@ export default abstract class implements Keyed {
   public vendor: Vendor
   public paymentsContract?: Contract
   public erc20Contract?: Contract
+  public biconomyERC20Contract?: Contract
   public services: Services
 
   /**
@@ -37,10 +38,17 @@ export default abstract class implements Keyed {
    *
    * @returns boolean indicating a successful wrapping of the target deployed contract
    */
-  at(a: string, e: string, o?: TransactOpts): boolean {
+  async at(a: string, e: string, o?: TransactOpts): Promise<boolean> {
     this.paymentsContract = this.vendor.contract(a, this.paymentsAbi, o)
     this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
     this.services = new Services()
-    return !!this.paymentsContract
+    if (this.vendor.biconomy !== undefined) {
+      this.biconomyERC20Contract = this.vendor.contract(
+        e,
+        this.erc20Abi,
+        this.vendor.biconomy.getSignerByAddress(await this.vendor.signer.getAddress()),
+      )
+    }
+    return !!this.paymentsContract && !!this.erc20Contract
   }
 }

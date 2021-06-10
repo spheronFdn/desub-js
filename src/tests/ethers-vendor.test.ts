@@ -8,6 +8,7 @@ import { Wallet } from '@ethersproject/wallet'
 import { BigNumber } from '@ethersproject/bignumber'
 import { DiscountDataClass } from '../vendors/discount-data'
 import { ethers } from 'ethers'
+import { metaTransactionType } from '../constants/payment'
 
 describe('Ethers Provider abstraction', async () => {
   let vendor: Vendor
@@ -83,23 +84,63 @@ describe('Ethers Provider abstraction', async () => {
     assert.deepEqual(await signer.getAddress(), recoveredAddress)
   })
   it('should should abi encode params', async () => {
-    const abi = ["function approve(address spender, uint256 amount) external returns (bool)"]
-    let iface = new ethers.utils.Interface(abi);
-    const func = "approve";
-    const addr = "0x0B59779C5320B384c9D72457fcd92ABA299ef360";
+    const abi = ['function approve(address spender, uint256 amount) external returns (bool)']
+    const iface = new ethers.utils.Interface(abi)
+    const func = 'approve'
+    const addr = '0x0B59779C5320B384c9D72457fcd92ABA299ef360'
     const params = [addr, BigNumber.from(1)]
-    var data = iface.encodeFunctionData(func, params)
+    const data = iface.encodeFunctionData(func, params)
     const encoded = vendor.abiEncodeErc20Functions(func, params)
     assert.deepEqual(encoded, data)
   })
   it('it should return signed message', async () => {
-    const abi = ["function approve(address spender, uint256 amount) external returns (bool)"]
-    let iface = new ethers.utils.Interface(abi);
-    const func = "approve";
-    const addr = "0x0B59779C5320B384c9D72457fcd92ABA299ef360";
-    const params = [addr, BigNumber.from(1)]
-    var data = iface.encodeFunctionData(func, params)
-    const encoded = vendor.abiEncodeErc20Functions(func, params)
-    assert.deepEqual(encoded, data)
+    const address = '0x0B59779C5320B384c9D72457fcd92ABA299ef360'
+    const chainId = 1
+    const nonce = 0
+    const params = [address, BigNumber.from(1)]
+    const func = 'approve'
+    const abiEncoded = vendor.abiEncodeErc20Functions(func, params)
+
+    const domainData = {
+      name: 'ArGo Token',
+      version: '1',
+      verifyingContract: address,
+      salt: '0x' + chainId.toString(16).padStart(64, '0'),
+    }
+    const message = {
+      nonce: nonce,
+      from: address,
+      functionSignature: abiEncoded,
+    }
+    const types = {
+      MetaTransaction: metaTransactionType,
+    }
+    const signature = await vendor.signer._signTypedData(domainData, types, message)
+    const data = await vendor.signedMessageForTx(address, nonce, abiEncoded, address, chainId)
+    assert.deepEqual(signature, data)
+  })
+  it('it should return signature params', async () => {
+    const address = '0x0B59779C5320B384c9D72457fcd92ABA299ef360'
+    const chainId = 1
+    const nonce = 0
+    const params = [address, BigNumber.from(1)]
+    const func = 'approve'
+    const abiEncoded = vendor.abiEncodeErc20Functions(func, params)
+    const signature = await vendor.signedMessageForTx(address, nonce, abiEncoded, address, chainId)
+    if (!ethers.utils.isHexString(signature)) {
+      throw new Error('Given value "'.concat(signature, '" is not a valid hex string.'))
+    }
+    const r = signature.slice(0, 66)
+    const s = '0x'.concat(signature.slice(66, 130))
+    const v = '0x'.concat(signature.slice(130, 132))
+    let _v = BigNumber.from(v).toNumber()
+    if (![27, 28].includes(_v)) _v += 27
+    const rsv = {
+      r: r,
+      s: s,
+      v: _v,
+    }
+    const data = vendor.getSignatureParameters(signature)
+    assert.deepEqual(rsv, data)
   })
 })
