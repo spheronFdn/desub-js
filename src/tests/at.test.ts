@@ -15,8 +15,8 @@ describe('Payment at method', () => {
     payment = new Payment(vendor)
   })
 
-  it('Wraps a deployed contract', () => {
-    const wrapped = payment.at('0x123', '0xabc')
+  it('Wraps a deployed contract', async () => {
+    const wrapped = await payment.at('0x123', '0xabc')
     assert.isTrue(wrapped)
     assert.isNotNull(payment.paymentsContract)
     assert.isNotNull(payment.erc20Contract)

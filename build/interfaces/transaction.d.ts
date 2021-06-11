@@ -14,3 +14,8 @@ export interface TxResponse {
 export interface Uint256Response {
     hash: string;
 }
+export interface SignatureParams {
+    r: string;
+    s: string;
+    v: number;
+}

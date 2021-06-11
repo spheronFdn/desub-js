@@ -9,7 +9,8 @@ export default abstract class implements Keyed {
     vendor: Vendor;
     paymentsContract?: Contract;
     erc20Contract?: Contract;
+    biconomyERC20Contract?: Contract;
     services: Services;
     protected constructor(v: Vendor, a: Abi, e: Abi);
-    at(a: string, e: string, o?: TransactOpts): boolean;
+    at(a: string, e: string, o?: TransactOpts): Promise<boolean>;
 }

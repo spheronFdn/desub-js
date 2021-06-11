@@ -2,8 +2,8 @@ import Deployed from './abstracts/deployed';
 import Vendor from './abstracts/vendor';
 import { TxResponse } from './interfaces';
 export default class extends Deployed {
-    key?: string;
-    constructor(vendor: Vendor, key?: string);
+    coinMarketCapKey?: string;
+    constructor(vendor: Vendor, coinMarketCapKey?: string);
     paymentWithFee(u: string, b: string, d: string, providerQuote: any, providerCharged: any, provider: string): Promise<TxResponse>;
     paymentWithoutFee(a: string, b: string): Promise<TxResponse>;
     updateEscrow(a: string): Promise<TxResponse>;
@@ -15,7 +15,10 @@ export default class extends Deployed {
     setGovernanceAddress(h: string): Promise<TxResponse>;
     setManagers(h: Array<string>): Promise<TxResponse>;
     setNewApprovals(a: string): Promise<TxResponse>;
+    gasslessApproval(a: string, c: number): Promise<TxResponse>;
+    sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any>;
     getApprovalAmount(a: string): Promise<any>;
+    getNonceForGaslessERC20(u: string): Promise<number>;
     getUserBalance(a: string): Promise<any>;
     getManagers(): Promise<Array<string>>;
     getGovernanceAddress(): Promise<string>;

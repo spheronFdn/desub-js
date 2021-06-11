@@ -1,7 +1,7 @@
 {
     "name": "@argoapp/payment-js",
     "version": "1.0.0",
-    "description": "Javascript library for working with the Payment Contracts in ArGo",
+    "description": "Typescript library for working with the Payment Contracts in ArGo",
     "main": "build/index.js",
     "types": "build/index.d.ts",
     "author": "argo",
@@ -31,19 +31,23 @@
         "test": "mocha -r ts-node/register 'src/**/*.test.ts'",
         "build:clean": "rm -rf ./build",
         "build:dry": "tsc -noEmit -p ./tsbuild.json",
-        "build": "npm run build:clean && tsc -p ./tsbuild.json"
+        "build": "rm -rf ./build && tsc -p ./tsbuild.json"
     },
     "dependencies": {
+        "@biconomy/mexa": "^2.0.9",
         "@ethersproject/abstract-signer": "^5.0.12",
         "@ethersproject/contracts": "^5.0.10",
         "@ethersproject/providers": "^5.0.20",
         "@ethersproject/wallet": "^5.0.11",
         "axios": "^0.21.1",
         "dotenv": "^10.0.0",
-        "ethers": "^5.0.31"
+        "ethers": "^5.0.31",
+        "lodash": "^4.17.21",
+        "web3": "^1.3.6"
     },
     "devDependencies": {
         "@types/chai": "^4.2.14",
+        "@types/lodash": "^4.14.170",
         "@types/mocha": "^8.2.0",
         "@types/node": "^15.6.0",
         "@types/sinon": "^9.0.10",
