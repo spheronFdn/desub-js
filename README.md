@@ -12,7 +12,7 @@
 | $$                 \$$    $$                                                         \$$    $$          
  \$$                  \$$$$$$                                                           \$$$$$$             
 ```
-#### Javascript library for working with the Payment Contracts in ArGo
+#### Typescript library for working with the Payment Contracts in ArGo
 
 > Important Notice: ArGo is in its Alpha stage. If you have a suggestion, idea, or find a bug, please report it! The ArGo team will not be held accountable for any funds lost.
 
