@@ -17,19 +17,23 @@ const vendor_1 = __importDefault(require("../abstracts/vendor"));
 const contracts_1 = require("@ethersproject/contracts");
 const ethers_1 = require("ethers");
 const discount_data_1 = require("./discount-data");
+const mexa_1 = require("@biconomy/mexa");
 const __1 = require("..");
+const payment_1 = require("../constants/payment");
 class default_1 extends vendor_1.default {
-    constructor(p, s) {
+    constructor(p, s, b) {
         super();
-        this.verifySignedMessage = (m, s) => {
-            const address = ethers_1.ethers.utils.verifyMessage(m, s);
-            return address;
-        };
         this.provider = p;
         this.signer = s;
+        if (b) {
+            this.biconomy = new mexa_1.Biconomy(p, { apiKey: b, debug: false });
+        }
     }
-    contract(address, abi) {
+    contract(address, abi, p) {
         this.requireSignerOrProvider();
+        if (p) {
+            return new contracts_1.Contract(address, abi, p);
+        }
         return new contracts_1.Contract(address, abi, this.signer);
     }
     convertStringArrayToBigNumberArray(array) {
@@ -58,6 +62,51 @@ class default_1 extends vendor_1.default {
             const signedMessage = yield this.signer.signMessage(m);
             return signedMessage;
         });
+    }
+    verifySignedMessage(m, s) {
+        const address = ethers_1.ethers.utils.verifyMessage(m, s);
+        return address;
+    }
+    abiEncodeErc20Functions(f, p) {
+        const iface = new ethers_1.ethers.utils.Interface(payment_1.ERC20Interface);
+        const data = iface.encodeFunctionData(f, p);
+        return data;
+    }
+    signedMessageForTx(u, n, f, a, c) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const domainData = {
+                name: 'ArGo Token',
+                version: '1',
+                verifyingContract: a,
+                salt: '0x' + c.toString(16).padStart(64, '0'),
+            };
+            const message = {
+                nonce: n,
+                from: u,
+                functionSignature: f,
+            };
+            const types = {
+                MetaTransaction: payment_1.metaTransactionType,
+            };
+            const signature = yield this.signer._signTypedData(domainData, types, message);
+            return signature;
+        });
+    }
+    getSignatureParameters(signature) {
+        if (!ethers_1.ethers.utils.isHexString(signature)) {
+            throw new Error('Given value "'.concat(signature, '" is not a valid hex string.'));
+        }
+        const r = signature.slice(0, 66);
+        const s = '0x'.concat(signature.slice(66, 130));
+        const v = '0x'.concat(signature.slice(130, 132));
+        let _v = ethers_1.BigNumber.from(v).toNumber();
+        if (![27, 28].includes(_v))
+            _v += 27;
+        return {
+            r: r,
+            s: s,
+            v: _v,
+        };
     }
     requireSignerOrProvider() {
         if (!this.signer && !this.provider)
