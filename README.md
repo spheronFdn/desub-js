@@ -40,6 +40,6 @@ Follow below steps to build argo-payments-js in local
     MNEMONIC_TEST="MNEMONIC_FOR_ACCOUNT"
     RPC_ENDPOINT="JSON_RPC_ENDPOINT_FOR_ETHEREUM_NETWORK"
 ```
- `Note: you can ping us on discord and we will be happy to share our .env file with you`
+ > Note: you can ping us on discord and we will be happy to share our .env file with you
  
 
