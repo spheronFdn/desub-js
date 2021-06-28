@@ -1,6 +1,6 @@
 {
     "name": "@argoapp/payment-js",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Typescript library for working with the Payment Contracts in ArGo",
     "main": "build/index.js",
     "types": "build/index.d.ts",
