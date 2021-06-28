@@ -6,7 +6,10 @@ export default class extends Deployed {
     constructor(vendor: Vendor, coinMarketCapKey?: string);
     paymentWithFee(u: string, b: string, d: string, providerQuote: any, providerCharged: any, provider: string): Promise<TxResponse>;
     paymentWithoutFee(a: string, b: string): Promise<TxResponse>;
+    updateUnderlyingToken(a: string): Promise<TxResponse>;
     updateEscrow(a: string): Promise<TxResponse>;
+    updateFeederAddress(a: string): Promise<TxResponse>;
+    updateStakedToken(a: string): Promise<TxResponse>;
     updateToken(a: string): Promise<TxResponse>;
     updateDiscountSlabs(d: Array<string>, p: Array<string>): Promise<TxResponse>;
     changeBuildTimeRate(p: string): Promise<TxResponse>;
@@ -26,6 +29,7 @@ export default class extends Deployed {
     getEscrow(): Promise<string>;
     checkIfDiscountsEnabled(): Promise<boolean>;
     getStakingManagerAddress(): Promise<string>;
+    getStakedTokenAddress(): Promise<string>;
     getDiscountSlabs(): Promise<any>;
     getArweaveConvertedUsd(a: string): Promise<number>;
     getArweaveQuote(): Promise<number>;

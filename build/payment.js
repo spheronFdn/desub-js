@@ -37,10 +37,28 @@ class default_1 extends deployed_1.default {
             return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.charge(a, buildTime));
         });
     }
+    updateUnderlyingToken(a) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.updateUnderlyingToken(a));
+        });
+    }
     updateEscrow(a) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.updateEscrow(a));
+        });
+    }
+    updateFeederAddress(a) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.updateFeederAddress(a));
+        });
+    }
+    updateStakedToken(a) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.updateStakedToken(a));
         });
     }
     updateToken(a) {
@@ -187,6 +205,12 @@ class default_1 extends deployed_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.stakingManager());
+        });
+    }
+    getStakedTokenAddress() {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.stakedToken());
         });
     }
     getDiscountSlabs() {
