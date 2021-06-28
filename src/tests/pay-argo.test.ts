@@ -29,7 +29,7 @@ describe('Payments methods', () => {
     const signer = Wallet.fromMnemonic(mnemonic).connect(httpProvider)
     vendor = new Vendor(httpProvider, signer, biconomyKey)
     payment = new Payment(vendor, invalidKey)
-    await payment.at('0x0B59779C5320B384c9D72457fcd92ABA299ef360', '0x135d0CabDF539dc82121a48b5936ee3E3F785558')
+    await payment.at('0x113bcF2d1DeB08D295291dA8Bce33ACAD9c9A726', '0xE044842Ce0A54dF5Dc11dbB962B462B28331728e')
   })
 
   it('it should pay with fee', async () => {
@@ -139,6 +139,78 @@ describe('Payments methods', () => {
     fake.resolves({ hash: '0xhash' })
     const addr = '0x1abc'
     const result: TxResponse = await payment.updateToken(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
+  it('it should pass underlying token address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateUnderlyingToken')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0x1abc'
+    const result: TxResponse = await payment.updateUnderlyingToken(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
+  it('it should pass correct feeder address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateFeederAddress')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0x1abc'
+    const result: TxResponse = await payment.updateFeederAddress(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
+  it('it should pass correct staked token address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateStakedToken')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0x1abc'
+    const result: TxResponse = await payment.updateStakedToken(addr)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -489,6 +561,26 @@ describe('Payments methods', () => {
     const fake = stub(contract.functions, 'stakingManager')
     fake.resolves('0x123')
     const result = await payment.getStakingManagerAddress()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result, '0x123')
+  })
+  it('it should give correct staked token address', async () => {
+    // allow stubbing contract properties
+    payment.paymentsContract = cloneWithWriteAccess(payment.paymentsContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = payment.paymentsContract ? payment.paymentsContract : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'stakedToken')
+    fake.resolves('0x123')
+    const result = await payment.getStakedTokenAddress()
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result, '0x123')
