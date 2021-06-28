@@ -75,7 +75,7 @@ class default_1 extends vendor_1.default {
     signedMessageForTx(u, n, f, a, c) {
         return __awaiter(this, void 0, void 0, function* () {
             const domainData = {
-                name: 'ArGo Token',
+                name: 'Test DAI',
                 version: '1',
                 verifyingContract: a,
                 salt: '0x' + c.toString(16).padStart(64, '0'),
