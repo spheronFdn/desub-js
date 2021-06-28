@@ -34,6 +34,11 @@ exports.PAYMENT_ABI = [
                 name: 'p',
                 type: 'address',
             },
+            {
+                internalType: 'address',
+                name: 's',
+                type: 'address',
+            },
         ],
         stateMutability: 'nonpayable',
         type: 'constructor',
@@ -440,6 +445,13 @@ exports.PAYMENT_ABI = [
     },
     {
         inputs: [],
+        name: 'pause',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [],
         name: 'paused',
         outputs: [
             {
@@ -492,6 +504,19 @@ exports.PAYMENT_ABI = [
     },
     {
         inputs: [],
+        name: 'stakedToken',
+        outputs: [
+            {
+                internalType: 'contract IERC20',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
         name: 'stakingManager',
         outputs: [
             {
@@ -514,6 +539,13 @@ exports.PAYMENT_ABI = [
             },
         ],
         stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'unpause',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function',
     },
     {
@@ -551,11 +583,50 @@ exports.PAYMENT_ABI = [
         inputs: [
             {
                 internalType: 'address',
+                name: 'o',
+                type: 'address',
+            },
+        ],
+        name: 'updateFeederAddress',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 's',
+                type: 'address',
+            },
+        ],
+        name: 'updateStakedToken',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
                 name: 'u',
                 type: 'address',
             },
         ],
         name: 'updateToken',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'u',
+                type: 'address',
+            },
+        ],
+        name: 'updateUnderlyingToken',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',

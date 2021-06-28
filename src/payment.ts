@@ -50,12 +50,39 @@ export default class extends Deployed {
   }
   /**
    * @remarks
+   * This method can be used to updated address of underlying token.
+   *
+   * @param a - address of token to use for charging users
+   */
+  async updateUnderlyingToken(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateUnderlyingToken(a)
+  }
+  /**
+   * @remarks
    * This method can be used to updated address of vault/escrow account
    *
    * @param a - address of escrow contract(vault)
    */
   async updateEscrow(a: string): Promise<TxResponse> {
     return await this.paymentsContract?.functions.updateEscrow(a)
+  }
+  /**
+   * @remarks
+   * This method can be used to updated address of oracle price feed.
+   *
+   * @param a - address of escrow contract(vault)
+   */
+  async updateFeederAddress(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateFeederAddress(a)
+  }
+  /**
+   * @remarks
+   * This method can be used to updated address of staked token
+   *
+   * @param a - address of escrow contract(vault)
+   */
+  async updateStakedToken(a: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateStakedToken(a)
   }
   /**
    * @remarks
@@ -276,6 +303,14 @@ export default class extends Deployed {
    */
   async getStakingManagerAddress(): Promise<string> {
     return await this.paymentsContract?.functions.stakingManager()
+  }
+  /**
+   * @remarks
+   * Get staking manager  address.
+   *
+   */
+  async getStakedTokenAddress(): Promise<string> {
+    return await this.paymentsContract?.functions.stakedToken()
   }
   /**
    * @remarks

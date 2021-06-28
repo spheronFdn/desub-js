@@ -14,7 +14,7 @@ describe('Services tests', () => {
   it('calls api', async () => {
     const result = await services.arweaveToUsd('2', apikey)
     assert.notEqual(result, 0)
-  })
+  }).timeout(5000)
 
   it('should throw with invalid api key', async () => {
     const invalidKey = 'apikey'
@@ -23,11 +23,11 @@ describe('Services tests', () => {
     } catch (err) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
-  })
+  }).timeout(5000)
   it('calls api for quote', async () => {
     const result = await services.arweaveQuote(apikey)
     assert.notEqual(result, 0)
-  })
+  }).timeout(5000)
 
   it('should throw with invalid api key for quote', async () => {
     const invalidKey = 'apikey'
@@ -36,5 +36,5 @@ describe('Services tests', () => {
     } catch (err) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
-  })
+  }).timeout(5000)
 })
