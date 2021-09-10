@@ -171,7 +171,7 @@ export default class extends Vendor {
    */
   async signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string> {
     const domainData = {
-      name: 'Test DAI',
+      name: 'Test ArGo',
       version: '1',
       verifyingContract: a,
       salt: '0x' + c.toString(16).padStart(64, '0'),
