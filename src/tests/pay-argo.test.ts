@@ -45,7 +45,7 @@ describe('Payments methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = a
+    const fake = stub(contract.functions, 'chargeWithProvider')
     fake.resolves({ hash: '0xhash' })
     const address = '0x123'
     const buildTime = '12'

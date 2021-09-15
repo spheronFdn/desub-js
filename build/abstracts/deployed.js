@@ -14,15 +14,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const services_1 = __importDefault(require("../services/services"));
 class default_1 {
-    constructor(v, a, e) {
+    constructor(v, a, e, subscriptionPayments, subscriptionData) {
         this.vendor = v;
         this.paymentsAbi = a;
         this.erc20Abi = e;
+        this.subscriptionPaymentAbi = subscriptionPayments;
+        this.subscriptionDataAbi = subscriptionData;
         this.services = new services_1.default();
     }
     at(a, e, o) {
         return __awaiter(this, void 0, void 0, function* () {
             this.paymentsContract = this.vendor.contract(a, this.paymentsAbi, o);
+            this.erc20Contract = this.vendor.contract(e, this.erc20Abi);
+            this.services = new services_1.default();
+            if (this.vendor.biconomy !== undefined) {
+                this.biconomyERC20Contract = this.vendor.contract(e, this.erc20Abi, this.vendor.biconomy.getSignerByAddress(yield this.vendor.signer.getAddress()));
+            }
+            return !!this.paymentsContract && !!this.erc20Contract;
+        });
+    }
+    subscriptionAt(subscriptionPayments, subscriptionData, e, o) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.subscriptionPaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionPaymentAbi, o);
+            this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o);
             this.erc20Contract = this.vendor.contract(e, this.erc20Abi);
             this.services = new services_1.default();
             if (this.vendor.biconomy !== undefined) {

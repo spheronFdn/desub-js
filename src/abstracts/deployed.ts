@@ -18,16 +18,22 @@ export default abstract class implements Keyed {
   public erc20Contract?: Contract
   public biconomyERC20Contract?: Contract
   public services: Services
+  public subscriptionPaymentAbi: Abi
+  public subscriptionPaymentContract?: Contract
+  public subscriptionDataAbi: Abi
+  public subscriptionDataContract?: Contract
 
   /**
    * @param v - Optional Vendor the HOC will use
    * @param a - Compiled abi of the payments smart contract this HOC wraps
    * @param e - Compiled abi of ERC20 smart contract this HOC wraps
    */
-  protected constructor(v: Vendor, a: Abi, e: Abi) {
+  protected constructor(v: Vendor, a: Abi, e: Abi, subscriptionPayments: Abi, subscriptionData: Abi) {
     this.vendor = v
     this.paymentsAbi = a
     this.erc20Abi = e
+    this.subscriptionPaymentAbi = subscriptionPayments
+    this.subscriptionDataAbi = subscriptionData
     this.services = new Services()
   }
 
@@ -41,6 +47,35 @@ export default abstract class implements Keyed {
   async at(a: string, e: string, o?: TransactOpts): Promise<boolean> {
     this.paymentsContract = this.vendor.contract(a, this.paymentsAbi, o)
     this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
+
+    this.services = new Services()
+    if (this.vendor.biconomy !== undefined) {
+      this.biconomyERC20Contract = this.vendor.contract(
+        e,
+        this.erc20Abi,
+        this.vendor.biconomy.getSignerByAddress(await this.vendor.signer.getAddress()),
+      )
+    }
+    return !!this.paymentsContract && !!this.erc20Contract
+  }
+  /**
+   * @param s - ETH address of an already deployed subscription contract
+   * @param e - ETH address of an already deployed ERC20 ArGo Token.
+   * @param o - Optional specified transaction options
+   *
+   * @returns boolean indicating a successful wrapping of the target deployed contract
+   */
+  async subscriptionAt(
+    subscriptionPayments: string,
+    subscriptionData: string,
+    e: string,
+    o?: TransactOpts,
+  ): Promise<boolean> {
+    this.subscriptionPaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionPaymentAbi, o)
+    this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o)
+
+    this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
+
     this.services = new Services()
     if (this.vendor.biconomy !== undefined) {
       this.biconomyERC20Contract = this.vendor.contract(

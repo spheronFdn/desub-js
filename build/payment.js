@@ -17,7 +17,7 @@ const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const errors_1 = require("./errors");
 class default_1 extends deployed_1.default {
     constructor(vendor, coinMarketCapKey) {
-        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI);
+        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI);
         this.coinMarketCapKey = coinMarketCapKey;
     }
     paymentWithFee(u, b, d, providerQuote, providerCharged, provider) {

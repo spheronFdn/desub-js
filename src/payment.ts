@@ -1,4 +1,4 @@
-import { ERC20_ABI, PAYMENT_ABI } from './constants'
+import { ERC20_ABI, PAYMENT_ABI, SUBSCRIPTION_DATA_ABI, SUBSCRIPTION_PAYMENT_ABI } from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
@@ -10,7 +10,7 @@ export default class extends Deployed {
    * @param vendor - Instance of a Vendor class
    */
   constructor(vendor: Vendor, coinMarketCapKey?: string) {
-    super(vendor, PAYMENT_ABI, ERC20_ABI)
+    super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
     this.coinMarketCapKey = coinMarketCapKey
   }
 

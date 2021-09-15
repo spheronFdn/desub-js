@@ -102,7 +102,7 @@ describe('Ethers Provider abstraction', async () => {
     const abiEncoded = vendor.abiEncodeErc20Functions(func, params)
 
     const domainData = {
-      name: 'ArGo Token',
+      name: 'Test ArGo',
       version: '1',
       verifyingContract: address,
       salt: '0x' + chainId.toString(16).padStart(64, '0'),
