@@ -7,4 +7,4 @@ const helpers = {
   ethers: ethersHelper,
 }
 
-export { Payment, Subscription,  Vendor, helpers }
+export { Payment, Subscription, Vendor, helpers }

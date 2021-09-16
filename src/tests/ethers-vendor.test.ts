@@ -1,5 +1,7 @@
 import 'mocha'
-import { assert } from 'chai'
+import { assert, expect } from 'chai'
+import chai from 'chai'
+
 import Vendor from '../vendors/ethers'
 import { Contract } from '../interfaces'
 import { Provider, getDefaultProvider } from '@ethersproject/providers'
@@ -9,7 +11,8 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { DiscountDataClass } from '../vendors/discount-data'
 import { ethers } from 'ethers'
 import { metaTransactionType } from '../constants/payment'
-
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+chai.use(require('chai-bignumber')())
 describe('Ethers Provider abstraction', async () => {
   let vendor: Vendor
 
@@ -38,15 +41,14 @@ describe('Ethers Provider abstraction', async () => {
     const number = '10'
     const result = vendor.convertToBN(number)
     assert.isNotNull(result)
-    assert.deepEqual(result, BigNumber.from(number))
+    expect(result.toString()).to.be.equal(BigNumber.from(number).toString())
   })
   it('returns eth value converted to wei', () => {
     const number = '10.04'
     const result = vendor.convertToWei(number)
     const wei = BigNumber.from(1004).mul(BigNumber.from(`10`).pow(16))
-
     assert.isNotNull(result)
-    assert.deepEqual(result, wei)
+    expect(result.toString()).to.be.equal(wei.toString())
   })
   it('returns a wei value to eth', () => {
     const number = '10'
@@ -55,7 +57,7 @@ describe('Ethers Provider abstraction', async () => {
     )
     const result = vendor.convertWeiToEth(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString())
     assert.isNotNull(result)
-    assert.deepEqual(result, eth)
+    assert.deepEqual(result.toString(), eth.toString())
   })
   it('returns an array of numbers to big numbers', () => {
     const number = ['10', '20']

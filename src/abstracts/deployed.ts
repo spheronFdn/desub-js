@@ -84,6 +84,6 @@ export default abstract class implements Keyed {
         this.vendor.biconomy.getSignerByAddress(await this.vendor.signer.getAddress()),
       )
     }
-    return !!this.paymentsContract && !!this.erc20Contract
+    return !!this.subscriptionPaymentContract && !!this.subscriptionPaymentContract && !!this.erc20Contract
   }
 }
