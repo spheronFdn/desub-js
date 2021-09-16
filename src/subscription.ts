@@ -100,6 +100,16 @@ export default class extends Deployed {
 
   /**
    * @remarks
+   * This method can only be called by owner, to update data contract address.
+   *
+   * @param h - address of data contract.
+   */
+   async setDataContract(h: string): Promise<TxResponse> {
+    return await this.subscriptionPaymentContract?.functions.updateDataContract(h)
+  }
+
+  /**
+   * @remarks
    * This method can only be called by owner, to set new  owners.
    *
    * @param h - array of addresses of new oweners.
@@ -273,6 +283,15 @@ export default class extends Deployed {
    */
   async getDiscountSlabs(): Promise<any> {
     const slabs = await this.subscriptionDataContract?.functions.discountSlabs()
+    return this.vendor.parseDiscountSlabs(slabs)
+  }
+  /**
+   * @remarks
+   * Get discount slabs.
+   *
+   */
+  async getDataContract(): Promise<any> {
+    const slabs = await this.subscriptionPaymentContract?.functions.subscriptionData()
     return this.vendor.parseDiscountSlabs(slabs)
   }
 

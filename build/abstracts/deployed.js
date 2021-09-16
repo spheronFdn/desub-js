@@ -42,7 +42,7 @@ class default_1 {
             if (this.vendor.biconomy !== undefined) {
                 this.biconomyERC20Contract = this.vendor.contract(e, this.erc20Abi, this.vendor.biconomy.getSignerByAddress(yield this.vendor.signer.getAddress()));
             }
-            return !!this.paymentsContract && !!this.erc20Contract;
+            return !!this.subscriptionPaymentContract && !!this.subscriptionPaymentContract && !!this.erc20Contract;
         });
     }
 }

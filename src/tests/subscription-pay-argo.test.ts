@@ -196,6 +196,32 @@ describe('subscriptions methods', () => {
     const { args } = fake.getCall(0)
     assert.equal(args[0], addr)
   })
+  it('it should pass data contract address', async () => {
+    // allow stubbing contract properties
+    subscription.subscriptionPaymentContract = cloneWithWriteAccess(subscription.subscriptionPaymentContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = subscription.subscriptionPaymentContract
+      ? subscription.subscriptionPaymentContract
+      : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'updateDataContract')
+    fake.resolves({ hash: '0xhash' })
+    const addr = '0x1abc'
+    const result: TxResponse = await subscription.setDataContract(addr)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+
+    const { args } = fake.getCall(0)
+    assert.equal(args[0], addr)
+  })
   it('it should pass correct feeder address', async () => {
     // allow stubbing contract properties
     subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
