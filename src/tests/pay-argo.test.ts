@@ -684,7 +684,7 @@ describe('Payments methods', () => {
       value: BigNumber.from(0),
       chainId: 0,
       // eslint-disable-next-line @typescript-eslint/no-empty-function
-      wait: () => new Promise<TransactionReceipt>(() => { }),
+      wait: () => new Promise<TransactionReceipt>(() => {}),
     })
 
     const chainID = 80001

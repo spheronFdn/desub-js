@@ -391,10 +391,6 @@ describe('subscriptions methods', () => {
     }
 
     const contract: Contract = subscription.erc20Contract ? subscription.erc20Contract : invalidContract
-    const subscriptionDataContract: Contract = subscription.subscriptionDataContract
-      ? subscription.subscriptionDataContract
-      : invalidContract
-
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
@@ -422,10 +418,6 @@ describe('subscriptions methods', () => {
     }
 
     const contract: Contract = subscription.erc20Contract ? subscription.erc20Contract : invalidContract
-    const subscriptionDataContract: Contract = subscription.subscriptionDataContract
-      ? subscription.subscriptionDataContract
-      : invalidContract
-
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
