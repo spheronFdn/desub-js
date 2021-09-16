@@ -6,11 +6,10 @@ import { Contract, SubscriptionParameters, TxResponse } from '../interfaces'
 import * as dotenv from 'dotenv'
 import { Subscription } from '..'
 import { cloneWithWriteAccess } from '../helpers'
-import { assert, expect } from 'chai'
+import { assert } from 'chai'
 import { stub } from 'sinon'
 import { BigNumber } from 'ethers'
 import _ from 'lodash'
-import { INVALID_API_KEY } from '../errors'
 
 describe('subscriptions methods', () => {
   let subscription: Subscription
