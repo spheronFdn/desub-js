@@ -3,6 +3,7 @@ import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
 import { API_KEY_REQUIRED, INVALID_BICONOMY_KEY } from './errors'
+import { akashTokenId, arweaveTokenId } from './constants/price-feed'
 
 export default class extends Deployed {
   coinMarketCapKey?: string
@@ -329,7 +330,7 @@ export default class extends Deployed {
    */
   async getArweaveConvertedUsd(a: string): Promise<number> {
     if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
-    const qoute = await this.services.arweaveToUsd(a, this.coinMarketCapKey)
+    const qoute = await this.services.tokenToUSD(a, arweaveTokenId, this.coinMarketCapKey)
     return qoute
   }
   /**
@@ -340,7 +341,29 @@ export default class extends Deployed {
    */
   async getArweaveQuote(): Promise<number> {
     if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
-    const qoute = await this.services.arweaveQuote(this.coinMarketCapKey)
+    const qoute = await this.services.tokenQuote(arweaveTokenId, this.coinMarketCapKey)
+    return qoute
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getAkashConvertedUsd(a: string): Promise<number> {
+    if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.tokenToUSD(a, akashTokenId, this.coinMarketCapKey)
+    return qoute
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getAkashQuote(): Promise<number> {
+    if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.tokenQuote(akashTokenId, this.coinMarketCapKey)
     return qoute
   }
 }

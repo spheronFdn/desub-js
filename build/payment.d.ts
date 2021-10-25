@@ -33,4 +33,6 @@ export default class extends Deployed {
     getDiscountSlabs(): Promise<any>;
     getArweaveConvertedUsd(a: string): Promise<number>;
     getArweaveQuote(): Promise<number>;
+    getAkashConvertedUsd(a: string): Promise<number>;
+    getAkashQuote(): Promise<number>;
 }

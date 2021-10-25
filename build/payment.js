@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const constants_1 = require("./constants");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const errors_1 = require("./errors");
+const price_feed_1 = require("./constants/price-feed");
 class default_1 extends deployed_1.default {
     constructor(vendor, coinMarketCapKey) {
         super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI);
@@ -224,7 +225,7 @@ class default_1 extends deployed_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.coinMarketCapKey)
                 throw new Error(errors_1.API_KEY_REQUIRED);
-            const qoute = yield this.services.arweaveToUsd(a, this.coinMarketCapKey);
+            const qoute = yield this.services.tokenToUSD(a, price_feed_1.arweaveTokenId, this.coinMarketCapKey);
             return qoute;
         });
     }
@@ -232,7 +233,23 @@ class default_1 extends deployed_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.coinMarketCapKey)
                 throw new Error(errors_1.API_KEY_REQUIRED);
-            const qoute = yield this.services.arweaveQuote(this.coinMarketCapKey);
+            const qoute = yield this.services.tokenQuote(price_feed_1.arweaveTokenId, this.coinMarketCapKey);
+            return qoute;
+        });
+    }
+    getAkashConvertedUsd(a) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.coinMarketCapKey)
+                throw new Error(errors_1.API_KEY_REQUIRED);
+            const qoute = yield this.services.tokenToUSD(a, price_feed_1.akashTokenId, this.coinMarketCapKey);
+            return qoute;
+        });
+    }
+    getAkashQuote() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.coinMarketCapKey)
+                throw new Error(errors_1.API_KEY_REQUIRED);
+            const qoute = yield this.services.tokenQuote(price_feed_1.akashTokenId, this.coinMarketCapKey);
             return qoute;
         });
     }

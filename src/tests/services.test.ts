@@ -2,6 +2,7 @@ import 'mocha'
 import { assert, expect } from 'chai'
 import Services from '../services/services'
 import { INVALID_API_KEY } from '../errors'
+import { arweaveTokenId } from '../constants/price-feed'
 
 describe('Services tests', () => {
   let services: Services
@@ -12,28 +13,27 @@ describe('Services tests', () => {
   })
 
   it('calls api', async () => {
-    const result = await services.arweaveToUsd('2', apikey)
+    const result = await services.tokenToUSD('2', arweaveTokenId, apikey)
     assert.notEqual(result, 0)
   }).timeout(5000)
-
   it('should throw with invalid api key', async () => {
     const invalidKey = 'apikey'
     try {
-      await services.arweaveToUsd('2', invalidKey)
-    } catch (err) {
+      await services.tokenToUSD('2', arweaveTokenId, invalidKey)
+    } catch (err: any) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   }).timeout(5000)
   it('calls api for quote', async () => {
-    const result = await services.arweaveQuote(apikey)
+    const result = await services.tokenQuote(arweaveTokenId, apikey)
     assert.notEqual(result, 0)
   }).timeout(5000)
 
   it('should throw with invalid api key for quote', async () => {
     const invalidKey = 'apikey'
     try {
-      await services.arweaveQuote(invalidKey)
-    } catch (err) {
+      await services.tokenQuote(arweaveTokenId, invalidKey)
+    } catch (err: any) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   }).timeout(5000)

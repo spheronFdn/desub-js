@@ -639,7 +639,7 @@ describe('Payments methods', () => {
   it('should throw with invalid api key', async () => {
     try {
       await payment.getArweaveConvertedUsd('2')
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   })
@@ -651,13 +651,37 @@ describe('Payments methods', () => {
   it('should throw with invalid api key', async () => {
     try {
       await payment.getArweaveQuote()
-    } catch (err) {
+    } catch (err: any) {
       expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
     }
   })
   it('It should return arweave usd quote', async () => {
     payment = new Payment(vendor, correctKey)
     const result = await payment.getArweaveQuote()
+    assert.notEqual(result, 0)
+  })
+  it('should throw with invalid api key', async () => {
+    try {
+      await payment.getAkashConvertedUsd('2')
+    } catch (err: any) {
+      expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
+    }
+  })
+  it('It should return arweave usd quote', async () => {
+    payment = new Payment(vendor, correctKey)
+    const result = await payment.getAkashConvertedUsd('2')
+    assert.notEqual(result, 0)
+  })
+  it('should throw with invalid api key', async () => {
+    try {
+      await payment.getAkashQuote()
+    } catch (err: any) {
+      expect(err.toString()).deep.equal(new Error(INVALID_API_KEY).toString())
+    }
+  }).timeout(5000)
+  it('It should return arweave usd quote', async () => {
+    payment = new Payment(vendor, correctKey)
+    const result = await payment.getAkashQuote()
     assert.notEqual(result, 0)
   })
   it('it should pass correct values for gassless transaction', async () => {

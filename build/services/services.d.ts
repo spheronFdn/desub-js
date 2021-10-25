@@ -1,5 +1,5 @@
 import Services from '../abstracts/services';
 export default class extends Services {
-    arweaveToUsd(a: string, k: string): Promise<number>;
-    arweaveQuote(k: string): Promise<number>;
+    tokenToUSD(a: string, t: number, k: string): Promise<number>;
+    tokenQuote(t: number, k: string): Promise<number>;
 }

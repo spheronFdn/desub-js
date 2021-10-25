@@ -104,7 +104,7 @@ export default class extends Deployed {
    *
    * @param h - address of data contract.
    */
-   async setDataContract(h: string): Promise<TxResponse> {
+  async setDataContract(h: string): Promise<TxResponse> {
     return await this.subscriptionPaymentContract?.functions.updateDataContract(h)
   }
 
