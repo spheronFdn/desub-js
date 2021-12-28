@@ -2,7 +2,7 @@ import { Vendor } from '.'
 import Deployed from './abstracts/deployed'
 import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
-import { SubscriptionParameters, TxResponse } from './interfaces'
+import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
 
 export default class extends Deployed {
   /**
@@ -11,15 +11,7 @@ export default class extends Deployed {
   constructor(vendor: Vendor) {
     super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
   }
-  /**
-   * @remarks
-   * This method can be used to updated address of underlying token.
-   *
-   * @param a - address of token to use for charging users
-   */
-  async updateUnderlyingToken(a: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.updateUnderlyingToken(a)
-  }
+
   /**
    * @remarks
    * This method can be used to updated address of vault/escrow account
@@ -29,15 +21,7 @@ export default class extends Deployed {
   async updateEscrow(a: string): Promise<TxResponse> {
     return await this.subscriptionDataContract?.functions.updateEscrow(a)
   }
-  /**
-   * @remarks
-   * This method can be used to updated address of oracle price feed.
-   *
-   * @param a - address of escrow contract(vault)
-   */
-  async updateFeederAddress(a: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.updateFeederAddress(a)
-  }
+
   /**
    * @remarks
    * This method can be used to updated address of staked token
@@ -47,15 +31,7 @@ export default class extends Deployed {
   async updateStakedToken(a: string): Promise<TxResponse> {
     return await this.subscriptionDataContract?.functions.updateStakedToken(a)
   }
-  /**
-   * @remarks
-   * This method can be called by owner to change the token address if for some reason token in changed
-   *
-   * @param a - address of escrow ArGo token, if for some reason new one needs to be passed
-   */
-  async updateToken(a: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.updateUnderlyingToken(a)
-  }
+
 
   /**
    * @remarks
@@ -214,6 +190,15 @@ export default class extends Deployed {
     const wei = await this.erc20Contract?.functions.balanceOf(a)
     return this.vendor.convertWeiToEth(wei)
   }
+  /**
+   * @remarks
+   * Get given Allowance amount.
+   *
+   */
+  async getUsdPricePrecision(): Promise<any> {
+    const bn = await this.subscriptionDataContract?.functions.usdPricePrecision()
+    return bn
+  }
 
   /**
    * @remarks
@@ -231,15 +216,6 @@ export default class extends Deployed {
    */
   async getGovernanceAddress(): Promise<string> {
     return await this.subscriptionDataContract?.functions.governanceAddress()
-  }
-
-  /**
-   * @remarks
-   * Get underlying token address (Argo).
-   *
-   */
-  async getToken(): Promise<string> {
-    return await this.subscriptionDataContract?.functions.underlying()
   }
 
   /**
@@ -301,20 +277,61 @@ export default class extends Deployed {
    * @param u - address of user
    * @param d - array of parameters and their values
    */
-  async chargeUser(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
+  async chargeUser(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
       paramArray.push(d[i].param)
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
-    return await this.subscriptionPaymentContract?.functions.chargeUser(u, paramArray, paramValue)
+    return await this.subscriptionPaymentContract?.functions.chargeUser(u, paramArray, paramValue, t);
   }
+  /**
+   * @remarks
+   * this method is used to add new tokens to the subscription contract
+   * @param d - array of token data
+   */
+  async addTokens(d: Array<TokenData>): Promise<TxResponse> {
+    const symbols: Array<string> = []
+    const tokenAddresses: Array<string> = []
+    const tokenDecimals: Array<any> = []
+    const chainLinkBools: Array<boolean> = []
+    const priceFeedAddresses: Array<string> = []
+    const priceFeedPrecisions: Array<any> = []
+
+    for (let i = 0; i < d.length; i++) {
+      symbols.push(d[i].symobl)
+      tokenAddresses.push(d[i].address)
+      priceFeedAddresses.push(d[i].priceFeedAddress)
+      chainLinkBools.push(d[i].isChainLinkFeed)
+      tokenDecimals.push(this.vendor.convertToBN(d[i].decimals.toString()))
+      priceFeedPrecisions.push(this.vendor.convertToBN(d[i].priceFeedPrecision.toString()))
+    }
+    return await this.subscriptionDataContract?.functions.addNewTokens(symbols, tokenAddresses, tokenDecimals, chainLinkBools, priceFeedAddresses, priceFeedPrecisions);
+  }
+  /**
+   * @remarks
+   * this method is used to remove tokens
+   * @param d - array of tokens to remove
+   */
+  async removeTokens(d: Array<string>): Promise<TxResponse> {
+
+    return await this.subscriptionDataContract?.functions.removeTokens(d);
+  }
+  /**
+   * @remarks
+   * change precision of all the USD values being passed
+   * @param n - prcision number
+   */
+  async changeUsdPrecision(n: number): Promise<TxResponse> {
+    const bn = this.vendor.convertToBN(n.toString())
+    return await this.subscriptionDataContract?.functions.changeUsdPrecision(bn);
+  }
+
   /**
    * @remarks
    * This method is used when we want to update contract parameters
    * @param p - array of parameters and their values
-
    */
   async upadteParams(p: Array<SubscriptionParameters>): Promise<TxResponse> {
     const paramArray: Array<string> = []

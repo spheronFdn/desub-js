@@ -2,7 +2,7 @@ import 'mocha'
 import Vendor from '../vendors/ethers'
 import { JsonRpcProvider, TransactionReceipt } from '@ethersproject/providers'
 import { Wallet } from '@ethersproject/wallet'
-import { Contract, SubscriptionParameters, TxResponse } from '../interfaces'
+import { Contract, SubscriptionParameters, TokenData, TxResponse } from '../interfaces'
 import * as dotenv from 'dotenv'
 import { Subscription } from '..'
 import { cloneWithWriteAccess } from '../helpers'
@@ -51,7 +51,7 @@ describe('subscriptions methods', () => {
     fake.resolves({ hash: '0xhash' })
     const address = '0x123'
     const params: Array<SubscriptionParameters> = [{ param: 'ABC', value: 10 }]
-    const result: TxResponse = await subscription.chargeUser(address, params)
+    const result: TxResponse = await subscription.chargeUser(address, params, address)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
@@ -65,6 +65,7 @@ describe('subscriptions methods', () => {
     assert.deepEqual(args[0], address)
     assert.deepEqual(args[1], paramArray)
     assert.deepEqual(args[2], paramValue)
+    assert.deepEqual(args[3], address)
   })
 
   it('it should update params', async () => {
@@ -144,7 +145,7 @@ describe('subscriptions methods', () => {
     const { args } = fake.getCall(0)
     assert.equal(args[0], addr)
   })
-  it('it should pass correct token address', async () => {
+  it('it should pass correct escrow address', async () => {
     // allow stubbing contract properties
     subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
 
@@ -159,18 +160,18 @@ describe('subscriptions methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'updateUnderlyingToken')
+    const fake = stub(contract.functions, 'changeUsdPrecision')
     fake.resolves({ hash: '0xhash' })
-    const addr = '0x1abc'
-    const result: TxResponse = await subscription.updateToken(addr)
+    const decimals = BigNumber.from(18)
+    const result: TxResponse = await subscription.changeUsdPrecision(18)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
 
     const { args } = fake.getCall(0)
-    assert.equal(args[0], addr)
+    assert.deepEqual(args[0], decimals)
   })
-  it('it should pass underlying token address', async () => {
+  it('it should pass correct address for removing token', async () => {
     // allow stubbing contract properties
     subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
 
@@ -185,17 +186,55 @@ describe('subscriptions methods', () => {
     assert.isNotNull(contract)
     assert.notDeepEqual(contract, invalidContract)
 
-    const fake = stub(contract.functions, 'updateUnderlyingToken')
+    const fake = stub(contract.functions, 'removeTokens')
     fake.resolves({ hash: '0xhash' })
-    const addr = '0x1abc'
-    const result: TxResponse = await subscription.updateUnderlyingToken(addr)
+    const tokens = ["0x123","0xabc"]
+    const result: TxResponse = await subscription.removeTokens(tokens)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
 
     const { args } = fake.getCall(0)
-    assert.equal(args[0], addr)
+    assert.deepEqual(args[0], tokens)
   })
+  it('it should pass correct data for adding tokens', async () => {
+    // allow stubbing contract properties
+    subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = subscription.subscriptionDataContract
+      ? subscription.subscriptionDataContract
+      : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'addNewTokens')
+    fake.resolves({ hash: '0xhash' })
+    const data: Array<TokenData> = [{address: "0x123", decimals: 18, priceFeedPrecision: 18, priceFeedAddress: "0xabc", symobl: "ARGO", isChainLinkFeed: false}]
+    const result: TxResponse = await subscription.addTokens(data)
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.equal(result.hash, '0xhash')
+    const symbols: Array<string> = ["ARGO"]
+    const tokenAddresses: Array<string> = ["0x123"]
+    const tokenDecimals: Array<any> = [vendor.convertToBN("18")]
+    const chainLinkBools: Array<boolean> = [false]
+    const priceFeedAddresses: Array<string> = ["0xabc"]
+    const priceFeedPrecisions: Array<any> = [vendor.convertToBN("18")]
+    const { args } = fake.getCall(0)
+    assert.deepEqual(args[0], symbols)
+    assert.deepEqual(args[1], tokenAddresses)
+    assert.deepEqual(args[2], tokenDecimals)
+    assert.deepEqual(args[3], chainLinkBools)
+    assert.deepEqual(args[4], priceFeedAddresses)
+    assert.deepEqual(args[5], priceFeedPrecisions)
+
+  })
+
   it('it should pass data contract address', async () => {
     // allow stubbing contract properties
     subscription.subscriptionPaymentContract = cloneWithWriteAccess(subscription.subscriptionPaymentContract)
@@ -222,32 +261,7 @@ describe('subscriptions methods', () => {
     const { args } = fake.getCall(0)
     assert.equal(args[0], addr)
   })
-  it('it should pass correct feeder address', async () => {
-    // allow stubbing contract properties
-    subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
 
-    const invalidContract = {
-      address: '0xinvalid',
-      functions: {},
-    }
-
-    const contract: Contract = subscription.subscriptionDataContract
-      ? subscription.subscriptionDataContract
-      : invalidContract
-    assert.isNotNull(contract)
-    assert.notDeepEqual(contract, invalidContract)
-
-    const fake = stub(contract.functions, 'updateFeederAddress')
-    fake.resolves({ hash: '0xhash' })
-    const addr = '0x1abc'
-    const result: TxResponse = await subscription.updateFeederAddress(addr)
-    assert(fake.calledOnce)
-    assert.isNotNull(result)
-    assert.equal(result.hash, '0xhash')
-
-    const { args } = fake.getCall(0)
-    assert.equal(args[0], addr)
-  })
   it('it should pass correct staked token address', async () => {
     // allow stubbing contract properties
     subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
@@ -530,28 +544,7 @@ describe('subscriptions methods', () => {
     assert.isNotNull(result)
     assert.equal(result, '0x123')
   })
-  it('it should give correct token address', async () => {
-    // allow stubbing contract properties
-    subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
 
-    const invalidContract = {
-      address: '0xinvalid',
-      functions: {},
-    }
-
-    const contract: Contract = subscription.subscriptionDataContract
-      ? subscription.subscriptionDataContract
-      : invalidContract
-    assert.isNotNull(contract)
-    assert.notDeepEqual(contract, invalidContract)
-
-    const fake = stub(contract.functions, 'underlying')
-    fake.resolves('0x123')
-    const result = await subscription.getToken()
-    assert(fake.calledOnce)
-    assert.isNotNull(result)
-    assert.equal(result, '0x123')
-  })
   it('it should give correct escrow address', async () => {
     // allow stubbing contract properties
     subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
@@ -639,6 +632,28 @@ describe('subscriptions methods', () => {
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result, '0x123')
+  })
+  it('it should give correct staked token address', async () => {
+    // allow stubbing contract properties
+    subscription.subscriptionDataContract = cloneWithWriteAccess(subscription.subscriptionDataContract)
+
+    const invalidContract = {
+      address: '0xinvalid',
+      functions: {},
+    }
+
+    const contract: Contract = subscription.subscriptionDataContract
+      ? subscription.subscriptionDataContract
+      : invalidContract
+    assert.isNotNull(contract)
+    assert.notDeepEqual(contract, invalidContract)
+
+    const fake = stub(contract.functions, 'usdPricePrecision')
+    fake.resolves(BigNumber.from(18))
+    const result = await subscription.getUsdPricePrecision()
+    assert(fake.calledOnce)
+    assert.isNotNull(result)
+    assert.deepEqual(result, BigNumber.from(18))
   })
   it('it should give correct staking manager address', async () => {
     // allow stubbing contract properties
