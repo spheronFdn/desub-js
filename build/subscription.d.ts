@@ -1,13 +1,10 @@
 import { Vendor } from '.';
 import Deployed from './abstracts/deployed';
-import { SubscriptionParameters, TxResponse } from './interfaces';
+import { SubscriptionParameters, TokenData, TxResponse } from './interfaces';
 export default class extends Deployed {
     constructor(vendor: Vendor);
-    updateUnderlyingToken(a: string): Promise<TxResponse>;
     updateEscrow(a: string): Promise<TxResponse>;
-    updateFeederAddress(a: string): Promise<TxResponse>;
     updateStakedToken(a: string): Promise<TxResponse>;
-    updateToken(a: string): Promise<TxResponse>;
     updateDiscountSlabs(d: Array<string>, p: Array<string>): Promise<TxResponse>;
     enableDiscounts(h: string): Promise<TxResponse>;
     disableDiscounts(): Promise<TxResponse>;
@@ -20,16 +17,19 @@ export default class extends Deployed {
     getApprovalAmount(a: string): Promise<any>;
     getNonceForGaslessERC20(u: string): Promise<number>;
     getUserBalance(a: string): Promise<any>;
+    getUsdPricePrecision(): Promise<any>;
     getManagers(): Promise<Array<string>>;
     getGovernanceAddress(): Promise<string>;
-    getToken(): Promise<string>;
     getEscrow(): Promise<string>;
     checkIfDiscountsEnabled(): Promise<boolean>;
     getStakingManagerAddress(): Promise<string>;
     getStakedTokenAddress(): Promise<string>;
     getDiscountSlabs(): Promise<any>;
     getDataContract(): Promise<any>;
-    chargeUser(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse>;
+    chargeUser(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse>;
+    addTokens(d: Array<TokenData>): Promise<TxResponse>;
+    removeTokens(d: Array<string>): Promise<TxResponse>;
+    changeUsdPrecision(n: number): Promise<TxResponse>;
     upadteParams(p: Array<SubscriptionParameters>): Promise<TxResponse>;
     deleteParams(d: Array<string>): Promise<TxResponse>;
 }

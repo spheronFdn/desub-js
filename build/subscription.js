@@ -19,34 +19,16 @@ class default_1 extends deployed_1.default {
     constructor(vendor) {
         super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI);
     }
-    updateUnderlyingToken(a) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.updateUnderlyingToken(a));
-        });
-    }
     updateEscrow(a) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.updateEscrow(a));
         });
     }
-    updateFeederAddress(a) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.updateFeederAddress(a));
-        });
-    }
     updateStakedToken(a) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.updateStakedToken(a));
-        });
-    }
-    updateToken(a) {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.updateUnderlyingToken(a));
         });
     }
     updateDiscountSlabs(d, p) {
@@ -155,6 +137,13 @@ class default_1 extends deployed_1.default {
             return this.vendor.convertWeiToEth(wei);
         });
     }
+    getUsdPricePrecision() {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            const bn = yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.usdPricePrecision());
+            return bn;
+        });
+    }
     getManagers() {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -165,12 +154,6 @@ class default_1 extends deployed_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.governanceAddress());
-        });
-    }
-    getToken() {
-        var _a;
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.underlying());
         });
     }
     getEscrow() {
@@ -211,7 +194,7 @@ class default_1 extends deployed_1.default {
             return this.vendor.parseDiscountSlabs(slabs);
         });
     }
-    chargeUser(u, d) {
+    chargeUser(u, d, t) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const paramArray = [];
@@ -220,7 +203,40 @@ class default_1 extends deployed_1.default {
                 paramArray.push(d[i].param);
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
-            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue));
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, t));
+        });
+    }
+    addTokens(d) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            const symbols = [];
+            const tokenAddresses = [];
+            const tokenDecimals = [];
+            const chainLinkBools = [];
+            const priceFeedAddresses = [];
+            const priceFeedPrecisions = [];
+            for (let i = 0; i < d.length; i++) {
+                symbols.push(d[i].symobl);
+                tokenAddresses.push(d[i].address);
+                priceFeedAddresses.push(d[i].priceFeedAddress);
+                chainLinkBools.push(d[i].isChainLinkFeed);
+                tokenDecimals.push(this.vendor.convertToBN(d[i].decimals.toString()));
+                priceFeedPrecisions.push(this.vendor.convertToBN(d[i].priceFeedPrecision.toString()));
+            }
+            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.addNewTokens(symbols, tokenAddresses, tokenDecimals, chainLinkBools, priceFeedAddresses, priceFeedPrecisions));
+        });
+    }
+    removeTokens(d) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.removeTokens(d));
+        });
+    }
+    changeUsdPrecision(n) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            const bn = this.vendor.convertToBN(n.toString());
+            return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.changeUsdPrecision(bn));
         });
     }
     upadteParams(p) {
