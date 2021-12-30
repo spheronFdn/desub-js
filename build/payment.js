@@ -24,10 +24,10 @@ class default_1 extends deployed_1.default {
     paymentWithFee(u, b, d, providerQuote, providerCharged, provider) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(d);
+            const wei = this.vendor.convertToWei(d, this.tokenPrecision);
             const buildTime = this.vendor.convertToBN(b);
-            const quote = this.vendor.convertToWei(providerQuote);
-            const charge = this.vendor.convertToWei(providerCharged);
+            const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision);
+            const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision);
             return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider));
         });
     }
@@ -79,7 +79,7 @@ class default_1 extends deployed_1.default {
     changeBuildTimeRate(p) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(p);
+            const wei = this.vendor.convertToWei(p, this.tokenPrecision);
             return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.changeBuildTimeRate(wei));
         });
     }
@@ -110,7 +110,7 @@ class default_1 extends deployed_1.default {
     setNewApprovals(a) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(a);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision);
             return yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.paymentsContract) === null || _b === void 0 ? void 0 : _b.address, wei));
         });
     }
@@ -119,7 +119,7 @@ class default_1 extends deployed_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
-            const wei = this.vendor.convertToWei(a);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision);
             const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [(_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.address, wei]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
@@ -155,7 +155,7 @@ class default_1 extends deployed_1.default {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.allowance(a, (_b = this.paymentsContract) === null || _b === void 0 ? void 0 : _b.address));
-            return this.vendor.convertWeiToEth(wei);
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision);
         });
     }
     getNonceForGaslessERC20(u) {
@@ -169,7 +169,7 @@ class default_1 extends deployed_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.balanceOf(a));
-            return this.vendor.convertWeiToEth(wei);
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision);
         });
     }
     getManagers() {

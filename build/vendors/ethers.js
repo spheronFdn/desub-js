@@ -50,11 +50,11 @@ class default_1 extends vendor_1.default {
     convertToBN(amount) {
         return __1.helpers.ethers.convertToBN(amount);
     }
-    convertToWei(amount) {
-        return __1.helpers.ethers.convertToWei(amount);
+    convertToWei(amount, precision) {
+        return __1.helpers.ethers.convertToWei(amount, precision);
     }
-    convertWeiToEth(wei) {
-        return __1.helpers.ethers.convertWeiToEth(wei);
+    convertWeiToEth(wei, precision) {
+        return __1.helpers.ethers.convertWeiToEth(wei, precision);
     }
     signMessage(m) {
         return __awaiter(this, void 0, void 0, function* () {

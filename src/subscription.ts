@@ -102,7 +102,7 @@ export default class extends Deployed {
    * @param a - new approval amount.
    */
   async setNewApprovals(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision!)
     return await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, wei)
   }
   /**
@@ -116,7 +116,7 @@ export default class extends Deployed {
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision!)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
       this.subscriptionPaymentContract?.address,
       wei,
@@ -167,7 +167,7 @@ export default class extends Deployed {
    */
   async getApprovalAmount(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.allowance(a, this.subscriptionPaymentContract?.address)
-    return this.vendor.convertWeiToEth(wei)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision!)
   }
 
   /**
@@ -188,7 +188,7 @@ export default class extends Deployed {
    */
   async getUserBalance(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision!)
   }
   /**
    * @remarks

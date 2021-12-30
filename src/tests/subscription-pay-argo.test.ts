@@ -29,6 +29,7 @@ describe('subscriptions methods', () => {
       '0x07A07C4a107B8Bd2fCeC6B595AAA0F20296a8fD1',
       '0x069ca3a23bc4B75E9700E34657370A6A1178E1F3',
       '0x6794a9E5411f8f9B3E5Dc7457162728544A443E0',
+      18
     )
   })
 
@@ -444,7 +445,7 @@ describe('subscriptions methods', () => {
     const { args } = fake.getCall(0)
 
     assert.equal(args[0], subscription.subscriptionPaymentContract?.address)
-    assert.deepEqual(args[1], vendor.convertToWei(amount))
+    assert.deepEqual(args[1], vendor.convertToWei(amount, 18))
   })
   it('it should get correct approval amount', async () => {
     // allow stubbing contract properties
@@ -466,7 +467,7 @@ describe('subscriptions methods', () => {
     const result: any = await subscription.getApprovalAmount(arg1)
     assert(fake.calledOnce)
     assert.isNotNull(result)
-    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000')))
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'), 18))
 
     const { args } = fake.getCall(0)
     assert.equal(args[0], arg1)
@@ -494,7 +495,7 @@ describe('subscriptions methods', () => {
     const result: any = await subscription.getUserBalance(arg1)
     assert(fake.calledOnce)
     assert.isNotNull(result)
-    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000')))
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'),18))
 
     const { args } = fake.getCall(0)
     assert.equal(args[0], arg1)
@@ -737,7 +738,7 @@ describe('subscriptions methods', () => {
     })
 
     const chainID = 80001
-    const wei = vendor.convertToWei('10')
+    const wei = vendor.convertToWei('10', 18)
     const abiEncodedApprove = vendor.abiEncodeErc20Functions('approve', [
       subscription.subscriptionPaymentContract?.address,
       wei,
@@ -795,7 +796,7 @@ describe('subscriptions methods', () => {
     })
 
     const chainID = 80001
-    const wei = vendor.convertToWei('10')
+    const wei = vendor.convertToWei('10', 18)
     const abiEncodedApprove = vendor.abiEncodeErc20Functions('approve', [
       subscription.subscriptionPaymentContract?.address,
       wei,

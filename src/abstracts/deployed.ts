@@ -22,6 +22,7 @@ export default abstract class implements Keyed {
   public subscriptionPaymentContract?: Contract
   public subscriptionDataAbi: Abi
   public subscriptionDataContract?: Contract
+  public tokenPrecision?: number
 
   /**
    * @param v - Optional Vendor the HOC will use
@@ -47,7 +48,7 @@ export default abstract class implements Keyed {
   async at(a: string, e: string, o?: TransactOpts): Promise<boolean> {
     this.paymentsContract = this.vendor.contract(a, this.paymentsAbi, o)
     this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
-
+    this.tokenPrecision = 18
     this.services = new Services()
     if (this.vendor.biconomy !== undefined) {
       this.biconomyERC20Contract = this.vendor.contract(
@@ -69,11 +70,12 @@ export default abstract class implements Keyed {
     subscriptionPayments: string,
     subscriptionData: string,
     e: string,
+    p: number,
     o?: TransactOpts,
   ): Promise<boolean> {
     this.subscriptionPaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionPaymentAbi, o)
     this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o)
-
+    this.tokenPrecision = p
     this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
 
     this.services = new Services()

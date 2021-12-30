@@ -6,12 +6,12 @@ const convertToBN = (amount) => {
     return ethers_1.BigNumber.from(amount);
 };
 exports.convertToBN = convertToBN;
-const convertToWei = (amount) => {
-    return ethers_1.BigNumber.from(ethers_1.ethers.utils.parseUnits(toFixed(parseFloat(amount), 18), 18));
+const convertToWei = (amount, precision) => {
+    return ethers_1.BigNumber.from(ethers_1.ethers.utils.parseUnits(toFixed(parseFloat(amount), precision), precision));
 };
 exports.convertToWei = convertToWei;
-const convertWeiToEth = (wei) => {
-    const eth = parseFloat(ethers_1.ethers.utils.formatEther(wei.toString()));
+const convertWeiToEth = (wei, precision) => {
+    const eth = parseFloat(ethers_1.ethers.utils.formatUnits(wei.toString(), ethers_1.BigNumber.from(precision)));
     return eth;
 };
 exports.convertWeiToEth = convertWeiToEth;

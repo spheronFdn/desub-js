@@ -72,7 +72,7 @@ class default_1 extends deployed_1.default {
     setNewApprovals(a) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(a);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision);
             return yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, wei));
         });
     }
@@ -81,7 +81,7 @@ class default_1 extends deployed_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
-            const wei = this.vendor.convertToWei(a);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision);
             const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
                 (_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address,
                 wei,
@@ -120,7 +120,7 @@ class default_1 extends deployed_1.default {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.allowance(a, (_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address));
-            return this.vendor.convertWeiToEth(wei);
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision);
         });
     }
     getNonceForGaslessERC20(u) {
@@ -134,7 +134,7 @@ class default_1 extends deployed_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.balanceOf(a));
-            return this.vendor.convertWeiToEth(wei);
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision);
         });
     }
     getUsdPricePrecision() {

@@ -104,8 +104,8 @@ export default class extends Vendor {
   * @returns Array<BigNumber>
   */
 
-  convertToWei(amount: string): BigNumber {
-    return helpers.ethers.convertToWei(amount)
+  convertToWei(amount: string, precision: number): BigNumber {
+    return helpers.ethers.convertToWei(amount, precision)
   }
   /**
    * @remarks
@@ -116,8 +116,8 @@ export default class extends Vendor {
   *
   * @returns BigNumber
   */
-  convertWeiToEth(wei: any): number {
-    return helpers.ethers.convertWeiToEth(wei)
+  convertWeiToEth(wei: any, precision: number): number {
+    return helpers.ethers.convertWeiToEth(wei, precision)
   }
 
   /**

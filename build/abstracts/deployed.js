@@ -26,6 +26,7 @@ class default_1 {
         return __awaiter(this, void 0, void 0, function* () {
             this.paymentsContract = this.vendor.contract(a, this.paymentsAbi, o);
             this.erc20Contract = this.vendor.contract(e, this.erc20Abi);
+            this.tokenPrecision = 18;
             this.services = new services_1.default();
             if (this.vendor.biconomy !== undefined) {
                 this.biconomyERC20Contract = this.vendor.contract(e, this.erc20Abi, this.vendor.biconomy.getSignerByAddress(yield this.vendor.signer.getAddress()));
@@ -33,10 +34,11 @@ class default_1 {
             return !!this.paymentsContract && !!this.erc20Contract;
         });
     }
-    subscriptionAt(subscriptionPayments, subscriptionData, e, o) {
+    subscriptionAt(subscriptionPayments, subscriptionData, e, p, o) {
         return __awaiter(this, void 0, void 0, function* () {
             this.subscriptionPaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionPaymentAbi, o);
             this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o);
+            this.tokenPrecision = p;
             this.erc20Contract = this.vendor.contract(e, this.erc20Abi);
             this.services = new services_1.default();
             if (this.vendor.biconomy !== undefined) {

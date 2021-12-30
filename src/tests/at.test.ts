@@ -20,7 +20,7 @@ describe('Payment and subscripton at method', () => {
 
   it('Wraps a deployed contract', async () => {
     const wrapped = await payment.at('0x123', '0xabc')
-    const subscriptionWrapped = await subscription.subscriptionAt('0x123', '0xabc', '0x456')
+    const subscriptionWrapped = await subscription.subscriptionAt('0x123', '0xabc', '0x456', 18)
     assert.isTrue(wrapped)
     assert.isNotNull(payment.paymentsContract)
     assert.isNotNull(payment.erc20Contract)
