@@ -34,7 +34,7 @@
         "build": "rm -rf ./build && tsc -p ./tsbuild.json"
     },
     "dependencies": {
-        "@biconomy/mexa": "^2.0.9",
+        "@biconomy/mexa": "2.0.9",
         "@ethersproject/abstract-signer": "^5.0.12",
         "@ethersproject/contracts": "^5.0.10",
         "@ethersproject/providers": "^5.0.20",
