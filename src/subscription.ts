@@ -311,6 +311,7 @@ export default class extends Deployed {
    * this method is used when we want to charge user for the subscrption he will be buying.
    * @param u - address of user
    * @param d - array of parameters and their values
+   * @param t - token address
    */
   async chargeUser(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse> {
     const paramArray: Array<string> = []

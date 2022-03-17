@@ -198,9 +198,9 @@ export default class extends Deployed {
    *
    * @remarks
    * returns abi enocoded erc20 function
-   * @param string - user address
-   * @param string - abi encoded function
-   * @param SignatureParams - rsv values
+   * @param u - user address
+   * @param f - abi encoded function
+   * @param rsv - rsv values
    */
   async sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any> {
     if (this.vendor.biconomy.status === this.vendor.biconomy.READY) {
@@ -225,6 +225,7 @@ export default class extends Deployed {
    * @remarks
    * Get given Allowance amount.
    *
+   * @param a - user address
    */
   async getApprovalAmount(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
@@ -246,6 +247,7 @@ export default class extends Deployed {
    * @remarks
    * Get given Allowance amount.
    *
+   * @param a - user address
    */
   async getUserBalance(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.balanceOf(a)

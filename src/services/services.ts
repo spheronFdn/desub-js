@@ -7,7 +7,8 @@ export default class extends Services {
    * @remarks
    * returns areweave amount converted to usd.
    *
-   * @param a - amount of areweave
+   * @param a - amount in token
+   * @param t - token cmc id
    * @param k - api key for coinmarket cap
    *
    * @returns Usd qoute of given amount
@@ -32,8 +33,9 @@ export default class extends Services {
   }
   /**
    * @remarks
-   * returns areweave quote.
+   * returns arweave quote.
    *
+   * @param t - token cmc id
    * @param k - api key for coinmarket cap
    *
    * @returns Usd qoute of given amount

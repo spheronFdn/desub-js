@@ -60,8 +60,10 @@ export default abstract class implements Keyed {
     return !!this.paymentsContract && !!this.erc20Contract
   }
   /**
-   * @param s - ETH address of an already deployed subscription contract
+   * @param subscriptionPayments - ETH address of an already deployed subscription contract
+   * @param subscriptionData - ETH address of an already deployed subscription param contract
    * @param e - ETH address of an already deployed ERC20 ArGo Token.
+   * @param p - token precision
    * @param o - Optional specified transaction options
    *
    * @returns boolean indicating a successful wrapping of the target deployed contract

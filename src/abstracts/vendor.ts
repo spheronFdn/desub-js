@@ -16,16 +16,6 @@ export default abstract class implements Keyed {
   public signer: any // TODO
   public biconomy: any
 
-  /**
-   * @remarks
-   * Method which instantiates and returns the vendor specific contract abstraction. Must be
-   * implemented in a child class
-   *
-   * @param address - Deployed address of the target contract
-   * @param abi - Compiled abi of the target contract
-   * @param o - Optional transaction options
-   *
-   */
   abstract contract(address: string, abi: Abi, o?: TransactOpts): Contract
   abstract convertToBN(amount: string): any
   abstract convertToWei(amount: string, precision: number): any
