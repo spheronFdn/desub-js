@@ -33,10 +33,10 @@ export default class extends Deployed {
     providerCharged: any,
     provider: string,
   ): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(d, this.tokenPrecision!)
+    const wei = this.vendor.convertToWei(d, this.tokenPrecision || 18)
     const buildTime = this.vendor.convertToBN(b)
-    const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision!)
-    const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision!)
+    const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision || 18)
+    const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision || 18)
     return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
   }
   /**
@@ -116,7 +116,7 @@ export default class extends Deployed {
 
    */
   async changeBuildTimeRate(p: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(p, this.tokenPrecision!)
+    const wei = this.vendor.convertToWei(p, this.tokenPrecision || 18)
     return await this.paymentsContract?.functions.changeBuildTimeRate(wei)
   }
   /**
@@ -166,7 +166,7 @@ export default class extends Deployed {
    * @param a - new approval amount.
    */
   async setNewApprovals(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision!)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.erc20Contract?.functions.approve(this.paymentsContract?.address, wei)
   }
   /**
@@ -180,7 +180,7 @@ export default class extends Deployed {
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision!)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [this.paymentsContract?.address, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
@@ -188,7 +188,7 @@ export default class extends Deployed {
       userAddress,
       nonce,
       abiEncodedApprove,
-      this.erc20Contract!.address,
+      this.erc20Contract?.address || '',
       c,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
@@ -228,7 +228,7 @@ export default class extends Deployed {
    */
   async getApprovalAmount(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision!)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**
@@ -249,7 +249,7 @@ export default class extends Deployed {
    */
   async getUserBalance(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision!)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**

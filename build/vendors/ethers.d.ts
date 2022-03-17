@@ -18,6 +18,7 @@ export default class extends Vendor {
     verifySignedMessage(m: string, s: string): string;
     abiEncodeErc20Functions(f: string, p: Array<any>): string;
     signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string>;
+    signedMessageForMultiTokenTx(u: string, n: number, f: string, tokenAddress: string, tokenName: string, c: number): Promise<string>;
     getSignatureParameters(signature: string): SignatureParams;
     private requireSignerOrProvider;
     private requireSigner;

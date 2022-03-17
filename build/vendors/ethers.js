@@ -92,6 +92,26 @@ class default_1 extends vendor_1.default {
             return signature;
         });
     }
+    signedMessageForMultiTokenTx(u, n, f, tokenAddress, tokenName, c) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const domainData = {
+                name: tokenName,
+                version: '1',
+                verifyingContract: tokenAddress,
+                salt: '0x' + c.toString(16).padStart(64, '0'),
+            };
+            const message = {
+                nonce: n,
+                from: u,
+                functionSignature: f,
+            };
+            const types = {
+                MetaTransaction: payment_1.metaTransactionType,
+            };
+            const signature = yield this.signer._signTypedData(domainData, types, message);
+            return signature;
+        });
+    }
     getSignatureParameters(signature) {
         if (!ethers_1.ethers.utils.isHexString(signature)) {
             throw new Error('Given value "'.concat(signature, '" is not a valid hex string.'));

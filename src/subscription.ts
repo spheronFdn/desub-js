@@ -32,7 +32,6 @@ export default class extends Deployed {
     return await this.subscriptionDataContract?.functions.updateStakedToken(a)
   }
 
-
   /**
    * @remarks
    * This method can only be called by governance account and can be called to updated discount slabs.
@@ -102,7 +101,7 @@ export default class extends Deployed {
    * @param a - new approval amount.
    */
   async setNewApprovals(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision!)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, wei)
   }
   /**
@@ -116,7 +115,7 @@ export default class extends Deployed {
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision!)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
       this.subscriptionPaymentContract?.address,
       wei,
@@ -127,7 +126,38 @@ export default class extends Deployed {
       userAddress,
       nonce,
       abiEncodedApprove,
-      this.erc20Contract!.address,
+      this.erc20Contract?.address || '',
+      c,
+    )
+    const rsv = this.vendor.getSignatureParameters(signedMessage)
+    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
+  }
+
+  /**
+   * @remarks
+   * Update approval for ArGo token
+   * Dont use this function without frontend
+   *
+   * @param a - new approval amount.
+   * @param n - token name.
+   * @param c - chain Id
+   */
+  async gasslessMultiTokenApproval(a: string, n: string, c: number): Promise<TxResponse> {
+    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
+      this.subscriptionPaymentContract?.address,
+      wei,
+    ])
+    const userAddress = await this.vendor.signer.getAddress()
+    const nonce = await this.getNonceForGaslessERC20(userAddress)
+    const signedMessage = await this.vendor.signedMessageForMultiTokenTx(
+      userAddress,
+      nonce,
+      abiEncodedApprove,
+      this.erc20Contract?.address || '',
+      n,
       c,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
@@ -137,9 +167,10 @@ export default class extends Deployed {
    *
    * @remarks
    * returns abi enocoded erc20 function
-   * @param string - user address
-   * @param string - abi encoded function
-   * @param SignatureParams - rsv values
+   *
+   * @param u - user address
+   * @param f - abi encoded function
+   * @param rsv - rsv values
    */
   async sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any> {
     if (this.vendor.biconomy.status === this.vendor.biconomy.READY) {
@@ -164,10 +195,12 @@ export default class extends Deployed {
    * @remarks
    * Get given Allowance amount.
    *
+   * @param a - address
+   *
    */
   async getApprovalAmount(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.allowance(a, this.subscriptionPaymentContract?.address)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision!)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**
@@ -185,10 +218,12 @@ export default class extends Deployed {
    * @remarks
    * Get given Allowance amount.
    *
+   * @param a - address
+   *
    */
   async getUserBalance(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision!)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
   /**
    * @remarks
@@ -284,7 +319,7 @@ export default class extends Deployed {
       paramArray.push(d[i].param)
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
-    return await this.subscriptionPaymentContract?.functions.chargeUser(u, paramArray, paramValue, t);
+    return await this.subscriptionPaymentContract?.functions.chargeUser(u, paramArray, paramValue, t)
   }
   /**
    * @remarks
@@ -307,7 +342,14 @@ export default class extends Deployed {
       tokenDecimals.push(this.vendor.convertToBN(d[i].decimals.toString()))
       priceFeedPrecisions.push(this.vendor.convertToBN(d[i].priceFeedPrecision.toString()))
     }
-    return await this.subscriptionDataContract?.functions.addNewTokens(symbols, tokenAddresses, tokenDecimals, chainLinkBools, priceFeedAddresses, priceFeedPrecisions);
+    return await this.subscriptionDataContract?.functions.addNewTokens(
+      symbols,
+      tokenAddresses,
+      tokenDecimals,
+      chainLinkBools,
+      priceFeedAddresses,
+      priceFeedPrecisions,
+    )
   }
   /**
    * @remarks
@@ -315,8 +357,7 @@ export default class extends Deployed {
    * @param d - array of tokens to remove
    */
   async removeTokens(d: Array<string>): Promise<TxResponse> {
-
-    return await this.subscriptionDataContract?.functions.removeTokens(d);
+    return await this.subscriptionDataContract?.functions.removeTokens(d)
   }
   /**
    * @remarks
@@ -325,7 +366,7 @@ export default class extends Deployed {
    */
   async changeUsdPrecision(n: number): Promise<TxResponse> {
     const bn = this.vendor.convertToBN(n.toString())
-    return await this.subscriptionDataContract?.functions.changeUsdPrecision(bn);
+    return await this.subscriptionDataContract?.functions.changeUsdPrecision(bn)
   }
 
   /**

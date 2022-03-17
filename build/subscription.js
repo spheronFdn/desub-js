@@ -72,23 +72,40 @@ class default_1 extends deployed_1.default {
     setNewApprovals(a) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(a, this.tokenPrecision);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
             return yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, wei));
         });
     }
     gasslessApproval(a, c) {
-        var _a;
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
-            const wei = this.vendor.convertToWei(a, this.tokenPrecision);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
             const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
                 (_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address,
                 wei,
             ]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
-            const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, this.erc20Contract.address, c);
+            const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', c);
+            const rsv = this.vendor.getSignatureParameters(signedMessage);
+            return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
+        });
+    }
+    gasslessMultiTokenApproval(a, n, c) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.vendor.biconomy)
+                throw new Error(errors_1.INVALID_BICONOMY_KEY);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
+                (_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address,
+                wei,
+            ]);
+            const userAddress = yield this.vendor.signer.getAddress();
+            const nonce = yield this.getNonceForGaslessERC20(userAddress);
+            const signedMessage = yield this.vendor.signedMessageForMultiTokenTx(userAddress, nonce, abiEncodedApprove, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', n, c);
             const rsv = this.vendor.getSignatureParameters(signedMessage);
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
         });
@@ -120,7 +137,7 @@ class default_1 extends deployed_1.default {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.allowance(a, (_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address));
-            return this.vendor.convertWeiToEth(wei, this.tokenPrecision);
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
         });
     }
     getNonceForGaslessERC20(u) {
@@ -134,7 +151,7 @@ class default_1 extends deployed_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.balanceOf(a));
-            return this.vendor.convertWeiToEth(wei, this.tokenPrecision);
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
         });
     }
     getUsdPricePrecision() {

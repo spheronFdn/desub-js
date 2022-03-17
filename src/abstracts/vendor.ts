@@ -36,4 +36,12 @@ export default abstract class implements Keyed {
   abstract getSignatureParameters(signature: string): SignatureParams
   abstract abiEncodeErc20Functions(f: string, p: Array<any>): string
   abstract signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string>
+  abstract signedMessageForMultiTokenTx(
+    u: string,
+    n: number,
+    f: string,
+    tokenAddress: string,
+    tokenName: string,
+    c: number,
+  ): Promise<string>
 }
