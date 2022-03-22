@@ -1,6 +1,6 @@
 import { Keyed } from '../interfaces';
 export default abstract class implements Keyed {
     [key: string]: any;
-    abstract arweaveToUsd(a: string, k: string): Promise<number>;
-    abstract arweaveQuote(k: string): Promise<number>;
+    abstract tokenToUSD(a: string, t: number, k: string): Promise<number>;
+    abstract tokenQuote(t: number, k: string): Promise<number>;
 }

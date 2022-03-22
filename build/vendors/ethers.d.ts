@@ -12,12 +12,13 @@ export default class extends Vendor {
     convertStringArrayToBigNumberArray(array: Array<string>): Array<any>;
     parseDiscountSlabs(data: Array<any>): Array<Discount>;
     convertToBN(amount: string): any;
-    convertToWei(amount: string): BigNumber;
-    convertWeiToEth(wei: any): number;
+    convertToWei(amount: string, precision: number): BigNumber;
+    convertWeiToEth(wei: any, precision: number): number;
     signMessage(m: string): Promise<string>;
     verifySignedMessage(m: string, s: string): string;
     abiEncodeErc20Functions(f: string, p: Array<any>): string;
     signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string>;
+    signedMessageForMultiTokenTx(u: string, n: number, f: string, tokenAddress: string, tokenName: string, c: number): Promise<string>;
     getSignatureParameters(signature: string): SignatureParams;
     private requireSignerOrProvider;
     private requireSigner;

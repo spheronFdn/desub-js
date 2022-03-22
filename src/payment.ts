@@ -1,8 +1,9 @@
-import { ERC20_ABI, PAYMENT_ABI } from './constants'
+import { ERC20_ABI, PAYMENT_ABI, SUBSCRIPTION_DATA_ABI, SUBSCRIPTION_PAYMENT_ABI } from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
 import { API_KEY_REQUIRED, INVALID_BICONOMY_KEY } from './errors'
+import { akashTokenId, arweaveTokenId } from './constants/price-feed'
 
 export default class extends Deployed {
   coinMarketCapKey?: string
@@ -10,7 +11,7 @@ export default class extends Deployed {
    * @param vendor - Instance of a Vendor class
    */
   constructor(vendor: Vendor, coinMarketCapKey?: string) {
-    super(vendor, PAYMENT_ABI, ERC20_ABI)
+    super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
     this.coinMarketCapKey = coinMarketCapKey
   }
 
@@ -32,10 +33,10 @@ export default class extends Deployed {
     providerCharged: any,
     provider: string,
   ): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(d)
+    const wei = this.vendor.convertToWei(d, this.tokenPrecision || 18)
     const buildTime = this.vendor.convertToBN(b)
-    const quote = this.vendor.convertToWei(providerQuote)
-    const charge = this.vendor.convertToWei(providerCharged)
+    const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision || 18)
+    const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision || 18)
     return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
   }
   /**
@@ -115,7 +116,7 @@ export default class extends Deployed {
 
    */
   async changeBuildTimeRate(p: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(p)
+    const wei = this.vendor.convertToWei(p, this.tokenPrecision || 18)
     return await this.paymentsContract?.functions.changeBuildTimeRate(wei)
   }
   /**
@@ -165,7 +166,7 @@ export default class extends Deployed {
    * @param a - new approval amount.
    */
   async setNewApprovals(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.erc20Contract?.functions.approve(this.paymentsContract?.address, wei)
   }
   /**
@@ -179,7 +180,7 @@ export default class extends Deployed {
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [this.paymentsContract?.address, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
@@ -187,7 +188,7 @@ export default class extends Deployed {
       userAddress,
       nonce,
       abiEncodedApprove,
-      this.erc20Contract!.address,
+      this.erc20Contract?.address || '',
       c,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
@@ -197,9 +198,9 @@ export default class extends Deployed {
    *
    * @remarks
    * returns abi enocoded erc20 function
-   * @param string - user address
-   * @param string - abi encoded function
-   * @param SignatureParams - rsv values
+   * @param u - user address
+   * @param f - abi encoded function
+   * @param rsv - rsv values
    */
   async sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any> {
     if (this.vendor.biconomy.status === this.vendor.biconomy.READY) {
@@ -224,10 +225,11 @@ export default class extends Deployed {
    * @remarks
    * Get given Allowance amount.
    *
+   * @param a - user address
    */
   async getApprovalAmount(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
-    return this.vendor.convertWeiToEth(wei)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**
@@ -245,10 +247,11 @@ export default class extends Deployed {
    * @remarks
    * Get given Allowance amount.
    *
+   * @param a - user address
    */
   async getUserBalance(a: string): Promise<any> {
     const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**
@@ -329,7 +332,7 @@ export default class extends Deployed {
    */
   async getArweaveConvertedUsd(a: string): Promise<number> {
     if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
-    const qoute = await this.services.arweaveToUsd(a, this.coinMarketCapKey)
+    const qoute = await this.services.tokenToUSD(a, arweaveTokenId, this.coinMarketCapKey)
     return qoute
   }
   /**
@@ -340,7 +343,29 @@ export default class extends Deployed {
    */
   async getArweaveQuote(): Promise<number> {
     if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
-    const qoute = await this.services.arweaveQuote(this.coinMarketCapKey)
+    const qoute = await this.services.tokenQuote(arweaveTokenId, this.coinMarketCapKey)
+    return qoute
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getAkashConvertedUsd(a: string): Promise<number> {
+    if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.tokenToUSD(a, akashTokenId, this.coinMarketCapKey)
+    return qoute
+  }
+  /**
+   * @remarks
+   * Get areweave converted to usd
+   *
+   * @param a amount of areweave
+   */
+  async getAkashQuote(): Promise<number> {
+    if (!this.coinMarketCapKey) throw new Error(API_KEY_REQUIRED)
+    const qoute = await this.services.tokenQuote(akashTokenId, this.coinMarketCapKey)
     return qoute
   }
 }

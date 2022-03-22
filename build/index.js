@@ -1,7 +1,11 @@
 "use strict";
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -22,9 +26,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.helpers = exports.Vendor = exports.Payment = void 0;
+exports.helpers = exports.Vendor = exports.Subscription = exports.Payment = void 0;
 const payment_1 = __importDefault(require("./payment"));
 exports.Payment = payment_1.default;
+const subscription_1 = __importDefault(require("./subscription"));
+exports.Subscription = subscription_1.default;
 const ethers_1 = __importDefault(require("./vendors/ethers"));
 exports.Vendor = ethers_1.default;
 const ethersHelper = __importStar(require("./vendors/ethers.helpers"));

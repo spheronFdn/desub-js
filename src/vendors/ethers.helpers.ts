@@ -21,9 +21,9 @@ export const convertToBN = (amount: string): any => {
  *
  * @returns BigNumber
  */
-export const convertToWei = (amount: string) => {
+export const convertToWei = (amount: string, precision: number) => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  return BigNumber.from(ethers.utils.parseUnits(toFixed(parseFloat(amount), 18)!, 18))
+  return BigNumber.from(ethers.utils.parseUnits(toFixed(parseFloat(amount), precision)!, precision))
 }
 
 /**
@@ -35,8 +35,8 @@ export const convertToWei = (amount: string) => {
  *
  * @returns Array<BigNumber>
  */
-export const convertWeiToEth = (wei: BigNumber) => {
-  const eth: number = parseFloat(ethers.utils.formatEther(wei.toString()))
+export const convertWeiToEth = (wei: BigNumber, precision: number) => {
+  const eth: number = parseFloat(ethers.utils.formatUnits(wei.toString(), BigNumber.from(precision)))
   return eth
 }
 /**

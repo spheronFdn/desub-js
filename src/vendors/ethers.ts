@@ -57,7 +57,7 @@ export default class extends Vendor {
    * @remarks
    * Convert array of string to Array of BigNumber
    *
-   * @param Array - Array of string to be converted to Array of Big Number
+   * @param array - Array of string to be converted to Array of Big Number
 
    *
    * @returns Array<BigNumber>
@@ -73,7 +73,7 @@ export default class extends Vendor {
    * @remarks
    * Parse discount slabs data to DiscountDataClass
    *
-   * @param Array - data coming from contract.
+   * @param data - data coming from contract.
 
    *
    * @returns Discount slabs
@@ -86,7 +86,7 @@ export default class extends Vendor {
    * @remarks
    * Convert any number to big number.
    *
-   * @param string - string of the required big number
+   * @param amount - string of the required big number
 
    *
    * @returns BigNumber
@@ -98,33 +98,35 @@ export default class extends Vendor {
    * @remarks
    * Convert wei value(10**18) to eth value
    *
-   * @param string - value in eth.
+   * @param amount - value in eth.
+   * @param precision - precision of the amount
 
   *
   * @returns Array<BigNumber>
   */
 
-  convertToWei(amount: string): BigNumber {
-    return helpers.ethers.convertToWei(amount)
+  convertToWei(amount: string, precision: number): BigNumber {
+    return helpers.ethers.convertToWei(amount, precision)
   }
   /**
    * @remarks
    * Get 10**18 multiplied number for values in wei.
    *
-   * @param string - string of the required non-wei amount
+   * @param wei - string of the required non-wei amount
+   * @param precision - precision of the amount
 
   *
   * @returns BigNumber
   */
-  convertWeiToEth(wei: any): number {
-    return helpers.ethers.convertWeiToEth(wei)
+  convertWeiToEth(wei: any, precision: number): number {
+    return helpers.ethers.convertWeiToEth(wei, precision)
   }
 
   /**
    * @remarks
    * Sign the message with users private key.
    *
-   * @param string - message that is to be signed
+   * @param m - message that is to be signed
 
   *
   * @returns Signed message
@@ -138,8 +140,8 @@ export default class extends Vendor {
   /**
    * @remarks
    * get address from signed message
-   * @param string - unsigned message
-   * @param string - signed message
+   * @param m - unsigned message
+   * @param s - signed message
    *
    * @returns address
    */
@@ -151,8 +153,8 @@ export default class extends Vendor {
    *
    * @remarks
    * returns abi enocoded erc20 function
-   * @param string - name of function
-   * @param Array - function parameters
+   * @param f - name of function
+   * @param p - function parameters
    */
   abiEncodeErc20Functions(f: string, p: Array<any>): string {
     const iface = new ethers.utils.Interface(ERC20Interface)
@@ -163,11 +165,11 @@ export default class extends Vendor {
    *
    * @remarks
    * returns abi enocoded erc20 function
-   * @param string - user address
-   * @param number - nonce
-   * @param string - abi encoded function data
-   * @param string - token address
-   * @param number - chain id
+   * @param u - user address
+   * @param n - nonce
+   * @param f - abi encoded function data
+   * @param a - token address
+   * @param c - chain id
    */
   async signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string> {
     const domainData = {
@@ -192,8 +194,46 @@ export default class extends Vendor {
   /**
    *
    * @remarks
+   * returns abi enocoded erc20 function
+   * @param u - user address
+   * @param n - nonce
+   * @param f - abi encoded function data
+   * @param tokenAddress - token address
+   * @param tokenName - token name
+   * @param c - chain id
+   */
+  async signedMessageForMultiTokenTx(
+    u: string,
+    n: number,
+    f: string,
+    tokenAddress: string,
+    tokenName: string,
+    c: number,
+  ): Promise<string> {
+    const domainData = {
+      name: tokenName,
+      version: '1',
+      verifyingContract: tokenAddress,
+      salt: '0x' + c.toString(16).padStart(64, '0'),
+    }
+    const message = {
+      nonce: n,
+      from: u,
+      functionSignature: f,
+    }
+    const types = {
+      MetaTransaction: metaTransactionType,
+    }
+
+    const signature = await this.signer._signTypedData(domainData, types, message)
+    return signature
+  }
+
+  /**
+   *
+   * @remarks
    * Returns signature parameters when provided with valid signature hex
-   * @param string - signature hex
+   * @param signature - signature hex
    */
   getSignatureParameters(signature: string): SignatureParams {
     if (!ethers.utils.isHexString(signature)) {
