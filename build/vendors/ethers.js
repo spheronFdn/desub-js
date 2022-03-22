@@ -50,11 +50,11 @@ class default_1 extends vendor_1.default {
     convertToBN(amount) {
         return __1.helpers.ethers.convertToBN(amount);
     }
-    convertToWei(amount) {
-        return __1.helpers.ethers.convertToWei(amount);
+    convertToWei(amount, precision) {
+        return __1.helpers.ethers.convertToWei(amount, precision);
     }
-    convertWeiToEth(wei) {
-        return __1.helpers.ethers.convertWeiToEth(wei);
+    convertWeiToEth(wei, precision) {
+        return __1.helpers.ethers.convertWeiToEth(wei, precision);
     }
     signMessage(m) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -75,9 +75,29 @@ class default_1 extends vendor_1.default {
     signedMessageForTx(u, n, f, a, c) {
         return __awaiter(this, void 0, void 0, function* () {
             const domainData = {
-                name: 'Test DAI',
+                name: 'Test ArGo',
                 version: '1',
                 verifyingContract: a,
+                salt: '0x' + c.toString(16).padStart(64, '0'),
+            };
+            const message = {
+                nonce: n,
+                from: u,
+                functionSignature: f,
+            };
+            const types = {
+                MetaTransaction: payment_1.metaTransactionType,
+            };
+            const signature = yield this.signer._signTypedData(domainData, types, message);
+            return signature;
+        });
+    }
+    signedMessageForMultiTokenTx(u, n, f, tokenAddress, tokenName, c) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const domainData = {
+                name: tokenName,
+                version: '1',
+                verifyingContract: tokenAddress,
                 salt: '0x' + c.toString(16).padStart(64, '0'),
             };
             const message = {

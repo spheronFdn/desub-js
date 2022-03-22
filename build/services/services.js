@@ -14,10 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const services_1 = __importDefault(require("../abstracts/services"));
 const axios_1 = __importDefault(require("axios"));
-const price_feed_1 = require("../errors/price-feed");
+const price_feed_1 = require("../constants/price-feed");
 const errors_1 = require("../errors");
 class default_1 extends services_1.default {
-    arweaveToUsd(a, k) {
+    tokenToUSD(a, t, k) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const options = {
@@ -26,8 +26,8 @@ class default_1 extends services_1.default {
                         'X-CMC_PRO_API_KEY': k,
                     },
                 };
-                const response = yield axios_1.default.get(price_feed_1.baseUrl + '/cryptocurrency/quotes/latest?id=' + price_feed_1.tokenId, options);
-                const qoute = response.data.data[price_feed_1.tokenId].quote.USD.price;
+                const response = yield axios_1.default.get(price_feed_1.baseUrl + '/cryptocurrency/quotes/latest?id=' + t, options);
+                const qoute = response.data.data[t].quote.USD.price;
                 return qoute * parseFloat(a);
             }
             catch (error) {
@@ -38,7 +38,7 @@ class default_1 extends services_1.default {
             }
         });
     }
-    arweaveQuote(k) {
+    tokenQuote(t, k) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const options = {
@@ -47,8 +47,8 @@ class default_1 extends services_1.default {
                         'X-CMC_PRO_API_KEY': k,
                     },
                 };
-                const response = yield axios_1.default.get(price_feed_1.baseUrl + '/cryptocurrency/quotes/latest?id=' + price_feed_1.tokenId, options);
-                const qoute = response.data.data[price_feed_1.tokenId].quote.USD.price;
+                const response = yield axios_1.default.get(price_feed_1.baseUrl + '/cryptocurrency/quotes/latest?id=' + t, options);
+                const qoute = response.data.data[t].quote.USD.price;
                 return qoute;
             }
             catch (error) {

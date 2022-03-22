@@ -16,24 +16,22 @@ export default abstract class implements Keyed {
   public signer: any // TODO
   public biconomy: any
 
-  /**
-   * @remarks
-   * Method which instantiates and returns the vendor specific contract abstraction. Must be
-   * implemented in a child class
-   *
-   * @param address - Deployed address of the target contract
-   * @param abi - Compiled abi of the target contract
-   * @param o - Optional transaction options
-   *
-   */
   abstract contract(address: string, abi: Abi, o?: TransactOpts): Contract
   abstract convertToBN(amount: string): any
-  abstract convertToWei(amount: string): any
+  abstract convertToWei(amount: string, precision: number): any
   abstract convertStringArrayToBigNumberArray(array: Array<string>): Array<any>
-  abstract convertWeiToEth(wei: any): any
+  abstract convertWeiToEth(wei: any, precision: number): any
   abstract verifySignedMessage(m: string, s: string): any
   abstract signMessage(m: string): Promise<string>
   abstract getSignatureParameters(signature: string): SignatureParams
   abstract abiEncodeErc20Functions(f: string, p: Array<any>): string
   abstract signedMessageForTx(u: string, n: number, f: string, a: string, c: number): Promise<string>
+  abstract signedMessageForMultiTokenTx(
+    u: string,
+    n: number,
+    f: string,
+    tokenAddress: string,
+    tokenName: string,
+    c: number,
+  ): Promise<string>
 }
