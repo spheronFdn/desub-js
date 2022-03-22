@@ -68,9 +68,9 @@ describe('Payments methods', () => {
     const { args } = fake.getCall(0)
     assert.deepEqual(args[0], address)
     assert.deepEqual(args[1], vendor.convertToBN(buildTime))
-    assert.deepEqual(args[2], vendor.convertToWei(uploadFee,18))
-    assert.deepEqual(args[3], vendor.convertToWei(deploymentQuote,18))
-    assert.deepEqual(args[4], vendor.convertToWei(deploymentCharge,18))
+    assert.deepEqual(args[2], vendor.convertToWei(uploadFee, 18))
+    assert.deepEqual(args[3], vendor.convertToWei(deploymentQuote, 18))
+    assert.deepEqual(args[4], vendor.convertToWei(deploymentCharge, 18))
     assert.deepEqual(args[5], provider)
   }).timeout(500000)
   it('it should pay without fee', async () => {
@@ -266,7 +266,7 @@ describe('Payments methods', () => {
     assert.equal(result.hash, '0xhash')
 
     const { args } = fake.getCall(0)
-    assert.deepEqual(args[0], vendor.convertToWei(price,18))
+    assert.deepEqual(args[0], vendor.convertToWei(price, 18))
   })
   it('it should pass correct staking address', async () => {
     // allow stubbing contract properties
@@ -388,7 +388,7 @@ describe('Payments methods', () => {
     const { args } = fake.getCall(0)
 
     assert.equal(args[0], paymentsContract.address)
-    assert.deepEqual(args[1], vendor.convertToWei(amount,18))
+    assert.deepEqual(args[1], vendor.convertToWei(amount, 18))
   })
   it('it should get correct approval amount', async () => {
     // allow stubbing contract properties
@@ -412,7 +412,7 @@ describe('Payments methods', () => {
     const result: any = await payment.getApprovalAmount(arg1)
     assert(fake.calledOnce)
     assert.isNotNull(result)
-    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'),18))
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'), 18))
 
     const { args } = fake.getCall(0)
     assert.equal(args[0], arg1)
@@ -439,7 +439,7 @@ describe('Payments methods', () => {
     const result: any = await payment.getUserBalance(arg1)
     assert(fake.calledOnce)
     assert.isNotNull(result)
-    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'),18))
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'), 18))
 
     const { args } = fake.getCall(0)
     assert.equal(args[0], arg1)
@@ -720,7 +720,7 @@ describe('Payments methods', () => {
       userAddress,
       nonce,
       abiEncodedApprove,
-      payment.erc20Contract!.address,
+      payment.erc20Contract?.address || '0x',
       chainID,
     )
     const rsv = vendor.getSignatureParameters(signedMessage)
@@ -775,7 +775,7 @@ describe('Payments methods', () => {
       userAddress,
       nonce,
       abiEncodedApprove,
-      payment.biconomyERC20Contract!.address,
+      payment.biconomyERC20Contract?.address || '0x',
       chainID,
     )
     const rsv = vendor.getSignatureParameters(signedMessage)

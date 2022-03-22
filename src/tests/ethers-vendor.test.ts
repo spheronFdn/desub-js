@@ -55,7 +55,7 @@ describe('Ethers Provider abstraction', async () => {
     const eth = parseFloat(
       ethers.utils.formatEther(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString()),
     )
-    const result = vendor.convertWeiToEth(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString(),18)
+    const result = vendor.convertWeiToEth(BigNumber.from(number).mul(BigNumber.from('10').pow(18)).toString(), 18)
     assert.isNotNull(result)
     assert.deepEqual(result.toString(), eth.toString())
   })

@@ -29,7 +29,7 @@ describe('subscriptions methods', () => {
       '0x07A07C4a107B8Bd2fCeC6B595AAA0F20296a8fD1',
       '0x069ca3a23bc4B75E9700E34657370A6A1178E1F3',
       '0x6794a9E5411f8f9B3E5Dc7457162728544A443E0',
-      18
+      18,
     )
   })
 
@@ -189,7 +189,7 @@ describe('subscriptions methods', () => {
 
     const fake = stub(contract.functions, 'removeTokens')
     fake.resolves({ hash: '0xhash' })
-    const tokens = ["0x123","0xabc"]
+    const tokens = ['0x123', '0xabc']
     const result: TxResponse = await subscription.removeTokens(tokens)
     assert(fake.calledOnce)
     assert.isNotNull(result)
@@ -215,17 +215,26 @@ describe('subscriptions methods', () => {
 
     const fake = stub(contract.functions, 'addNewTokens')
     fake.resolves({ hash: '0xhash' })
-    const data: Array<TokenData> = [{address: "0x123", decimals: 18, priceFeedPrecision: 18, priceFeedAddress: "0xabc", symobl: "ARGO", isChainLinkFeed: false}]
+    const data: Array<TokenData> = [
+      {
+        address: '0x123',
+        decimals: 18,
+        priceFeedPrecision: 18,
+        priceFeedAddress: '0xabc',
+        symobl: 'ARGO',
+        isChainLinkFeed: false,
+      },
+    ]
     const result: TxResponse = await subscription.addTokens(data)
     assert(fake.calledOnce)
     assert.isNotNull(result)
     assert.equal(result.hash, '0xhash')
-    const symbols: Array<string> = ["ARGO"]
-    const tokenAddresses: Array<string> = ["0x123"]
-    const tokenDecimals: Array<any> = [vendor.convertToBN("18")]
+    const symbols: Array<string> = ['ARGO']
+    const tokenAddresses: Array<string> = ['0x123']
+    const tokenDecimals: Array<any> = [vendor.convertToBN('18')]
     const chainLinkBools: Array<boolean> = [false]
-    const priceFeedAddresses: Array<string> = ["0xabc"]
-    const priceFeedPrecisions: Array<any> = [vendor.convertToBN("18")]
+    const priceFeedAddresses: Array<string> = ['0xabc']
+    const priceFeedPrecisions: Array<any> = [vendor.convertToBN('18')]
     const { args } = fake.getCall(0)
     assert.deepEqual(args[0], symbols)
     assert.deepEqual(args[1], tokenAddresses)
@@ -233,7 +242,6 @@ describe('subscriptions methods', () => {
     assert.deepEqual(args[3], chainLinkBools)
     assert.deepEqual(args[4], priceFeedAddresses)
     assert.deepEqual(args[5], priceFeedPrecisions)
-
   })
 
   it('it should pass data contract address', async () => {
@@ -495,7 +503,7 @@ describe('subscriptions methods', () => {
     const result: any = await subscription.getUserBalance(arg1)
     assert(fake.calledOnce)
     assert.isNotNull(result)
-    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'),18))
+    assert.deepEqual(result, vendor.convertWeiToEth(vendor.convertToBN('1000000000000000000000000'), 18))
 
     const { args } = fake.getCall(0)
     assert.equal(args[0], arg1)
@@ -749,7 +757,7 @@ describe('subscriptions methods', () => {
       userAddress,
       nonce,
       abiEncodedApprove,
-      subscription.erc20Contract!.address,
+      subscription.erc20Contract?.address || '0x',
       chainID,
     )
     const rsv = vendor.getSignatureParameters(signedMessage)
@@ -807,7 +815,7 @@ describe('subscriptions methods', () => {
       userAddress,
       nonce,
       abiEncodedApprove,
-      subscription.biconomyERC20Contract!.address,
+      subscription.biconomyERC20Contract?.address || '0x',
       chainID,
     )
     const rsv = vendor.getSignatureParameters(signedMessage)

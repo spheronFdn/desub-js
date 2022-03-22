@@ -18,7 +18,7 @@ describe('helper functions', () => {
   })
   it('Converts string to bigNumber to ', () => {
     const str = '10'
-    const result = helpers.ethers.convertWeiToEth(BigNumber.from(str).mul(BigNumber.from('10').pow(18)),18)
+    const result = helpers.ethers.convertWeiToEth(BigNumber.from(str).mul(BigNumber.from('10').pow(18)), 18)
     assert.isNotNull(result)
     assert.deepEqual(
       result,
