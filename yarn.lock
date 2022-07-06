@@ -206,10 +206,10 @@
     "@babel/helper-validator-identifier" "^7.16.7"
     to-fast-properties "^2.0.0"
 
-"@biconomy/mexa@2.0.32":
-  version "2.0.32"
-  resolved "https://registry.yarnpkg.com/@biconomy/mexa/-/mexa-2.0.32.tgz#0cdb175dea62b9aad8dff6d68068d7e430f2015c"
-  integrity sha512-rrXoZb9imI1cR9eyy0W+TGLtdGI8RV+pTL2hqVueeCCeMNCeAlfwkqi3DrUD+q25ajqIWzdYHCLNmjfgUdWN5g==
+"@biconomy/mexa@2.0.33":
+  version "2.0.33"
+  resolved "https://registry.yarnpkg.com/@biconomy/mexa/-/mexa-2.0.33.tgz#a0fdb7849b89ea1ff1d3a248c6e6f68221e38ba0"
+  integrity sha512-oswhB4kQxtMRqjzuqYEi9SBZCee2qsIHQCzPhi7aXcO5RceUToy3oSLP1HXEDlTOo+5P6lVbQFdZowi1GZzGCw==
   dependencies:
     "@babel/core" "^7.12.13"
     "@babel/runtime" "^7.12.13"
