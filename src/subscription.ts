@@ -95,7 +95,7 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Update approval for ArGo token
+   * Update approval for ERC-20 token
    * Dont use this function without frontend
    *
    * @param a - new approval amount.
@@ -106,7 +106,7 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * Update approval for ArGo token
+   * Update approval for ERC-20 token
    * Dont use this function without frontend
    *
    * @param a - new approval amount.
@@ -135,7 +135,7 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Update approval for ArGo token
+   * Update approval for ERC-20 token
    * Dont use this function without frontend
    *
    * @param a - new approval amount.
