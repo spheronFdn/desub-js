@@ -14,50 +14,6 @@ export default class extends Deployed {
     super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
     this.coinMarketCapKey = coinMarketCapKey
   }
-
-  /**
-   * @remarks
-   * This method is when we do not want to charge user with the fee for deployment, but only for build time.
-   * @param u - address of user
-   * @param b - built time (in sec) after deployment completed
-   * @param d - depployment cost by provider  USD
-   * @param providerQuote price of storage provider's token
-   * @param providerCharged tokens of storage provider charged for deploying
-   * @param  provider name of storage provider
-   */
-  async paymentWithFee(
-    u: string,
-    b: string,
-    d: string,
-    providerQuote: any,
-    providerCharged: any,
-    provider: string,
-  ): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(d, this.tokenPrecision || 18)
-    const buildTime = this.vendor.convertToBN(b)
-    const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision || 18)
-    const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision || 18)
-    return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
-  }
-  /**
-   * @remarks
-   * This method is when we want to charge user for the fee for deployment as well as for the build time.
-   * @param a - address that is to be charged
-   * @param b - built time (in sec) after deployment completed
-   */
-  async paymentWithoutFee(a: string, b: string): Promise<TxResponse> {
-    const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.charge(a, buildTime)
-  }
-  /**
-   * @remarks
-   * This method can be used to updated address of underlying token.
-   *
-   * @param a - address of token to use for charging users
-   */
-  async updateUnderlyingToken(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateUnderlyingToken(a)
-  }
   /**
    * @remarks
    * This method can be used to updated address of vault/escrow account
@@ -69,15 +25,6 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * This method can be used to updated address of oracle price feed.
-   *
-   * @param a - address of escrow contract(vault)
-   */
-  async updateFeederAddress(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateFeederAddress(a)
-  }
-  /**
-   * @remarks
    * This method can be used to updated address of staked token
    *
    * @param a - address of escrow contract(vault)
@@ -85,15 +32,7 @@ export default class extends Deployed {
   async updateStakedToken(a: string): Promise<TxResponse> {
     return await this.paymentsContract?.functions.updateStakedToken(a)
   }
-  /**
-   * @remarks
-   * This method can be called by owner to change the token address if for some reason token in changed
-   *
-   * @param a - address of escrow ArGo token, if for some reason new one needs to be passed
-   */
-  async updateToken(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateToken(a)
-  }
+  
 
   /**
    * @remarks
@@ -106,18 +45,6 @@ export default class extends Deployed {
     const discountSlabs = this.vendor.convertStringArrayToBigNumberArray(d)
     const percents = this.vendor.convertStringArrayToBigNumberArray(p)
     return await this.paymentsContract?.functions.updateDiscountSlabs(discountSlabs, percents)
-  }
-
-  /**
-   * @remarks
-   * This method can only be called by governance to change price we charge per microsecond for build.
-   *
-   * @param p - updated price per microsecond.
-
-   */
-  async changeBuildTimeRate(p: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(p, this.tokenPrecision || 18)
-    return await this.paymentsContract?.functions.changeBuildTimeRate(wei)
   }
   /**
    * @remarks
@@ -242,18 +169,7 @@ export default class extends Deployed {
     const nonce = (await this.erc20Contract?.functions.getNonce(u))[0].toNumber()
     return nonce
   }
-
-  /**
-   * @remarks
-   * Get given Allowance amount.
-   *
-   * @param a - user address
-   */
-  async getUserBalance(a: string): Promise<any> {
-    const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
-  }
-
+  
   /**
    * @remarks
    * Get owners list.

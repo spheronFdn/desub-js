@@ -190,19 +190,6 @@ export default class extends Deployed {
       })
     }
   }
-
-  /**
-   * @remarks
-   * Get given Allowance amount.
-   *
-   * @param a - address
-   *
-   */
-  async getApprovalAmount(a: string): Promise<any> {
-    const wei = await this.erc20Contract?.functions.allowance(a, this.subscriptionPaymentContract?.address)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
-  }
-
   /**
    * @remarks
    * Get nonce for gassless transaction on erc20
@@ -216,14 +203,36 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Get given Allowance amount.
-   *
-   * @param a - address
-   *
+   * Get given User balance.
+   * @param u - user address
+   * @param t - token address
    */
-  async getUserBalance(a: string): Promise<any> {
-    const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+   async getUserTokenBalance(u: string, t: string): Promise<any> {
+    const wei = await this.subscriptionDataContract?.functions.getUserData(u, t)
+    return this.vendor.convertWeiToEth(wei.balance, this.tokenPrecision || 18)
+  }
+
+  /**
+   * @remarks
+   * User deposit to Spheron
+   * @param t - token address
+   * @param a - amount
+  */
+  async userDeposit(t: string, a: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    return await this.subscriptionDataContract?.functions.userDeposit(t, wei)
+  }
+
+  /**
+    * @remarks
+    * User withdraw from Spheron
+    * @param t - token address
+    * @param a - amount
+    */
+
+  async userWithdraw(t: string, a: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    return await this.subscriptionDataContract?.functions.userWithdraw(t, wei)
   }
   /**
    * @remarks
@@ -313,7 +322,7 @@ export default class extends Deployed {
    * @param d - array of parameters and their values
    * @param t - token address
    */
-  async chargeUser(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse> {
+  async makeCharge(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
@@ -391,5 +400,64 @@ export default class extends Deployed {
    */
   async deleteParams(d: Array<string>): Promise<TxResponse> {
     return await this.subscriptionDataContract?.functions.deleteParams(d)
+  }
+  // Admin Functions
+  /**
+   * @remarks
+   * Get total token balance.
+   * @param t - token address
+   */
+   async getTotalTokenBalance(t: string): Promise<any> {
+    const wei = await this.subscriptionDataContract?.functions.getTotalDeposit(t)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+  }
+
+  /**
+   * @remarks
+   * Get total token charges.
+   * @param t - token address
+   */
+  async getTotalTokenCharges(t: string): Promise<any> {
+    const wei = await this.subscriptionDataContract?.functions.getTotalCharges(t)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+  }
+
+  /**
+   * @remarks
+   * Get total token withdraws.
+   * @param t - token address
+   */
+  async getTotalTokenWithdraws(t: string): Promise<any> {
+    const wei = await this.subscriptionDataContract?.functions.getTotalWithdraws(t)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+  }
+
+  /**
+   * @remarks
+   * Set Treasury address.
+   * @param t - treasury address
+   */
+  async setTreasury(t: string): Promise<TxResponse> {
+    return await this.subscriptionDataContract?.functions.setTreasury(t)
+  }
+
+  /**
+   * @remarks
+   * Set Company address.
+   * @param c - company address
+   */
+  async setCompany(c: string): Promise<TxResponse> {
+    return await this.subscriptionDataContract?.functions.setCompany(c)
+  }
+  /**
+    * @remarks
+    * User withdraw from Spheron
+    * @param t - token address
+    * @param a - amount
+    */
+
+   async companyWithdraw(t: string, a: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    return await this.subscriptionDataContract?.functions.companyWithdraw(t, wei)
   }
 }
