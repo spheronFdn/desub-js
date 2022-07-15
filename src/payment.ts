@@ -122,6 +122,64 @@ export default class extends Deployed {
     return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
   }
   /**
+   * @remarks
+   * Gaslles user deposit 
+   * Dont use this function without frontend
+   *
+   * @param a - deposit amount.
+   * @param t - token address.
+   * @param c - chain Id
+   */
+   async gasLessUserDeposit(a: string, t: string, c: number): Promise<TxResponse> {
+    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [
+      t,
+      wei,
+    ])
+    const userAddress = await this.vendor.signer.getAddress()
+    const nonce = await this.getNonceForGaslessERC20(userAddress)
+    const signedMessage = await this.vendor.signedMessageForTx(
+      userAddress,
+      nonce,
+      abiEncodedDeposit,
+      this.paymentsContract?.address || '',
+      c,
+    )
+    const rsv = this.vendor.getSignatureParameters(signedMessage)
+    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedDeposit, rsv)
+  }
+  /**
+   * @remarks
+   * Gaslles user deposit 
+   * Dont use this function without frontend
+   *
+   * @param a - withdrawal amount.
+   * @param t - token address.
+   * @param c - chain Id
+   */
+   async gasLessUserWithdraw(a: string, t: string, c: number): Promise<TxResponse> {
+    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [
+      t,
+      wei,
+    ])
+    const userAddress = await this.vendor.signer.getAddress()
+    const nonce = await this.getNonceForGaslessERC20(userAddress)
+    const signedMessage = await this.vendor.signedMessageForTx(
+      userAddress,
+      nonce,
+      abiEncodedWithdraw,
+      this.paymentsContract?.address || '',
+      c,
+    )
+    const rsv = this.vendor.getSignatureParameters(signedMessage)
+    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedWithdraw, rsv)
+  }
+  /**
    *
    * @remarks
    * returns abi enocoded erc20 function
