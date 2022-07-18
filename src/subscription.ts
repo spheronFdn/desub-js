@@ -422,7 +422,7 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * this method is used to remove tokens
+   * this method is used to remove tokens from accepted tokens list
    * @param d - array of tokens to remove
    */
   async removeTokens(d: Array<string>): Promise<TxResponse> {
@@ -463,7 +463,7 @@ export default class extends Deployed {
   // Admin Functions
   /**
    * @remarks
-   * Get total token balance.
+   * Admin function to get total balances of a particular token
    * @param t - token address
    */
    async getTotalTokenBalance(t: string): Promise<any> {
@@ -473,7 +473,7 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Get total token charges.
+   * Admin function to get the cummulative total of all charges
    * @param t - token address
    */
   async getTotalTokenCharges(t: string): Promise<any> {
@@ -483,7 +483,7 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Get total token withdraws.
+   * Admin function to get the cummulative total of all withdraws made by users
    * @param t - token address
    */
   async getTotalTokenWithdraws(t: string): Promise<any> {
@@ -493,7 +493,7 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Set Treasury address.
+   * Set treasury address to SubscriptionDepay Contract which receives all deposits to the contract
    * @param t - treasury address
    */
   async setTreasury(t: string): Promise<TxResponse> {
@@ -502,7 +502,8 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * Set Company address.
+   * Set company address to SubscriptionDepay Contract which receives company earnings from user charges
+   * Limited to Admin
    * @param c - company address
    */
   async setCompany(c: string): Promise<TxResponse> {
@@ -510,7 +511,7 @@ export default class extends Deployed {
   }
   /**
     * @remarks
-    * User withdraw from Spheron
+    * Move company earnings from Treasury to company address
     * @param t - token address
     * @param a - amount
     */
