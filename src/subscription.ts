@@ -267,7 +267,7 @@ export default class extends Deployed {
    * @param t - token address
    */
    async getUserTokenBalance(u: string, t: string): Promise<any> {
-    const wei = await this.subscriptionDataContract?.functions.getUserData(u, t)
+    const wei = await this.subscriptionPaymentContract?.functions.getUserData(u, t)
     return this.vendor.convertWeiToEth(wei.balance, this.tokenPrecision || 18)
   }
 
@@ -279,7 +279,7 @@ export default class extends Deployed {
   */
   async userDeposit(t: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionDataContract?.functions.userDeposit(t, wei)
+    return await this.subscriptionPaymentContract?.functions.userDeposit(t, wei)
   }
 
   /**
@@ -291,7 +291,7 @@ export default class extends Deployed {
 
   async userWithdraw(t: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionDataContract?.functions.userWithdraw(t, wei)
+    return await this.subscriptionPaymentContract?.functions.userWithdraw(t, wei)
   }
   /**
    * @remarks
@@ -467,7 +467,7 @@ export default class extends Deployed {
    * @param t - token address
    */
    async getTotalTokenBalance(t: string): Promise<any> {
-    const wei = await this.subscriptionDataContract?.functions.getTotalDeposit(t)
+    const wei = await this.subscriptionPaymentContract?.functions.getTotalDeposit(t)
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
@@ -477,7 +477,7 @@ export default class extends Deployed {
    * @param t - token address
    */
   async getTotalTokenCharges(t: string): Promise<any> {
-    const wei = await this.subscriptionDataContract?.functions.getTotalCharges(t)
+    const wei = await this.subscriptionPaymentContract?.functions.getTotalCharges(t)
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
@@ -487,7 +487,7 @@ export default class extends Deployed {
    * @param t - token address
    */
   async getTotalTokenWithdraws(t: string): Promise<any> {
-    const wei = await this.subscriptionDataContract?.functions.getTotalWithdraws(t)
+    const wei = await this.subscriptionPaymentContract?.functions.getTotalWithdraws(t)
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
@@ -497,7 +497,7 @@ export default class extends Deployed {
    * @param t - treasury address
    */
   async setTreasury(t: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.setTreasury(t)
+    return await this.subscriptionPaymentContract?.functions.setTreasury(t)
   }
 
   /**
@@ -507,7 +507,7 @@ export default class extends Deployed {
    * @param c - company address
    */
   async setCompany(c: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.setCompany(c)
+    return await this.subscriptionPaymentContract?.functions.setCompany(c)
   }
   /**
     * @remarks
@@ -518,6 +518,6 @@ export default class extends Deployed {
 
    async companyWithdraw(t: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionDataContract?.functions.companyWithdraw(t, wei)
+    return await this.subscriptionPaymentContract?.functions.companyWithdraw(t, wei)
   }
 }
