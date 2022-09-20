@@ -16,7 +16,7 @@ import { SignatureParams } from '../interfaces'
 import { Biconomy } from '@biconomy/mexa'
 
 import { helpers } from '..'
-import { ERC20Interface, SubscriptionDePayInterface, metaTransactionType } from '../constants/payment'
+import { ERC20Interface, SubscriptionDePayInterface, metaTransactionType } from '../constants/subscription'
 
 export default class extends Vendor {
   /**
