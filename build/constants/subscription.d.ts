@@ -102,14 +102,27 @@ export declare const SUBSCRIPTION_PAYMENT_ABI: ({
         type: string;
     }[];
     name: string;
-    outputs: never[];
+    outputs: {
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
     stateMutability: string;
     type: string;
     anonymous?: undefined;
 } | {
-    inputs: never[];
+    inputs: {
+        internalType: string;
+        name: string;
+        type: string;
+    }[];
     name: string;
     outputs: {
+        components: {
+            internalType: string;
+            name: string;
+            type: string;
+        }[];
         internalType: string;
         name: string;
         type: string;
@@ -166,3 +179,4 @@ export declare const domainType: {
     type: string;
 }[];
 export declare const ERC20Interface: string[];
+export declare const SubscriptionDePayInterface: string[];

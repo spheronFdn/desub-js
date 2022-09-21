@@ -19,7 +19,7 @@ const ethers_1 = require("ethers");
 const discount_data_1 = require("./discount-data");
 const mexa_1 = require("@biconomy/mexa");
 const __1 = require("..");
-const payment_1 = require("../constants/payment");
+const subscription_1 = require("../constants/subscription");
 class default_1 extends vendor_1.default {
     constructor(p, s, b) {
         super();
@@ -68,7 +68,12 @@ class default_1 extends vendor_1.default {
         return address;
     }
     abiEncodeErc20Functions(f, p) {
-        const iface = new ethers_1.ethers.utils.Interface(payment_1.ERC20Interface);
+        const iface = new ethers_1.ethers.utils.Interface(subscription_1.ERC20Interface);
+        const data = iface.encodeFunctionData(f, p);
+        return data;
+    }
+    abiEncodeSubDepayFunctions(f, p) {
+        const iface = new ethers_1.ethers.utils.Interface(subscription_1.SubscriptionDePayInterface);
         const data = iface.encodeFunctionData(f, p);
         return data;
     }
@@ -86,7 +91,7 @@ class default_1 extends vendor_1.default {
                 functionSignature: f,
             };
             const types = {
-                MetaTransaction: payment_1.metaTransactionType,
+                MetaTransaction: subscription_1.metaTransactionType,
             };
             const signature = yield this.signer._signTypedData(domainData, types, message);
             return signature;
@@ -106,7 +111,7 @@ class default_1 extends vendor_1.default {
                 functionSignature: f,
             };
             const types = {
-                MetaTransaction: payment_1.metaTransactionType,
+                MetaTransaction: subscription_1.metaTransactionType,
             };
             const signature = yield this.signer._signTypedData(domainData, types, message);
             return signature;
