@@ -134,21 +134,18 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * Gaslles user deposit 
+   * Gaslles user deposit
    * Dont use this function without frontend
    *
    * @param a - deposit amount.
    * @param t - token address.
    * @param c - chain Id
    */
-   async gasLessUserDeposit(a: string, t: string, c: number): Promise<TxResponse> {
+  async gasLessUserDeposit(a: string, t: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [
-      t,
-      wei,
-    ])
+    const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [t, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
     const signedMessage = await this.vendor.signedMessageForTx(
@@ -163,21 +160,18 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * Gaslles user deposit 
+   * Gaslles user deposit
    * Dont use this function without frontend
    *
    * @param a - withdrawal amount.
    * @param t - token address.
    * @param c - chain Id
    */
-   async gasLessUserWithdraw(a: string, t: string, c: number): Promise<TxResponse> {
+  async gasLessUserWithdraw(a: string, t: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [
-      t,
-      wei,
-    ])
+    const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [t, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
     const signedMessage = await this.vendor.signedMessageForTx(
@@ -221,7 +215,6 @@ export default class extends Deployed {
     const rsv = this.vendor.getSignatureParameters(signedMessage)
     return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
   }
-  
   /**
    *
    * @remarks
@@ -266,7 +259,7 @@ export default class extends Deployed {
    * @param u - user address
    * @param t - token address
    */
-   async getUserTokenBalance(u: string, t: string): Promise<any> {
+  async getUserTokenBalance(u: string, t: string): Promise<any> {
     const wei = await this.subscriptionPaymentContract?.functions.getUserData(u, t)
     return this.vendor.convertWeiToEth(wei.balance, this.tokenPrecision || 18)
   }
@@ -276,18 +269,19 @@ export default class extends Deployed {
    * User deposit to Spheron
    * @param t - token address
    * @param a - amount
-  */
+   */
+
   async userDeposit(t: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.subscriptionPaymentContract?.functions.userDeposit(t, wei)
   }
 
   /**
-    * @remarks
-    * User withdraw from Spheron
-    * @param t - token address
-    * @param a - amount
-    */
+   * @remarks
+   * User withdraw from Spheron
+   * @param t - token address
+   * @param a - amount
+   */
 
   async userWithdraw(t: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
@@ -466,7 +460,7 @@ export default class extends Deployed {
    * Admin function to get total balances of a particular token
    * @param t - token address
    */
-   async getTotalTokenBalance(t: string): Promise<any> {
+  async getTotalTokenBalance(t: string): Promise<any> {
     const wei = await this.subscriptionPaymentContract?.functions.getTotalDeposit(t)
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
@@ -510,13 +504,13 @@ export default class extends Deployed {
     return await this.subscriptionPaymentContract?.functions.setCompany(c)
   }
   /**
-    * @remarks
-    * Move company earnings from Treasury to company address
-    * @param t - token address
-    * @param a - amount
-    */
+   * @remarks
+   * Move company earnings from Treasury to company address
+   * @param t - token address
+   * @param a - amount
+   */
 
-   async companyWithdraw(t: string, a: string): Promise<TxResponse> {
+  async companyWithdraw(t: string, a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.subscriptionPaymentContract?.functions.companyWithdraw(t, wei)
   }
