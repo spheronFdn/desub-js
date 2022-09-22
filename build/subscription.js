@@ -99,10 +99,7 @@ class default_1 extends deployed_1.default {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [
-                t,
-                wei,
-            ]);
+            const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [t, wei]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
             const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedDeposit, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', c);
@@ -116,10 +113,7 @@ class default_1 extends deployed_1.default {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [
-                t,
-                wei,
-            ]);
+            const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [t, wei]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
             const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedWithdraw, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', c);
