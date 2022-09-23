@@ -141,18 +141,19 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserDeposit(a: string, t: string, c: number): Promise<TxResponse> {
+  async gasLessUserDeposit(a: string, n: string, t: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [t, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
-    const signedMessage = await this.vendor.signedMessageForTx(
+    const signedMessage = await this.vendor.signedMessageForMultiTokenTx(
       userAddress,
       nonce,
       abiEncodedDeposit,
       this.subscriptionPaymentContract?.address || '',
+      n,
       c,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
@@ -167,18 +168,19 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserWithdraw(a: string, t: string, c: number): Promise<TxResponse> {
+  async gasLessUserWithdraw(a: string, n: string, t: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [t, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
-    const signedMessage = await this.vendor.signedMessageForTx(
+    const signedMessage = await this.vendor.signedMessageForMultiTokenTx(
       userAddress,
       nonce,
       abiEncodedWithdraw,
       this.subscriptionPaymentContract?.address || '',
+      n,
       c,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)

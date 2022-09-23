@@ -93,7 +93,7 @@ class default_1 extends deployed_1.default {
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
         });
     }
-    gasLessUserDeposit(a, t, c) {
+    gasLessUserDeposit(a, n, t, c) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
@@ -102,12 +102,12 @@ class default_1 extends deployed_1.default {
             const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [t, wei]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
-            const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedDeposit, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', c);
+            const signedMessage = yield this.vendor.signedMessageForMultiTokenTx(userAddress, nonce, abiEncodedDeposit, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', n, c);
             const rsv = this.vendor.getSignatureParameters(signedMessage);
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedDeposit, rsv);
         });
     }
-    gasLessUserWithdraw(a, t, c) {
+    gasLessUserWithdraw(a, n, t, c) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
@@ -116,7 +116,7 @@ class default_1 extends deployed_1.default {
             const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [t, wei]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
-            const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedWithdraw, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', c);
+            const signedMessage = yield this.vendor.signedMessageForMultiTokenTx(userAddress, nonce, abiEncodedWithdraw, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', n, c);
             const rsv = this.vendor.getSignatureParameters(signedMessage);
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedWithdraw, rsv);
         });
