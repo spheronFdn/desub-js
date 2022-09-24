@@ -263,7 +263,7 @@ export default class extends Deployed {
    */
   async getUserTokenBalance(u: string, t: string): Promise<any> {
     const wei = await this.subscriptionPaymentContract?.functions.getUserData(u, t)
-    return this.vendor.convertWeiToEth(wei.balance, this.tokenPrecision || 18)
+    return this.vendor.convertWeiToEth(wei[0].balance, this.tokenPrecision || 18)
   }
 
   /**
