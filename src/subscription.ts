@@ -254,40 +254,46 @@ export default class extends Deployed {
     const nonce = (await this.erc20Contract?.functions.getNonce(u))[0].toNumber()
     return nonce
   }
-
+  /**
+   * @remarks
+   * Get given Allowance amount.
+   *
+   * @param a - user address
+   */
+  async getUserBalance(a: string): Promise<any> {
+    const wei = await this.erc20Contract?.functions.balanceOf(a)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+  }
   /**
    * @remarks
    * Get given User balance.
    * @param u - user address
-   * @param t - token address
    */
-  async getUserTokenBalance(u: string, t: string): Promise<any> {
-    const wei = await this.subscriptionPaymentContract?.functions.getUserData(u, t)
+  async getUserTokenBalance(u: string): Promise<any> {
+    const wei = await this.subscriptionPaymentContract?.functions.getUserData(u, this.erc20Contract?.address || '')
     return this.vendor.convertWeiToEth(wei[0].balance, this.tokenPrecision || 18)
   }
 
   /**
    * @remarks
    * User deposit to Spheron
-   * @param t - token address
    * @param a - amount
    */
 
-  async userDeposit(t: string, a: string): Promise<TxResponse> {
+  async userDeposit(a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionPaymentContract?.functions.userDeposit(t, wei)
+    return await this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address || '', wei)
   }
 
   /**
    * @remarks
    * User withdraw from Spheron
-   * @param t - token address
    * @param a - amount
    */
 
-  async userWithdraw(t: string, a: string): Promise<TxResponse> {
+  async userWithdraw(a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionPaymentContract?.functions.userWithdraw(t, wei)
+    return await this.subscriptionPaymentContract?.functions.userWithdraw(this.erc20Contract?.address || '', wei)
   }
   /**
    * @remarks
@@ -375,16 +381,20 @@ export default class extends Deployed {
    * this method is used when we want to charge user for the subscrption he will be buying.
    * @param u - address of user
    * @param d - array of parameters and their values
-   * @param t - token address
    */
-  async makeCharge(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse> {
+  async makeCharge(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
       paramArray.push(d[i].param)
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
-    return await this.subscriptionPaymentContract?.functions.chargeUser(u, paramArray, paramValue, t)
+    return await this.subscriptionPaymentContract?.functions.chargeUser(
+      u,
+      paramArray,
+      paramValue,
+      this.erc20Contract?.address || '',
+    )
   }
   /**
    * @remarks
@@ -460,30 +470,27 @@ export default class extends Deployed {
   /**
    * @remarks
    * Admin function to get total balances of a particular token
-   * @param t - token address
    */
-  async getTotalTokenBalance(t: string): Promise<any> {
-    const wei = await this.subscriptionPaymentContract?.functions.getTotalDeposit(t)
+  async getTotalTokenBalance(): Promise<any> {
+    const wei = await this.subscriptionPaymentContract?.functions.getTotalDeposit(this.erc20Contract?.address || '')
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**
    * @remarks
    * Admin function to get the cummulative total of all charges
-   * @param t - token address
    */
-  async getTotalTokenCharges(t: string): Promise<any> {
-    const wei = await this.subscriptionPaymentContract?.functions.getTotalCharges(t)
+  async getTotalTokenCharges(): Promise<any> {
+    const wei = await this.subscriptionPaymentContract?.functions.getTotalCharges(this.erc20Contract?.address || '')
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
   /**
    * @remarks
    * Admin function to get the cummulative total of all withdraws made by users
-   * @param t - token address
    */
-  async getTotalTokenWithdraws(t: string): Promise<any> {
-    const wei = await this.subscriptionPaymentContract?.functions.getTotalWithdraws(t)
+  async getTotalTokenWithdraws(): Promise<any> {
+    const wei = await this.subscriptionPaymentContract?.functions.getTotalWithdraws(this.erc20Contract?.address || '')
     return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
   }
 
@@ -508,12 +515,11 @@ export default class extends Deployed {
   /**
    * @remarks
    * Move company earnings from Treasury to company address
-   * @param t - token address
    * @param a - amount
    */
 
-  async companyWithdraw(t: string, a: string): Promise<TxResponse> {
+  async companyWithdraw(a: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionPaymentContract?.functions.companyWithdraw(t, wei)
+    return await this.subscriptionPaymentContract?.functions.companyWithdraw(this.erc20Contract?.address || '', wei)
   }
 }
