@@ -168,25 +168,32 @@ class default_1 extends deployed_1.default {
             return nonce;
         });
     }
-    getUserTokenBalance(u, t) {
+    getUserBalance(a) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getUserData(u, t));
-            return this.vendor.convertWeiToEth(wei.balance, this.tokenPrecision || 18);
+            const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.balanceOf(a));
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
         });
     }
-    userDeposit(t, a) {
-        var _a;
+    getUserTokenBalance(u) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.userDeposit(t, wei));
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getUserData(u, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
+            return this.vendor.convertWeiToEth(wei[0].balance, this.tokenPrecision || 18);
         });
     }
-    userWithdraw(t, a) {
-        var _a;
+    userDeposit(a) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.userWithdraw(t, wei));
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.userDeposit(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei));
+        });
+    }
+    userWithdraw(a) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.userWithdraw(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei));
         });
     }
     getUsdPricePrecision() {
@@ -246,8 +253,8 @@ class default_1 extends deployed_1.default {
             return this.vendor.parseDiscountSlabs(slabs);
         });
     }
-    makeCharge(u, d, t) {
-        var _a;
+    makeCharge(u, d) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const paramArray = [];
             const paramValue = [];
@@ -255,7 +262,7 @@ class default_1 extends deployed_1.default {
                 paramArray.push(d[i].param);
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
-            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, t));
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
         });
     }
     addTokens(d) {
@@ -309,24 +316,24 @@ class default_1 extends deployed_1.default {
             return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.deleteParams(d));
         });
     }
-    getTotalTokenBalance(t) {
-        var _a;
+    getTotalTokenBalance() {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalDeposit(t));
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalDeposit(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
             return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
         });
     }
-    getTotalTokenCharges(t) {
-        var _a;
+    getTotalTokenCharges() {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalCharges(t));
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalCharges(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
             return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
         });
     }
-    getTotalTokenWithdraws(t) {
-        var _a;
+    getTotalTokenWithdraws() {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalWithdraws(t));
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalWithdraws(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
             return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
         });
     }
@@ -342,11 +349,11 @@ class default_1 extends deployed_1.default {
             return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.setCompany(c));
         });
     }
-    companyWithdraw(t, a) {
-        var _a;
+    companyWithdraw(a) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.companyWithdraw(t, wei));
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.companyWithdraw(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei));
         });
     }
 }

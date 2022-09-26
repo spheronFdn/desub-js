@@ -18,9 +18,10 @@ export default class extends Deployed {
     gasslessMultiTokenApproval(a: string, n: string, c: number): Promise<TxResponse>;
     sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any>;
     getNonceForGaslessERC20(u: string): Promise<number>;
-    getUserTokenBalance(u: string, t: string): Promise<any>;
-    userDeposit(t: string, a: string): Promise<TxResponse>;
-    userWithdraw(t: string, a: string): Promise<TxResponse>;
+    getUserBalance(a: string): Promise<any>;
+    getUserTokenBalance(u: string): Promise<any>;
+    userDeposit(a: string): Promise<TxResponse>;
+    userWithdraw(a: string): Promise<TxResponse>;
     getUsdPricePrecision(): Promise<any>;
     getManagers(): Promise<Array<string>>;
     getGovernanceAddress(): Promise<string>;
@@ -30,16 +31,16 @@ export default class extends Deployed {
     getStakedTokenAddress(): Promise<string>;
     getDiscountSlabs(): Promise<any>;
     getDataContract(): Promise<any>;
-    makeCharge(u: string, d: Array<SubscriptionParameters>, t: string): Promise<TxResponse>;
+    makeCharge(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse>;
     addTokens(d: Array<TokenData>): Promise<TxResponse>;
     removeTokens(d: Array<string>): Promise<TxResponse>;
     changeUsdPrecision(n: number): Promise<TxResponse>;
     upadteParams(p: Array<SubscriptionParameters>): Promise<TxResponse>;
     deleteParams(d: Array<string>): Promise<TxResponse>;
-    getTotalTokenBalance(t: string): Promise<any>;
-    getTotalTokenCharges(t: string): Promise<any>;
-    getTotalTokenWithdraws(t: string): Promise<any>;
+    getTotalTokenBalance(): Promise<any>;
+    getTotalTokenCharges(): Promise<any>;
+    getTotalTokenWithdraws(): Promise<any>;
     setTreasury(t: string): Promise<TxResponse>;
     setCompany(c: string): Promise<TxResponse>;
-    companyWithdraw(t: string, a: string): Promise<TxResponse>;
+    companyWithdraw(a: string): Promise<TxResponse>;
 }
