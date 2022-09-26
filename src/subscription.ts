@@ -1,4 +1,5 @@
 import { Vendor } from '.'
+import { ethers } from 'ethers'
 import Deployed from './abstracts/deployed'
 import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
@@ -141,23 +142,24 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserDeposit(a: string, n: string, t: string, c: number): Promise<TxResponse> {
+  async gasLessUserDeposit(a: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [t, wei])
+    const provider = await this.vendor.biconomy.provider
     const userAddress = await this.vendor.signer.getAddress()
-    const nonce = await this.getNonceForGaslessERC20(userAddress)
-    const signedMessage = await this.vendor.signedMessageForMultiTokenTx(
-      userAddress,
-      nonce,
-      abiEncodedDeposit,
+    const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
-      n,
-      c,
+      this.subscriptionPaymentAbi,
+      this.vendor.biconomy.ethersProvider,
     )
-    const rsv = this.vendor.getSignatureParameters(signedMessage)
-    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedDeposit, rsv)
+    const { data } = await contractInstance.populateTransaction.userDeposit(this.erc20Contract?.address || '', wei)
+    const txParams = {
+      data,
+      to: this.subscriptionPaymentContract?.address || '',
+      from: userAddress,
+      signatureType: 'EIP712_SIGN',
+    }
+    return await provider.send('eth_sendTransaction', [txParams])
   }
   /**
    * @remarks
@@ -168,23 +170,24 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserWithdraw(a: string, n: string, t: string, c: number): Promise<TxResponse> {
+  async gasLessUserWithdraw(a: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [t, wei])
+    const provider = await this.vendor.biconomy.provider
     const userAddress = await this.vendor.signer.getAddress()
-    const nonce = await this.getNonceForGaslessERC20(userAddress)
-    const signedMessage = await this.vendor.signedMessageForMultiTokenTx(
-      userAddress,
-      nonce,
-      abiEncodedWithdraw,
+    const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
-      n,
-      c,
+      this.subscriptionPaymentAbi,
+      this.vendor.biconomy.ethersProvider,
     )
-    const rsv = this.vendor.getSignatureParameters(signedMessage)
-    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedWithdraw, rsv)
+    const { data } = await contractInstance.populateTransaction.userWithdraw(this.erc20Contract?.address || '', wei)
+    const txParams = {
+      data,
+      to: this.subscriptionPaymentContract?.address || '',
+      from: userAddress,
+      signatureType: 'EIP712_SIGN',
+    }
+    return await provider.send('eth_sendTransaction', [txParams])
   }
 
   /**

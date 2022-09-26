@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ethers_1 = require("ethers");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
@@ -93,32 +94,42 @@ class default_1 extends deployed_1.default {
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
         });
     }
-    gasLessUserDeposit(a, n, t, c) {
-        var _a;
+    gasLessUserDeposit(a) {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            const abiEncodedDeposit = this.vendor.abiEncodeSubDepayFunctions('userDeposit', [t, wei]);
+            const provider = yield this.vendor.biconomy.provider;
             const userAddress = yield this.vendor.signer.getAddress();
-            const nonce = yield this.getNonceForGaslessERC20(userAddress);
-            const signedMessage = yield this.vendor.signedMessageForMultiTokenTx(userAddress, nonce, abiEncodedDeposit, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', n, c);
-            const rsv = this.vendor.getSignatureParameters(signedMessage);
-            return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedDeposit, rsv);
+            const contractInstance = new ethers_1.ethers.Contract(((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', this.subscriptionPaymentAbi, this.vendor.biconomy.ethersProvider);
+            const { data } = yield contractInstance.populateTransaction.userDeposit(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei);
+            const txParams = {
+                data,
+                to: ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.address) || '',
+                from: userAddress,
+                signatureType: 'EIP712_SIGN',
+            };
+            return yield provider.send('eth_sendTransaction', [txParams]);
         });
     }
-    gasLessUserWithdraw(a, n, t, c) {
-        var _a;
+    gasLessUserWithdraw(a) {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
-            const abiEncodedWithdraw = this.vendor.abiEncodeSubDepayFunctions('userWithdraw', [t, wei]);
+            const provider = yield this.vendor.biconomy.provider;
             const userAddress = yield this.vendor.signer.getAddress();
-            const nonce = yield this.getNonceForGaslessERC20(userAddress);
-            const signedMessage = yield this.vendor.signedMessageForMultiTokenTx(userAddress, nonce, abiEncodedWithdraw, ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', n, c);
-            const rsv = this.vendor.getSignatureParameters(signedMessage);
-            return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedWithdraw, rsv);
+            const contractInstance = new ethers_1.ethers.Contract(((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', this.subscriptionPaymentAbi, this.vendor.biconomy.ethersProvider);
+            const { data } = yield contractInstance.populateTransaction.userWithdraw(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei);
+            const txParams = {
+                data,
+                to: ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.address) || '',
+                from: userAddress,
+                signatureType: 'EIP712_SIGN',
+            };
+            return yield provider.send('eth_sendTransaction', [txParams]);
         });
     }
     gasslessMultiTokenApproval(a, n, c) {

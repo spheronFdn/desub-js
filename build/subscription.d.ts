@@ -13,8 +13,8 @@ export default class extends Deployed {
     setManagers(h: Array<string>): Promise<TxResponse>;
     setNewApprovals(a: string): Promise<TxResponse>;
     gasslessApproval(a: string, c: number): Promise<TxResponse>;
-    gasLessUserDeposit(a: string, n: string, t: string, c: number): Promise<TxResponse>;
-    gasLessUserWithdraw(a: string, n: string, t: string, c: number): Promise<TxResponse>;
+    gasLessUserDeposit(a: string): Promise<TxResponse>;
+    gasLessUserWithdraw(a: string): Promise<TxResponse>;
     gasslessMultiTokenApproval(a: string, n: string, c: number): Promise<TxResponse>;
     sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any>;
     getNonceForGaslessERC20(u: string): Promise<number>;
