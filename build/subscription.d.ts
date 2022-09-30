@@ -13,8 +13,8 @@ export default class extends Deployed {
     setManagers(h: Array<string>): Promise<TxResponse>;
     setNewApprovals(a: string): Promise<TxResponse>;
     gasslessApproval(a: string, c: number): Promise<TxResponse>;
-    gasLessUserDeposit(a: string, k: string, u: string): Promise<TxResponse>;
-    gasLessUserWithdraw(a: string, k: string, u: string): Promise<TxResponse>;
+    gasLessUserDeposit(a: string): Promise<TxResponse>;
+    gasLessUserWithdraw(a: string): Promise<TxResponse>;
     gasslessMultiTokenApproval(a: string, n: string, c: number): Promise<TxResponse>;
     sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any>;
     getNonceForGaslessERC20(u: string): Promise<number>;
@@ -44,21 +44,3 @@ export default class extends Deployed {
     setCompany(c: string): Promise<TxResponse>;
     companyWithdraw(a: string): Promise<TxResponse>;
 }
-export declare type ExternalProvider = {
-    isMetaMask?: boolean;
-    isStatus?: boolean;
-    host?: string;
-    path?: string;
-    sendAsync?: (request: {
-        method: string;
-        params?: Array<any>;
-    }, callback: (error: any, response: any) => void) => void;
-    send?: (request: {
-        method: string;
-        params?: Array<any>;
-    }, callback: (error: any, response: any) => void) => void;
-    request?: (request: {
-        method: string;
-        params?: Array<any>;
-    }) => Promise<any>;
-};

@@ -1,6 +1,5 @@
 import { Vendor } from '.'
 import { ethers } from 'ethers'
-import { Biconomy } from '@biconomy/mexa'
 import Deployed from './abstracts/deployed'
 import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
@@ -143,29 +142,24 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserDeposit(a: string, k: string, u: string): Promise<TxResponse> {
+  async gasLessUserDeposit(a: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-    const biconomy = new Biconomy(this.vendor.provider as ExternalProvider, {
-      apiKey: k,
-      debug: true,
-      contractAddresses: [this.subscriptionPaymentContract?.address || ''],
-    })
-    await biconomy.init()
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const provider = await biconomy.provider
+    const ethersProvider = new ethers.providers.Web3Provider(this.vendor.biconomy)
+    const userAddress = await this.vendor.signer.getAddress()
     const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
       this.subscriptionPaymentAbi,
-      biconomy.ethersProvider,
+      this.vendor.biconomy.ethersProvider,
     )
     const { data } = await contractInstance.populateTransaction.userDeposit(this.erc20Contract?.address || '', wei)
     const txParams = {
       data,
       to: this.subscriptionPaymentContract?.address || '',
-      from: u,
+      from: userAddress,
       signatureType: 'EIP712_SIGN',
     }
-    return await provider.send('eth_sendTransaction', [txParams])
+    return await ethersProvider.send('eth_sendTransaction', [txParams])
   }
   /**
    * @remarks
@@ -176,29 +170,24 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserWithdraw(a: string, k: string, u: string): Promise<TxResponse> {
+  async gasLessUserWithdraw(a: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-    const biconomy = new Biconomy(this.vendor.provider as ExternalProvider, {
-      apiKey: k,
-      debug: true,
-      contractAddresses: [this.subscriptionPaymentContract?.address || ''],
-    })
-    await biconomy.init()
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const provider = await biconomy.provider
+    const ethersProvider = new ethers.providers.Web3Provider(this.vendor.biconomy)
+    const userAddress = await this.vendor.signer.getAddress()
     const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
       this.subscriptionPaymentAbi,
-      biconomy.ethersProvider,
+      this.vendor.biconomy.ethersProvider,
     )
-    const { data } = await contractInstance.populateTransaction.userDeposit(this.erc20Contract?.address || '', wei)
+    const { data } = await contractInstance.populateTransaction.userWithdraw(this.erc20Contract?.address || '', wei)
     const txParams = {
       data,
       to: this.subscriptionPaymentContract?.address || '',
-      from: u,
+      from: userAddress,
       signatureType: 'EIP712_SIGN',
     }
-    return await provider.send('eth_sendTransaction', [txParams])
+    return await ethersProvider.send('eth_sendTransaction', [txParams])
   }
 
   /**
@@ -536,13 +525,4 @@ export default class extends Deployed {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.subscriptionPaymentContract?.functions.companyWithdraw(this.erc20Contract?.address || '', wei)
   }
-}
-export type ExternalProvider = {
-  isMetaMask?: boolean
-  isStatus?: boolean
-  host?: string
-  path?: string
-  sendAsync?: (request: { method: string; params?: Array<any> }, callback: (error: any, response: any) => void) => void
-  send?: (request: { method: string; params?: Array<any> }, callback: (error: any, response: any) => void) => void
-  request?: (request: { method: string; params?: Array<any> }) => Promise<any>
 }
