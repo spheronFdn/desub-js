@@ -1,5 +1,6 @@
 import { Vendor } from '.'
 import { ethers } from 'ethers'
+import { Biconomy } from '@biconomy/mexa'
 import Deployed from './abstracts/deployed'
 import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
@@ -142,15 +143,21 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserDeposit(a: string): Promise<TxResponse> {
+  async gasLessUserDeposit(a: string, k: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+    const biconomy = new Biconomy(this.vendor.provider, {
+      apiKey: k,
+      debug: true,
+      contractAddresses: [this.subscriptionPaymentContract?.address || ''],
+    })
+    await biconomy.init()
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const provider = await this.vendor.biconomy.provider
+    const provider = await biconomy.provider
     const userAddress = await this.vendor.signer.getAddress()
     const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
       this.subscriptionPaymentAbi,
-      this.vendor.biconomy.ethersProvider,
+      biconomy.ethersProvider,
     )
     const { data } = await contractInstance.populateTransaction.userDeposit(this.erc20Contract?.address || '', wei)
     const txParams = {
@@ -170,15 +177,21 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserWithdraw(a: string): Promise<TxResponse> {
+  async gasLessUserWithdraw(a: string, k: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+    const biconomy = new Biconomy(this.vendor.provider, {
+      apiKey: k,
+      debug: true,
+      contractAddresses: [this.subscriptionPaymentContract?.address || ''],
+    })
+    await biconomy.init()
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const provider = await this.vendor.biconomy.provider
+    const provider = await biconomy.provider
     const userAddress = await this.vendor.signer.getAddress()
     const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
       this.subscriptionPaymentAbi,
-      this.vendor.biconomy.ethersProvider,
+      biconomy.ethersProvider,
     )
     const { data } = await contractInstance.populateTransaction.userWithdraw(this.erc20Contract?.address || '', wei)
     const txParams = {
