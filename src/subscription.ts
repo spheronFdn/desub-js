@@ -143,9 +143,9 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserDeposit(a: string, k: string): Promise<TxResponse> {
+  async gasLessUserDeposit(a: string, k: string, u: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-    const biconomy = new Biconomy(this.vendor.provider, {
+    const biconomy = new Biconomy(this.vendor.provider as ExternalProvider, {
       apiKey: k,
       debug: true,
       contractAddresses: [this.subscriptionPaymentContract?.address || ''],
@@ -153,7 +153,6 @@ export default class extends Deployed {
     await biconomy.init()
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const provider = await biconomy.provider
-    const userAddress = await this.vendor.signer.getAddress()
     const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
       this.subscriptionPaymentAbi,
@@ -163,7 +162,7 @@ export default class extends Deployed {
     const txParams = {
       data,
       to: this.subscriptionPaymentContract?.address || '',
-      from: userAddress,
+      from: u,
       signatureType: 'EIP712_SIGN',
     }
     return await provider.send('eth_sendTransaction', [txParams])
@@ -177,9 +176,9 @@ export default class extends Deployed {
    * @param t - token address.
    * @param c - chain Id
    */
-  async gasLessUserWithdraw(a: string, k: string): Promise<TxResponse> {
+  async gasLessUserWithdraw(a: string, k: string, u: string): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-    const biconomy = new Biconomy(this.vendor.provider, {
+    const biconomy = new Biconomy(this.vendor.provider as ExternalProvider, {
       apiKey: k,
       debug: true,
       contractAddresses: [this.subscriptionPaymentContract?.address || ''],
@@ -187,17 +186,16 @@ export default class extends Deployed {
     await biconomy.init()
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     const provider = await biconomy.provider
-    const userAddress = await this.vendor.signer.getAddress()
     const contractInstance = new ethers.Contract(
       this.subscriptionPaymentContract?.address || '',
       this.subscriptionPaymentAbi,
       biconomy.ethersProvider,
     )
-    const { data } = await contractInstance.populateTransaction.userWithdraw(this.erc20Contract?.address || '', wei)
+    const { data } = await contractInstance.populateTransaction.userDeposit(this.erc20Contract?.address || '', wei)
     const txParams = {
       data,
       to: this.subscriptionPaymentContract?.address || '',
-      from: userAddress,
+      from: u,
       signatureType: 'EIP712_SIGN',
     }
     return await provider.send('eth_sendTransaction', [txParams])
@@ -538,4 +536,13 @@ export default class extends Deployed {
     const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
     return await this.subscriptionPaymentContract?.functions.companyWithdraw(this.erc20Contract?.address || '', wei)
   }
+}
+export type ExternalProvider = {
+  isMetaMask?: boolean
+  isStatus?: boolean
+  host?: string
+  path?: string
+  sendAsync?: (request: { method: string; params?: Array<any> }, callback: (error: any, response: any) => void) => void
+  send?: (request: { method: string; params?: Array<any> }, callback: (error: any, response: any) => void) => void
+  request?: (request: { method: string; params?: Array<any> }) => Promise<any>
 }

@@ -95,7 +95,7 @@ class default_1 extends deployed_1.default {
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
         });
     }
-    gasLessUserDeposit(a, k) {
+    gasLessUserDeposit(a, k, u) {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
@@ -108,19 +108,18 @@ class default_1 extends deployed_1.default {
             yield biconomy.init();
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
             const provider = yield biconomy.provider;
-            const userAddress = yield this.vendor.signer.getAddress();
             const contractInstance = new ethers_1.ethers.Contract(((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address) || '', this.subscriptionPaymentAbi, biconomy.ethersProvider);
             const { data } = yield contractInstance.populateTransaction.userDeposit(((_c = this.erc20Contract) === null || _c === void 0 ? void 0 : _c.address) || '', wei);
             const txParams = {
                 data,
                 to: ((_d = this.subscriptionPaymentContract) === null || _d === void 0 ? void 0 : _d.address) || '',
-                from: userAddress,
+                from: u,
                 signatureType: 'EIP712_SIGN',
             };
             return yield provider.send('eth_sendTransaction', [txParams]);
         });
     }
-    gasLessUserWithdraw(a, k) {
+    gasLessUserWithdraw(a, k, u) {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
@@ -133,13 +132,12 @@ class default_1 extends deployed_1.default {
             yield biconomy.init();
             const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
             const provider = yield biconomy.provider;
-            const userAddress = yield this.vendor.signer.getAddress();
             const contractInstance = new ethers_1.ethers.Contract(((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address) || '', this.subscriptionPaymentAbi, biconomy.ethersProvider);
-            const { data } = yield contractInstance.populateTransaction.userWithdraw(((_c = this.erc20Contract) === null || _c === void 0 ? void 0 : _c.address) || '', wei);
+            const { data } = yield contractInstance.populateTransaction.userDeposit(((_c = this.erc20Contract) === null || _c === void 0 ? void 0 : _c.address) || '', wei);
             const txParams = {
                 data,
                 to: ((_d = this.subscriptionPaymentContract) === null || _d === void 0 ? void 0 : _d.address) || '',
-                from: userAddress,
+                from: u,
                 signatureType: 'EIP712_SIGN',
             };
             return yield provider.send('eth_sendTransaction', [txParams]);
