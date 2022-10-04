@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ERC20Interface = exports.domainType = exports.metaTransactionType = exports.SUBSCRIPTION_DATA_ABI = exports.SUBSCRIPTION_PAYMENT_ABI = exports.ERC20_ABI = exports.PAYMENT_ABI = void 0;
+exports.SubscriptionDePayInterface = exports.ERC20Interface = exports.domainType = exports.metaTransactionType = exports.SUBSCRIPTION_DATA_ABI = exports.SUBSCRIPTION_PAYMENT_ABI = exports.ERC20_ABI = exports.PAYMENT_ABI = void 0;
 exports.PAYMENT_ABI = [
     {
         inputs: [
@@ -1406,7 +1406,22 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
         inputs: [
             {
                 internalType: 'address',
-                name: 'd',
+                name: '_treasury',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '_company',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '_data',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '_trustedForwarder',
                 type: 'address',
             },
         ],
@@ -1419,17 +1434,95 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
             {
                 indexed: true,
                 internalType: 'address',
-                name: 'previousOwner',
-                type: 'address',
-            },
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'newOwner',
+                name: 'trustedForwarder',
                 type: 'address',
             },
         ],
-        name: 'OwnershipTransferred',
+        name: 'ChangeTrustedForwarder',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: '_company',
+                type: 'address',
+            },
+        ],
+        name: 'CompanyPendingSet',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: '_company',
+                type: 'address',
+            },
+        ],
+        name: 'CompanySet',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+            },
+        ],
+        name: 'CompanyWithdraw',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: '_dataContract',
+                type: 'address',
+            },
+        ],
+        name: 'DataContractUpdated',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: 'bool',
+                name: '_status',
+                type: 'bool',
+            },
+        ],
+        name: 'DepositStatusChanged',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: '_treasury',
+                type: 'address',
+            },
+        ],
+        name: 'TreasurySet',
         type: 'event',
     },
     {
@@ -1443,6 +1536,12 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
             },
             {
                 indexed: true,
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+            },
+            {
+                indexed: false,
                 internalType: 'uint256',
                 name: 'fee',
                 type: 'uint256',
@@ -1452,25 +1551,128 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
         type: 'event',
     },
     {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'user',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'deposit',
+                type: 'uint256',
+            },
+        ],
+        name: 'UserDeposit',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'user',
+                type: 'address',
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'token',
+                type: 'address',
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+            },
+        ],
+        name: 'UserWithdraw',
+        type: 'event',
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: 'bool',
+                name: '_status',
+                type: 'bool',
+            },
+        ],
+        name: 'WithdrawalStatusChanged',
+        type: 'event',
+    },
+    {
+        inputs: [],
+        name: 'TIMESTAP_GAP',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [
             {
                 internalType: 'address',
-                name: 'u',
+                name: '_pendingCompany',
+                type: 'address',
+            },
+        ],
+        name: 'approveSetCompany',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'changeDepositStatus',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'changeWithdrawalStatus',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_user',
                 type: 'address',
             },
             {
                 internalType: 'string[]',
-                name: 'p',
+                name: '_parameters',
                 type: 'string[]',
             },
             {
                 internalType: 'uint256[]',
-                name: 'v',
+                name: '_values',
                 type: 'uint256[]',
             },
             {
                 internalType: 'address',
-                name: 't',
+                name: '_token',
                 type: 'address',
             },
         ],
@@ -1481,7 +1683,7 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
     },
     {
         inputs: [],
-        name: 'owner',
+        name: 'company',
         outputs: [
             {
                 internalType: 'address',
@@ -1493,8 +1695,252 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
         type: 'function',
     },
     {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        name: 'companyRevenue',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_token',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: '_amount',
+                type: 'uint256',
+            },
+        ],
+        name: 'companyWithdraw',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 't',
+                type: 'address',
+            },
+        ],
+        name: 'getTotalCharges',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 't',
+                type: 'address',
+            },
+        ],
+        name: 'getTotalDeposit',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 't',
+                type: 'address',
+            },
+        ],
+        name: 'getTotalWithdraws',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 't',
+                type: 'address',
+            },
+        ],
+        name: 'getUnderlyingPrice',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: 'underlyingPrice',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'timestamp',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_user',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '_token',
+                type: 'address',
+            },
+        ],
+        name: 'getUserData',
+        outputs: [
+            {
+                components: [
+                    {
+                        internalType: 'uint256',
+                        name: 'deposit',
+                        type: 'uint256',
+                    },
+                    {
+                        internalType: 'uint256',
+                        name: 'balance',
+                        type: 'uint256',
+                    },
+                ],
+                internalType: 'struct SubscriptionDePay.UserData',
+                name: '',
+                type: 'tuple',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'forwarder',
+                type: 'address',
+            },
+        ],
+        name: 'isTrustedForwarder',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
         inputs: [],
-        name: 'renounceOwnership',
+        name: 'pauseDeposit',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'pauseWithdrawal',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'pendingCompany',
+        outputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_company',
+                type: 'address',
+            },
+        ],
+        name: 'setCompany',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_treasury',
+                type: 'address',
+            },
+        ],
+        name: 'setTreasury',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'forwarder',
+                type: 'address',
+            },
+        ],
+        name: 'setTrustedForwarder',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
@@ -1516,13 +1962,70 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
         inputs: [
             {
                 internalType: 'address',
-                name: 'newOwner',
+                name: '',
                 type: 'address',
             },
         ],
-        name: 'transferOwnership',
-        outputs: [],
-        stateMutability: 'nonpayable',
+        name: 'totalCharges',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        name: 'totalDeposit',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        name: 'totalWithdraws',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [],
+        name: 'treasury',
+        outputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        stateMutability: 'view',
         type: 'function',
     },
     {
@@ -1542,16 +2045,63 @@ exports.SUBSCRIPTION_PAYMENT_ABI = [
         inputs: [
             {
                 internalType: 'address',
-                name: 't',
+                name: '',
+                type: 'address',
+            },
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
+        ],
+        name: 'userData',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: 'deposit',
+                type: 'uint256',
+            },
+            {
+                internalType: 'uint256',
+                name: 'balance',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_token',
                 type: 'address',
             },
             {
                 internalType: 'uint256',
-                name: 'a',
+                name: '_amount',
                 type: 'uint256',
             },
         ],
-        name: 'withdrawERC20',
+        name: 'userDeposit',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '_token',
+                type: 'address',
+            },
+            {
+                internalType: 'uint256',
+                name: '_amount',
+                type: 'uint256',
+            },
+        ],
+        name: 'userWithdraw',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function',
@@ -1572,7 +2122,7 @@ exports.SUBSCRIPTION_DATA_ABI = [
             },
             {
                 internalType: 'address',
-                name: 'e',
+                name: '_escrow',
                 type: 'address',
             },
             {
@@ -1587,7 +2137,7 @@ exports.SUBSCRIPTION_DATA_ABI = [
             },
             {
                 internalType: 'address',
-                name: 's',
+                name: '_stakedToken',
                 type: 'address',
             },
         ],
@@ -1598,7 +2148,7 @@ exports.SUBSCRIPTION_DATA_ABI = [
         anonymous: false,
         inputs: [
             {
-                indexed: false,
+                indexed: true,
                 internalType: 'address',
                 name: 'owner',
                 type: 'address',
@@ -1618,19 +2168,6 @@ exports.SUBSCRIPTION_DATA_ABI = [
             },
         ],
         name: 'DeletedParameter',
-        type: 'event',
-    },
-    {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: false,
-                internalType: 'address',
-                name: 'account',
-                type: 'address',
-            },
-        ],
-        name: 'Paused',
         type: 'event',
     },
     {
@@ -1738,14 +2275,27 @@ exports.SUBSCRIPTION_DATA_ABI = [
         anonymous: false,
         inputs: [
             {
-                indexed: false,
+                indexed: true,
                 internalType: 'address',
-                name: 'account',
+                name: '_escrow',
                 type: 'address',
             },
         ],
-        name: 'Unpaused',
+        name: 'UpdateEscrow',
         type: 'event',
+    },
+    {
+        inputs: [],
+        name: 'MAX_NUMBER',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
     },
     {
         inputs: [
@@ -1799,34 +2349,34 @@ exports.SUBSCRIPTION_DATA_ABI = [
     {
         inputs: [
             {
-                internalType: 'string[]',
-                name: 's',
-                type: 'string[]',
+                internalType: 'string',
+                name: '_symbols',
+                type: 'string',
             },
             {
-                internalType: 'address[]',
-                name: 't',
-                type: 'address[]',
+                internalType: 'address',
+                name: '_tokens',
+                type: 'address',
             },
             {
-                internalType: 'uint128[]',
-                name: 'd',
-                type: 'uint128[]',
+                internalType: 'uint128',
+                name: '_decimals',
+                type: 'uint128',
             },
             {
-                internalType: 'bool[]',
+                internalType: 'bool',
                 name: 'isChainLinkFeed_',
-                type: 'bool[]',
+                type: 'bool',
             },
             {
-                internalType: 'address[]',
+                internalType: 'address',
                 name: 'priceFeedAddress_',
-                type: 'address[]',
+                type: 'address',
             },
             {
-                internalType: 'uint128[]',
+                internalType: 'uint128',
                 name: 'priceFeedPrecision_',
-                type: 'uint128[]',
+                type: 'uint128',
             },
         ],
         name: 'addNewTokens',
@@ -1989,25 +2539,6 @@ exports.SUBSCRIPTION_DATA_ABI = [
         type: 'function',
     },
     {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 't',
-                type: 'address',
-            },
-        ],
-        name: 'getUnderlyingPrice',
-        outputs: [
-            {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
         inputs: [],
         name: 'governanceAddress',
         outputs: [
@@ -2029,6 +2560,44 @@ exports.SUBSCRIPTION_DATA_ABI = [
             },
         ],
         name: 'isAcceptedToken',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'view',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256[]',
+                name: '_nnn',
+                type: 'uint256[]',
+            },
+        ],
+        name: 'isIncremental',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
+        ],
+        stateMutability: 'pure',
+        type: 'function',
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'addr',
+                type: 'address',
+            },
+        ],
+        name: 'isManager',
         outputs: [
             {
                 internalType: 'bool',
@@ -2104,26 +2673,6 @@ exports.SUBSCRIPTION_DATA_ABI = [
                 internalType: 'string',
                 name: '',
                 type: 'string',
-            },
-        ],
-        stateMutability: 'view',
-        type: 'function',
-    },
-    {
-        inputs: [],
-        name: 'pause',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
-        inputs: [],
-        name: 'paused',
-        outputs: [
-            {
-                internalType: 'bool',
-                name: '',
-                type: 'bool',
             },
         ],
         stateMutability: 'view',
@@ -2259,13 +2808,6 @@ exports.SUBSCRIPTION_DATA_ABI = [
         type: 'function',
     },
     {
-        inputs: [],
-        name: 'unpause',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
-    {
         inputs: [
             {
                 internalType: 'uint256[]',
@@ -2287,7 +2829,7 @@ exports.SUBSCRIPTION_DATA_ABI = [
         inputs: [
             {
                 internalType: 'address',
-                name: 'e',
+                name: '_escrow',
                 type: 'address',
             },
         ],
@@ -2340,24 +2882,6 @@ exports.SUBSCRIPTION_DATA_ABI = [
         stateMutability: 'view',
         type: 'function',
     },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 't',
-                type: 'address',
-            },
-            {
-                internalType: 'uint256',
-                name: 'a',
-                type: 'uint256',
-            },
-        ],
-        name: 'withdrawERC20',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function',
-    },
 ];
 exports.metaTransactionType = [
     { name: 'nonce', type: 'uint256' },
@@ -2389,4 +2913,8 @@ exports.ERC20Interface = [
     'function allowance(address owner, address spender) external view returns (uint256)',
     'function approve(address spender, uint256 amount) external returns (bool)',
     'function transferFrom(address sender, address recipient, uint256 amount) external returns (bool)',
+];
+exports.SubscriptionDePayInterface = [
+    'function userDeposit(address _token, uint _amount) external',
+    'function userWithdraw(address _token, uint _amount) external',
 ];
