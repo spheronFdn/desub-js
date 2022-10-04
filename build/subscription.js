@@ -12,6 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ethers_1 = require("ethers");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
@@ -93,6 +94,44 @@ class default_1 extends deployed_1.default {
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
         });
     }
+    gasLessUserDeposit(a) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.vendor.biconomy)
+                throw new Error(errors_1.INVALID_BICONOMY_KEY);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            const ethersProvider = new ethers_1.ethers.providers.Web3Provider(this.vendor.biconomy);
+            const userAddress = yield this.vendor.signer.getAddress();
+            const contractInstance = new ethers_1.ethers.Contract(((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', this.subscriptionPaymentAbi, this.vendor.biconomy.ethersProvider);
+            const { data } = yield contractInstance.populateTransaction.userDeposit(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei);
+            const txParams = {
+                data,
+                to: ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.address) || '',
+                from: userAddress,
+                signatureType: 'EIP712_SIGN',
+            };
+            return yield ethersProvider.send('eth_sendTransaction', [txParams]);
+        });
+    }
+    gasLessUserWithdraw(a) {
+        var _a, _b, _c;
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.vendor.biconomy)
+                throw new Error(errors_1.INVALID_BICONOMY_KEY);
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            const ethersProvider = new ethers_1.ethers.providers.Web3Provider(this.vendor.biconomy);
+            const userAddress = yield this.vendor.signer.getAddress();
+            const contractInstance = new ethers_1.ethers.Contract(((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.address) || '', this.subscriptionPaymentAbi, this.vendor.biconomy.ethersProvider);
+            const { data } = yield contractInstance.populateTransaction.userWithdraw(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei);
+            const txParams = {
+                data,
+                to: ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.address) || '',
+                from: userAddress,
+                signatureType: 'EIP712_SIGN',
+            };
+            return yield ethersProvider.send('eth_sendTransaction', [txParams]);
+        });
+    }
     gasslessMultiTokenApproval(a, n, c) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
@@ -133,13 +172,6 @@ class default_1 extends deployed_1.default {
             }
         });
     }
-    getApprovalAmount(a) {
-        var _a, _b;
-        return __awaiter(this, void 0, void 0, function* () {
-            const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.allowance(a, (_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address));
-            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
-        });
-    }
     getNonceForGaslessERC20(u) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
@@ -152,6 +184,27 @@ class default_1 extends deployed_1.default {
         return __awaiter(this, void 0, void 0, function* () {
             const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.balanceOf(a));
             return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
+        });
+    }
+    getUserTokenBalance(u) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getUserData(u, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
+            return this.vendor.convertWeiToEth(wei[0].balance, this.tokenPrecision || 18);
+        });
+    }
+    userDeposit(a) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.userDeposit(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei));
+        });
+    }
+    userWithdraw(a) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.userWithdraw(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei));
         });
     }
     getUsdPricePrecision() {
@@ -211,8 +264,8 @@ class default_1 extends deployed_1.default {
             return this.vendor.parseDiscountSlabs(slabs);
         });
     }
-    chargeUser(u, d, t) {
-        var _a;
+    makeCharge(u, d) {
+        var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             const paramArray = [];
             const paramValue = [];
@@ -220,7 +273,7 @@ class default_1 extends deployed_1.default {
                 paramArray.push(d[i].param);
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
-            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, t));
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
         });
     }
     addTokens(d) {
@@ -272,6 +325,46 @@ class default_1 extends deployed_1.default {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             return yield ((_a = this.subscriptionDataContract) === null || _a === void 0 ? void 0 : _a.functions.deleteParams(d));
+        });
+    }
+    getTotalTokenBalance() {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalDeposit(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
+        });
+    }
+    getTotalTokenCharges() {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalCharges(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
+        });
+    }
+    getTotalTokenWithdraws() {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.getTotalWithdraws(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || ''));
+            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
+        });
+    }
+    setTreasury(t) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.setTreasury(t));
+        });
+    }
+    setCompany(c) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.setCompany(c));
+        });
+    }
+    companyWithdraw(a) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.companyWithdraw(((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', wei));
         });
     }
 }

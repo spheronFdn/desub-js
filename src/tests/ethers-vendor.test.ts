@@ -10,7 +10,7 @@ import { Wallet } from '@ethersproject/wallet'
 import { BigNumber } from '@ethersproject/bignumber'
 import { DiscountDataClass } from '../vendors/discount-data'
 import { ethers } from 'ethers'
-import { metaTransactionType } from '../constants/payment'
+import { metaTransactionType } from '../constants/subscription'
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 chai.use(require('chai-bignumber')())
 describe('Ethers Provider abstraction', async () => {
