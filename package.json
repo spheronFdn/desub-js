@@ -1,10 +1,10 @@
 {
-  "name": "@argoapp/payment-js",
-  "version": "1.1.1",
-  "description": "Typescript library for working with the Payment Contracts in ArGo",
+  "name": "@spheron/payment-js",
+  "version": "2.0.0",
+  "description": "Typescript library for working with the Subscription Contracts in Spheron",
   "main": "build/index.js",
   "types": "build/index.d.ts",
-  "author": "argo",
+  "author": "Spheron Team",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/argoapp-live/argo-payments-js/issues"
@@ -15,7 +15,8 @@
     "url": "git+https://github.com/argoapp-live/argo-payments-js.git"
   },
   "keywords": [
-    "ArGo",
+    "Spheron",
+    "Network",
     "Hosting",
     "Storage",
     "Typescript",
@@ -58,7 +59,7 @@
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "mocha": "^8.2.1",
+    "mocha": "^10.0.0",
     "prettier": "^2.2.1",
     "sinon": "^9.2.4",
     "ts-node": "^9.1.1",
