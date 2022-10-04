@@ -1,18 +1,18 @@
 {
-  "name": "@spheron/payment-js",
+  "name": "@spheron/desub-js",
   "version": "2.0.0",
-  "description": "Typescript library for working with the Subscription Contracts in Spheron",
+  "description": "Typescript library for working with the decentralised subscription contracts in Spheron",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "author": "Spheron Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/argoapp-live/argo-payments-js/issues"
+    "url": "https://github.com/argoapp-live/desub-js/issues"
   },
-  "homepage": "https://github.com/argoapp-live/argo-payments-js#readme",
+  "homepage": "https://github.com/argoapp-live/desub-js#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/argoapp-live/argo-payments-js.git"
+    "url": "git+https://github.com/argoapp-live/desub-js.git"
   },
   "keywords": [
     "Spheron",
