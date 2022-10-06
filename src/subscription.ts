@@ -400,7 +400,10 @@ export default class extends Deployed {
         paramArray,
         paramValue,
         this.erc20Contract?.address || '',
-        g,
+        {
+          gasLimit: 40000000000,
+          gasPrice: 40000000000,
+        },
       )
     } else {
       return await this.subscriptionPaymentContract?.functions.chargeUser(
@@ -408,6 +411,10 @@ export default class extends Deployed {
         paramArray,
         paramValue,
         this.erc20Contract?.address || '',
+        {
+          gasLimit: 40000000000,
+          gasPrice: 40000000000,
+        },
       )
     }
   }

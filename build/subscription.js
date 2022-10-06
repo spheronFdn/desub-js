@@ -274,10 +274,16 @@ class default_1 extends deployed_1.default {
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
             if (g) {
-                return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', g));
+                return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', {
+                    gasLimit: 40000000000,
+                    gasPrice: 40000000000,
+                }));
             }
             else {
-                return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.chargeUser(u, paramArray, paramValue, ((_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) || ''));
+                return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.chargeUser(u, paramArray, paramValue, ((_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) || '', {
+                    gasLimit: 40000000000,
+                    gasPrice: 40000000000,
+                }));
             }
         });
     }
