@@ -31,7 +31,7 @@ export default class extends Deployed {
     getStakedTokenAddress(): Promise<string>;
     getDiscountSlabs(): Promise<any>;
     getDataContract(): Promise<any>;
-    makeCharge(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse>;
+    makeCharge(u: string, d: Array<SubscriptionParameters>, gp?: string): Promise<TxResponse>;
     addTokens(d: Array<TokenData>): Promise<TxResponse>;
     removeTokens(d: Array<string>): Promise<TxResponse>;
     changeUsdPrecision(n: number): Promise<TxResponse>;
