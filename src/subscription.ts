@@ -395,9 +395,15 @@ export default class extends Deployed {
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
     if (g) {
-      return await this.subscriptionPaymentContract?.functions.makeCharge(u, paramArray, paramValue, { g })
+      return await this.subscriptionPaymentContract?.functions.chargeUser(
+        u,
+        paramArray,
+        paramValue,
+        this.erc20Contract?.address || '',
+        g,
+      )
     } else {
-      return await this.subscriptionPaymentContract?.functions.makeCharge(
+      return await this.subscriptionPaymentContract?.functions.chargeUser(
         u,
         paramArray,
         paramValue,
