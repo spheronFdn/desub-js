@@ -265,7 +265,7 @@ class default_1 extends deployed_1.default {
         });
     }
     makeCharge(u, d, g) {
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const paramArray = [];
             const paramValue = [];
@@ -274,10 +274,10 @@ class default_1 extends deployed_1.default {
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
             if (g) {
-                return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.makeCharge(u, paramArray, paramValue, { g }));
+                return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', g));
             }
             else {
-                return yield ((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.functions.makeCharge(u, paramArray, paramValue, ((_c = this.erc20Contract) === null || _c === void 0 ? void 0 : _c.address) || ''));
+                return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.chargeUser(u, paramArray, paramValue, ((_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) || ''));
             }
         });
     }
