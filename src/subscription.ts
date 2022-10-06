@@ -384,20 +384,34 @@ export default class extends Deployed {
    * this method is used when we want to charge user for the subscrption he will be buying.
    * @param u - address of user
    * @param d - array of parameters and their values
+   * @param mf - max gas fee
+   * @param m - max priority fee
    */
-  async makeCharge(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
+  async makeCharge(u: string, d: Array<SubscriptionParameters>, gp?: string): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
       paramArray.push(d[i].param)
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
-    return await this.subscriptionPaymentContract?.functions.chargeUser(
-      u,
-      paramArray,
-      paramValue,
-      this.erc20Contract?.address || '',
-    )
+    if (gp) {
+      return await this.subscriptionPaymentContract?.functions.chargeUser(
+        u,
+        paramArray,
+        paramValue,
+        this.erc20Contract?.address || '',
+        {
+          gasPrice: this.vendor.convertToBN(gp),
+        },
+      )
+    } else {
+      return await this.subscriptionPaymentContract?.functions.chargeUser(
+        u,
+        paramArray,
+        paramValue,
+        this.erc20Contract?.address || '',
+      )
+    }
   }
   /**
    * @remarks
