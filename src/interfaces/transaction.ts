@@ -29,3 +29,8 @@ export interface SignatureParams {
   s: string
   v: number
 }
+
+export interface GasStructure {
+  gasFee: Nos
+  gasProirityFee: Nos
+}

@@ -3,7 +3,7 @@ import { ethers } from 'ethers'
 import Deployed from './abstracts/deployed'
 import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
-import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
+import { SubscriptionParameters, TokenData, TxResponse, GasStructure } from './interfaces'
 
 export default class extends Deployed {
   /**
@@ -384,20 +384,26 @@ export default class extends Deployed {
    * this method is used when we want to charge user for the subscrption he will be buying.
    * @param u - address of user
    * @param d - array of parameters and their values
+   * @param mf - max gas fee
+   * @param m - max priority fee
    */
-  async makeCharge(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
+  async makeCharge(u: string, d: Array<SubscriptionParameters>, g?: GasStructure): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
       paramArray.push(d[i].param)
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
-    return await this.subscriptionPaymentContract?.functions.chargeUser(
-      u,
-      paramArray,
-      paramValue,
-      this.erc20Contract?.address || '',
-    )
+    if (g) {
+      return await this.subscriptionPaymentContract?.functions.makeCharge(u, paramArray, paramValue, { g })
+    } else {
+      return await this.subscriptionPaymentContract?.functions.makeCharge(
+        u,
+        paramArray,
+        paramValue,
+        this.erc20Contract?.address || '',
+      )
+    }
   }
   /**
    * @remarks

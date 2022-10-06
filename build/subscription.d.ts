@@ -1,6 +1,6 @@
 import { Vendor } from '.';
 import Deployed from './abstracts/deployed';
-import { SubscriptionParameters, TokenData, TxResponse } from './interfaces';
+import { SubscriptionParameters, TokenData, TxResponse, GasStructure } from './interfaces';
 export default class extends Deployed {
     constructor(vendor: Vendor);
     updateEscrow(a: string): Promise<TxResponse>;
@@ -31,7 +31,7 @@ export default class extends Deployed {
     getStakedTokenAddress(): Promise<string>;
     getDiscountSlabs(): Promise<any>;
     getDataContract(): Promise<any>;
-    makeCharge(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse>;
+    makeCharge(u: string, d: Array<SubscriptionParameters>, g?: GasStructure): Promise<TxResponse>;
     addTokens(d: Array<TokenData>): Promise<TxResponse>;
     removeTokens(d: Array<string>): Promise<TxResponse>;
     changeUsdPrecision(n: number): Promise<TxResponse>;
