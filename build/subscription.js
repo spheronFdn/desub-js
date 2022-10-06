@@ -264,7 +264,7 @@ class default_1 extends deployed_1.default {
             return this.vendor.parseDiscountSlabs(slabs);
         });
     }
-    makeCharge(u, d, g) {
+    makeCharge(u, d, gp) {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const paramArray = [];
@@ -273,17 +273,13 @@ class default_1 extends deployed_1.default {
                 paramArray.push(d[i].param);
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
-            if (g) {
+            if (gp) {
                 return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', {
-                    gasLimit: 40000000000,
-                    gasPrice: 40000000000,
+                    gasPrice: this.vendor.convertToBN(gp),
                 }));
             }
             else {
-                return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.chargeUser(u, paramArray, paramValue, ((_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) || '', {
-                    gasLimit: 40000000000,
-                    gasPrice: 40000000000,
-                }));
+                return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.chargeUser(u, paramArray, paramValue, ((_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) || ''));
             }
         });
     }
