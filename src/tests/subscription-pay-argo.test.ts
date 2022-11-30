@@ -9,7 +9,7 @@ import { cloneWithWriteAccess } from '../helpers'
 import { assert } from 'chai'
 import { stub } from 'sinon'
 import { BigNumber } from 'ethers'
-import _ from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 
 describe('subscriptions methods', () => {
   let subscription: Subscription
@@ -773,7 +773,7 @@ describe('subscriptions methods', () => {
   })
   it('it should pass correct values for meta transaction', async () => {
     subscription.erc20Contract = cloneWithWriteAccess(subscription.erc20Contract)
-    subscription.biconomyERC20Contract = _.cloneDeep(subscription.biconomyERC20Contract)
+    subscription.biconomyERC20Contract = cloneDeep(subscription.biconomyERC20Contract)
     const invalidContract = {
       address: '0xinvalid',
       functions: {},
