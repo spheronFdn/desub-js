@@ -10,7 +10,7 @@ import { Contract, TxResponse } from '../interfaces'
 import { INVALID_API_KEY } from '../errors'
 import * as dotenv from 'dotenv'
 import { BigNumber } from 'ethers'
-import _ from 'lodash'
+import cloneDeep from 'lodash.clonedeep'
 
 describe('Payments methods', () => {
   let payment: Payment
@@ -736,7 +736,7 @@ describe('Payments methods', () => {
   })
   it('it should pass correct values for meta transaction', async () => {
     payment.erc20Contract = cloneWithWriteAccess(payment.erc20Contract)
-    payment.biconomyERC20Contract = _.cloneDeep(payment.biconomyERC20Contract)
+    payment.biconomyERC20Contract = cloneDeep(payment.biconomyERC20Contract)
     const invalidContract = {
       address: '0xinvalid',
       functions: {},
