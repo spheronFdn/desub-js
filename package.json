@@ -7,12 +7,12 @@
   "author": "Spheron Team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/spheron/desub-js/issues"
+    "url": "https://github.com/spheronFdn/desub-js/issues"
   },
-  "homepage": "https://github.com/spheron/desub-js#readme",
+  "homepage": "https://github.com/spheronFdn/desub-js#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/spheron/desub-js.git"
+    "url": "git+https://github.com/spheronFdn/desub-js.git"
   },
   "keywords": [
     "Spheron",
