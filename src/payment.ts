@@ -189,11 +189,12 @@ export default class Payment extends Deployed {
   }
   /**
    * @remarks
-   * Update approval for ArGo token
-   * Dont use this function without frontend
+   * This function updates the approval for ArGo token using Biconomy's gasless feature.
+   * It should only be called from the frontend.
    *
-   * @param a - new approval amount.
-   * @param c - chain Id
+   * @param approvalAmount - The new approval amount as a string.
+   * @param chainId - The ID of the blockchain network to use.
+   * @returns A promise that resolves to a transaction response object.
    */
   async gasslessApproval(a: string, c: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
@@ -240,25 +241,28 @@ export default class Payment extends Deployed {
   }
 
   /**
-   * @remarks
-   * Get given Allowance amount.
+   * Get the allowance amount for the specified user address.
    *
-   * @param a - user address
+   * @remarks
+   * This function converts the allowance amount from wei to ether using the specified token precision or a default value of 18 if not provided.
+   *
+   * @param userAddress - The user address for which to retrieve the allowance amount.
+   * @returns The allowance amount in ether.
    */
-  async getApprovalAmount(a: string): Promise<any> {
-    const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+  async getApprovalAmount(userAddress: string): Promise<number> {
+    const allowanceInWei = await this.erc20Contract?.functions.allowance(userAddress, this.paymentsContract?.address)
+    const allowanceInEth = this.vendor.convertWeiToEth(allowanceInWei, this.tokenPrecision ?? 18)
+    return allowanceInEth
   }
 
   /**
-   * @remarks
-   * Get nonce for gassless transaction on erc20
-   *
-   * @param u user address
+   * Get nonce for gasless transaction on ERC20.
+   * @param userAddress - The user's address.
+   * @returns The nonce.
    */
-  async getNonceForGaslessERC20(u: string): Promise<number> {
-    const nonce = (await this.erc20Contract?.functions.getNonce(u))[0].toNumber()
-    return nonce
+  async getNonceForGaslessERC20(userAddress: string): Promise<number> {
+    const nonce = await this.erc20Contract?.functions.getNonce(userAddress)
+    return nonce?.[0]?.toNumber() ?? 0
   }
 
   /**
