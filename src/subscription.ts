@@ -19,8 +19,8 @@ export default class SubscriptionContract extends Deployed {
    * @param escrowAddress - Address of the escrow contract (vault)
    * @returns A promise that resolves to a transaction response.
    */
-  async updateEscrow(escrowAddress: string): Promise<ContractTransaction> {
-    return await this.subscriptionDataContract?.functions.updateEscrow(escrowAddress)
+  async updateEscrow(escrowAddress: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateEscrow(escrowAddress)
   }
 
   /**

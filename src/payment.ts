@@ -196,10 +196,10 @@ export default class Payment extends Deployed {
    * @param chainId - The ID of the blockchain network to use.
    * @returns A promise that resolves to a transaction response object.
    */
-  async gasslessApproval(a: string, c: number): Promise<TxResponse> {
+  async gasslessApproval(approvalAmount: string, chainId: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const wei = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [this.paymentsContract?.address, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
@@ -208,7 +208,7 @@ export default class Payment extends Deployed {
       nonce,
       abiEncodedApprove,
       this.erc20Contract?.address || '',
-      c,
+      chainId,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
     return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)

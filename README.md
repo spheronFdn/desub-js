@@ -1,18 +1,10 @@
-
-<p  align="center">
-
-<picture>
-
-<source  media="(prefers-color-scheme: dark)"  srcset="https://res.cloudinary.com/letech-digital-solutions/image/upload/v1676660656/logo_wbzt7w.svg">
-
-<source  media="(prefers-color-scheme: light)"  srcset="https://res.cloudinary.com/letech-digital-solutions/image/upload/v1676660649/logo-dark_llnlr2.svg">
-
-<img  alt="Spheron"  src="https://res.cloudinary.com/letech-digital-solutions/image/upload/v1676660656/logo_wbzt7w.svg"  width="250">
-
-</picture>
-
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/spheronFdn/sdk/blob/main/.github/assets/logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/spheronFdn/sdk/blob/main/.github/assets/logo.svg">
+    <img alt="Spheron" src="https://github.com/spheronFdn/sdk/blob/main/.github/assets/logo.svg" width="250">
+  </picture>
 </p>
-
   
 
 <p  align="center">
@@ -25,9 +17,9 @@
 
 <p  align="center">
 
-<img  src="https://img.shields.io/static/v1?label=npm&message=v14.0.0&color=green" />
+<img  src="https://img.shields.io/static/v1?label=npm&message=v2.1.1&color=green" />
 
-<img  src="https://img.shields.io/static/v1?label=license&message=MIT&color=green" />
+<img  src="https://img.shields.io/static/v1?label=license&message=Apache-2&color=green" />
 
 <a  href="https://discord.com/invite/ahxuCtm"  target="_blank"  rel="noreferrer">
 
@@ -50,7 +42,7 @@
 
   
 
-#### Typescript library for working with the decentralised subscription contracts.
+#### Typescript Lib for working with the Spheron Decentralized Subscription Contracts.
 
   
 
@@ -62,64 +54,88 @@ Spheron is a marketplace to access all your web3 infrasructures.
 
   
 
-## Installation
-
-Using NPM
-
-```
-
-npm install @spheron/fnslib ethers
-
-```
-
-Using Yarn
-
-```
-
-yarn add @spheron/fnslib ethers
-
-```
-
-  
-
 ## Getting Started
 
   
-A simple guide for using the desub package to interacts with your contract. The smart contract can be found [here](https://github.com/spheronFdn/subscriptions-contract). If you make any significant change to the contracts, then you'll have to make some some changes to the package and  copy the ABIs to the constants/subscription.ts file. Contracts can be deployed on any EVM chain with support for solidity. If you are adopting the spheron contract without significant change, you can proceed to follow this quick guide.
+A simple guide for using the desub package to interacts with your contract. The smart contract can be found [here](https://github.com/spheronFdn/subscriptions-contract). If you make any significant change to the contracts, then you'll have to make some some changes to the package and  copy the ABIs to the constants/subscription.ts file. Contracts can be deployed on any EVM chain with support for solidity. If you are adopting the spheron contract without significant change, you can proceed to follow this quick guide. 
+_Note: [ethers](https://docs.ethers.org/v5/) is a peer dependency of this library, so it is mandatory to install ethers separately along with the `@spheron/desub-js` library._
+
 ## Installation
 Using NPM
 ```
-npm install @spheron/desub-js
+npm install @spheron/desub-js ethers
 ```
 
 Using Yarn
 ```
-yarn add @spheron/desub-js
+yarn add @spheron/desub-js ethers
 ```
 ## Usage
-```js
-import * as paymentSmartContract from "@spheron/desub-js";
-import { Wallet } from  "@ethersproject/wallet";
 
-async function getUserContractBalance(subContractData: { paymentContractAddress: string, dataContractAddress: string }, tokenAddress: string, tokenPrecision: number, walletAddress: string) {
-    const httpProvider = "<insert provider URL>"
-    const  signer  =  Wallet.fromMnemonic("<Inser wallet mnemonic>").connect(httpProvider);
-    
-    const vendor = new paymentSmartContract.Vendor(httpProvider, signer);
-    const subscription = new paymentSmartContract.Subscription(vendor);
-    
-    await subscription.subscriptionAt(
-        paymentContractAddress,
-        dataContractAddress,
-        tokenAddress,
-        tokenPrecision
-    );
-    
-    const availableBalance = await subscription.getUserTokenBalance(walletAddress);
-    return availableBalance;
-}
+# How to use desub-js functions
+
+To use the desub-js functions, you will need to follow the steps outlined below:
+
+## Using the getUserTokenBalance function
+
+1.  Import the required packages:
 
 ```
+import * as paymentSmartContract from "@spheron/desub-js";
+import { Wallet } from "@ethersproject/wallet";
+``` 
+
+2.  Provide the necessary input parameters to the function:
+
+-   `subContractData`: an object with `paymentContractAddress`, `dataContractAddress`, `tokenAddress`, and `tokenPrecision` properties.
+-   `tokenAddress`: the address of the token contract.
+-   `tokenPrecision`: the number of decimals the token has.
+-   `walletAddress`: the address of the wallet to check the balance for.
+
+3.  Set the HTTP provider URL:
+
+```
+const httpProvider = "<insert  provider  URL>";
+```
+
+This URL should point to a node that can communicate with the EVM chain.
+
+4.  Connect to the wallet using a signer:
+
+```
+const signer = Wallet.fromMnemonic("<Inser  wallet  mnemonic>").connect(httpProvider);
+``` 
+
+This step requires a mnemonic phrase that corresponds to the wallet being used.
+
+5.  Create an instance of the Vendor class:
+
+```
+const vendor = new paymentSmartContract.Vendor(httpProvider, signer);
+``` 
+
+This class is used to interact with the payment contract.
+
+6.  Create an instance of the Subscription class:
+
+```
+const subscription = new paymentSmartContract.Subscription(vendor);
+``` 
+
+This class is used to interact with the data contract.
+
+7.  Call the `subscriptionAt` method to set the subscription data:
+
+```
+await subscription.subscriptionAt(paymentContractAddress, dataContractAddress, tokenAddress, tokenPrecision);
+```
+
+8.  Finally, call the `getUserTokenBalance` method on the `subscription` object, passing in the `walletAddress` parameter. This method retrieves the available balance of the user's token in the payment smart contract. The available balance is then returned by the function.
+```
+const  availableBalance  =  await subscription.getUserTokenBalance(walletAddress);
+```
+
+Following these steps will allow you to use the `getUserTokenBalance` function in desub-js.
 
 ## Build desub-js
   
