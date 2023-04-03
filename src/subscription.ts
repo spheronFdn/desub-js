@@ -1,5 +1,5 @@
 import { Vendor } from '.'
-import { ethers, ContractTransaction } from 'ethers'
+import { ethers } from 'ethers'
 import Deployed from './abstracts/deployed'
 import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
@@ -28,7 +28,7 @@ export default class SubscriptionContract extends Deployed {
    * @param stakedTokenAddress - Address of the staked token.
    * @returns A promise that resolves to a transaction response.
    */
-  async updateStakedToken(stakedTokenAddress: string): Promise<ContractTransaction> {
+  async updateStakedToken(stakedTokenAddress: string): Promise<TxResponse> {
     return await this.subscriptionDataContract?.functions.updateStakedToken(stakedTokenAddress)
   }
 
