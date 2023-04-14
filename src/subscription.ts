@@ -5,8 +5,9 @@ import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI
 import { INVALID_BICONOMY_KEY } from './errors'
 import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
 
-export default class extends Deployed {
+export default class SubscriptionContract extends Deployed {
   /**
+   * Creates an instance of SubscriptionContract.
    * @param vendor - Instance of a Vendor class
    */
   constructor(vendor: Vendor) {
@@ -14,112 +15,107 @@ export default class extends Deployed {
   }
 
   /**
-   * @remarks
-   * This method can be used to updated address of vault/escrow account
-   *
-   * @param a - address of escrow contract(vault)
+   * Updates the address of the vault/escrow account.
+   * @param escrowAddress - Address of the escrow contract (vault)
+   * @returns A promise that resolves to a transaction response.
    */
-  async updateEscrow(a: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.updateEscrow(a)
+  async updateEscrow(escrowAddress: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateEscrow(escrowAddress)
   }
 
   /**
-   * @remarks
-   * This method can be used to updated address of staked token
-   *
-   * @param a - address of escrow contract(vault)
+   * Updates the address of the staked token.
+   * @param stakedTokenAddress - Address of the staked token.
+   * @returns A promise that resolves to a transaction response.
    */
-  async updateStakedToken(a: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.updateStakedToken(a)
+  async updateStakedToken(stakedTokenAddress: string): Promise<TxResponse> {
+    return await this.subscriptionDataContract?.functions.updateStakedToken(stakedTokenAddress)
   }
 
   /**
-   * @remarks
-   * This method can only be called by governance account and can be called to updated discount slabs.
-   *
-   * @param d - array of prices for discount slabs
-   * @param p - array of percent of each slab
+   * Update the discount slabs, which can only be called by the governance account.
+   * @param discountSlabs - An array of prices for discount slabs
+   * @param percents - An array of percentage of each slab
+   * @returns A Promise that resolves with the transaction response
    */
-  async updateDiscountSlabs(d: Array<string>, p: Array<string>): Promise<TxResponse> {
-    const discountSlabs = this.vendor.convertStringArrayToBigNumberArray(d)
-    const percents = this.vendor.convertStringArrayToBigNumberArray(p)
-    return await this.subscriptionDataContract?.functions.updateDiscountSlabs(discountSlabs, percents)
-  }
-  /**
-   * @remarks
-   * This method can only be called by owner, to give enable discount.
-   *
-   * @param h - address of staking manager.
-   */
-  async enableDiscounts(h: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.enableDiscounts(h)
+  async updateDiscountSlabs(discountSlabs: string[], percents: string[]): Promise<TxResponse> {
+    const vendor = this.vendor
+    const convertedDiscountSlabs = vendor.convertStringArrayToBigNumberArray(discountSlabs)
+    const convertedPercents = vendor.convertStringArrayToBigNumberArray(percents)
+    return this.subscriptionDataContract?.functions.updateDiscountSlabs(convertedDiscountSlabs, convertedPercents)
   }
 
   /**
-   * @remarks
-   * This method can only be called by owner, to give disable discount.
-   *
+   * Enable discounts, which can only be called by the owner.
+   * @param stakingManagerAddress - The address of the staking manager
+   * @returns A Promise that resolves with the transaction response
+   */
+  async enableDiscounts(stakingManagerAddress: string): Promise<TxResponse> {
+    return this.subscriptionDataContract?.functions.enableDiscounts(stakingManagerAddress)
+  }
+
+  /**
+   * Disable discounts, which can only be called by the owner.
+   * @returns A Promise that resolves with the transaction response
    */
   async disableDiscounts(): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.disableDiscounts()
+    return this.subscriptionDataContract?.functions.disableDiscounts()
   }
 
   /**
-   * @remarks
-   * This method can only be called by owner, to update governance contract address.
-   *
-   * @param h - address of governance contract.
+   * Update the governance contract address, which can only be called by the owner.
+   * @param governanceAddress - The address of the governance contract
+   * @returns A Promise that resolves with the transaction response
    */
-  async setGovernanceAddress(h: string): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.setGovernanceAddress(h)
+  async setGovernanceAddress(governanceAddress: string): Promise<TxResponse> {
+    return this.subscriptionDataContract?.functions.setGovernanceAddress(governanceAddress)
   }
 
   /**
-   * @remarks
-   * This method can only be called by owner, to update data contract address.
+   * This method can only be called by the contract owner to update the data contract address.
    *
-   * @param h - address of data contract.
+   * @param dataContractAddress - Address of the data contract.
    */
-  async setDataContract(h: string): Promise<TxResponse> {
-    return await this.subscriptionPaymentContract?.functions.updateDataContract(h)
+  async setDataContract(dataContractAddress: string): Promise<TxResponse> {
+    return await this.subscriptionPaymentContract?.functions.updateDataContract(dataContractAddress)
   }
 
   /**
-   * @remarks
-   * This method can only be called by owner, to set new  owners.
+   * This method can only be called by the contract owner to set new owners.
    *
-   * @param h - array of addresses of new oweners.
+   * @param newOwners - Array of addresses of new owners.
    */
-  async setManagers(h: Array<string>): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.setManagers(h)
+  async setManagers(newOwners: string[]): Promise<TxResponse> {
+    return await this.subscriptionDataContract?.functions.setManagers(newOwners)
   }
 
   /**
-   * @remarks
-   * Update approval for ERC-20 token
-   * Dont use this function without frontend
+   * Update approval for ERC-20 token.
+   * Do not use this function without frontend.
    *
-   * @param a - new approval amount.
+   * @param approvalAmount - New approval amount.
    */
-  async setNewApprovals(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, wei)
+  async setNewApprovals(approvalAmount: string): Promise<TxResponse> {
+    const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
+    return await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount)
   }
-  /**
-   * @remarks
-   * Update approval for ERC-20 token
-   * Dont use this function without frontend
-   *
-   * @param a - new approval amount.
-   * @param c - chain Id
-   */
-  async gasslessApproval(a: string, c: number): Promise<TxResponse> {
-    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+  /**
+   * Update approval for ERC-20 token.
+   * Do not use this function without frontend.
+   *
+   * @param approvalAmount - New approval amount.
+   * @param chainId - Chain ID.
+   */
+  async gasslessApproval(approvalAmount: string, chainId: number): Promise<TxResponse> {
+    if (!this.vendor.biconomy) {
+      throw new Error(INVALID_BICONOMY_KEY)
+    }
+
+    const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
       this.subscriptionPaymentContract?.address,
-      wei,
+      weiAmount,
     ])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
@@ -128,81 +124,92 @@ export default class extends Deployed {
       nonce,
       abiEncodedApprove,
       this.erc20Contract?.address || '',
-      c,
+      chainId,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
     return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
   }
   /**
    * @remarks
-   * Gaslles user deposit
-   * Dont use this function without frontend
+   * Gasless user deposit/withdrawal
+   * Do not use this function without a frontend
+   *
+   * @param a - amount of deposit/withdrawal
+   * @param contract - subscription payment contract instance
+   * @param erc20 - ERC20 contract instance
+   * @param biconomy - Biconomy instance
+   */
+  async gaslessUserAction(
+    a: string,
+    contract: ethers.Contract,
+    erc20: ethers.Contract,
+    biconomy: any,
+  ): Promise<TxResponse> {
+    if (!biconomy) throw new Error(INVALID_BICONOMY_KEY)
+    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const ethersProvider = new ethers.providers.Web3Provider(biconomy)
+    const userAddress = await this.vendor.signer.getAddress()
+    const { data } = await contract.populateTransaction.userDeposit(erc20?.address || '', wei)
+    const txParams = {
+      data,
+      to: contract?.address || '',
+      from: userAddress,
+      signatureType: 'EIP712_SIGN',
+    }
+    return await ethersProvider.send('eth_sendTransaction', [txParams])
+  }
+
+  /**
+   * @remarks
+   * Gasless user deposit
+   * Do not use this function without a frontend
    *
    * @param a - deposit amount.
-   * @param t - token address.
-   * @param c - chain Id
+   * @param contract - subscription payment contract instance
+   * @param erc20 - ERC20 contract instance
+   * @param biconomy - Biconomy instance
    */
-  async gasLessUserDeposit(a: string): Promise<TxResponse> {
-    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const ethersProvider = new ethers.providers.Web3Provider(this.vendor.biconomy)
-    const userAddress = await this.vendor.signer.getAddress()
-    const contractInstance = new ethers.Contract(
-      this.subscriptionPaymentContract?.address || '',
-      this.subscriptionPaymentAbi,
-      this.vendor.biconomy.ethersProvider,
-    )
-    const { data } = await contractInstance.populateTransaction.userDeposit(this.erc20Contract?.address || '', wei)
-    const txParams = {
-      data,
-      to: this.subscriptionPaymentContract?.address || '',
-      from: userAddress,
-      signatureType: 'EIP712_SIGN',
-    }
-    return await ethersProvider.send('eth_sendTransaction', [txParams])
+  async gaslessUserDeposit(
+    a: string,
+    contract: ethers.Contract,
+    erc20: ethers.Contract,
+    biconomy: any,
+  ): Promise<TxResponse> {
+    return await this.gaslessUserAction(a, contract, erc20, biconomy)
   }
+
   /**
    * @remarks
-   * Gaslles user deposit
-   * Dont use this function without frontend
+   * Gasless user withdrawal
+   * Do not use this function without a frontend
    *
    * @param a - withdrawal amount.
-   * @param t - token address.
-   * @param c - chain Id
+   * @param contract - subscription payment contract instance
+   * @param erc20 - ERC20 contract instance
+   * @param biconomy - Biconomy instance
    */
-  async gasLessUserWithdraw(a: string): Promise<TxResponse> {
-    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    const ethersProvider = new ethers.providers.Web3Provider(this.vendor.biconomy)
-    const userAddress = await this.vendor.signer.getAddress()
-    const contractInstance = new ethers.Contract(
-      this.subscriptionPaymentContract?.address || '',
-      this.subscriptionPaymentAbi,
-      this.vendor.biconomy.ethersProvider,
-    )
-    const { data } = await contractInstance.populateTransaction.userWithdraw(this.erc20Contract?.address || '', wei)
-    const txParams = {
-      data,
-      to: this.subscriptionPaymentContract?.address || '',
-      from: userAddress,
-      signatureType: 'EIP712_SIGN',
-    }
-    return await ethersProvider.send('eth_sendTransaction', [txParams])
+  async gaslessUserWithdraw(
+    a: string,
+    contract: ethers.Contract,
+    erc20: ethers.Contract,
+    biconomy: any,
+  ): Promise<TxResponse> {
+    return await this.gaslessUserAction(a, contract, erc20, biconomy)
   }
-
   /**
-   * @remarks
-   * Update approval for ERC-20 token
-   * Dont use this function without frontend
+   * Update approval for ERC-20 token.
+   * This function requires a frontend to be used.
    *
-   * @param a - new approval amount.
-   * @param n - token name.
-   * @param c - chain Id
+   * @param approvalAmount - New approval amount in string format.
+   * @param tokenName - ERC-20 token name.
+   * @param chainId - Chain ID.
    */
-  async gasslessMultiTokenApproval(a: string, n: string, c: number): Promise<TxResponse> {
-    if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
+  async gasslessMultiTokenApproval(approvalAmount: string, tokenName: string, chainId: number): Promise<TxResponse> {
+    if (!this.vendor.biconomy) {
+      throw new Error(INVALID_BICONOMY_KEY)
+    }
 
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const wei = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [
       this.subscriptionPaymentContract?.address,
       wei,
@@ -214,30 +221,46 @@ export default class extends Deployed {
       nonce,
       abiEncodedApprove,
       this.erc20Contract?.address || '',
-      n,
-      c,
+      tokenName,
+      chainId,
     )
-    const rsv = this.vendor.getSignatureParameters(signedMessage)
-    return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
+    const { r, s, v } = this.vendor.getSignatureParameters(signedMessage)
+    const tx = await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, { r, s, v })
+    return tx
   }
+
   /**
+   * Sends a raw Biconomy ERC-20 transaction.
    *
-   * @remarks
-   * returns abi enocoded erc20 function
-   *
-   * @param u - user address
-   * @param f - abi encoded function
-   * @param rsv - rsv values
+   * @param userAddress - User address.
+   * @param abiEncodedFunction - ABI encoded function.
+   * @param rsv - RSV values.
    */
-  async sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any> {
+  async sendRawBiconomyERC20Transaction(
+    userAddress: string,
+    abiEncodedFunction: string,
+    rsv: { r: string; s: string; v: number },
+  ): Promise<any> {
     if (this.vendor.biconomy.status === this.vendor.biconomy.READY) {
-      const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v)
+      const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(
+        userAddress,
+        abiEncodedFunction,
+        rsv.r,
+        rsv.s,
+        rsv.v,
+      )
       return tx
     } else {
       return new Promise((resolve, reject) => {
         this.vendor.biconomy
           .onEvent(this.vendor.biconomy.READY, async () => {
-            const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(u, f, rsv.r, rsv.s, rsv.v)
+            const tx = await this.biconomyERC20Contract?.functions.executeMetaTransaction(
+              userAddress,
+              abiEncodedFunction,
+              rsv.r,
+              rsv.s,
+              rsv.v,
+            )
             resolve(tx)
           })
           .onEvent(this.vendor.biconomy.ERROR, (error: string) => {
@@ -249,54 +272,60 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * Get nonce for gassless transaction on erc20
+   * Get nonce for gasless transaction on erc20
    *
-   * @param u user address
+   * @param userAddress - user address
    */
-  async getNonceForGaslessERC20(u: string): Promise<number> {
-    const nonce = (await this.erc20Contract?.functions.getNonce(u))[0].toNumber()
-    return nonce
+  async getNonceForGaslessERC20(userAddress: string): Promise<number> {
+    const nonce = await this.erc20Contract?.functions.getNonce(userAddress)
+    return nonce[0].toNumber()
   }
+
   /**
    * @remarks
-   * Get given Allowance amount.
+   * Get user balance of the ERC20 token.
    *
-   * @param a - user address
+   * @param userAddress - user address
    */
-  async getUserBalance(a: string): Promise<any> {
-    const wei = await this.erc20Contract?.functions.balanceOf(a)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
-  }
-  /**
-   * @remarks
-   * Get given User balance.
-   * @param u - user address
-   */
-  async getUserTokenBalance(u: string): Promise<any> {
-    const wei = await this.subscriptionPaymentContract?.functions.getUserData(u, this.erc20Contract?.address || '')
-    return this.vendor.convertWeiToEth(wei[0].balance, this.tokenPrecision || 18)
+  async getUserBalance(userAddress: string): Promise<number> {
+    const wei = await this.erc20Contract?.functions.balanceOf(userAddress)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision ?? 18)
   }
 
   /**
    * @remarks
-   * User deposit to Spheron
-   * @param a - amount
+   * Get user token balance.
+   *
+   * @param userAddress - user address
    */
-
-  async userDeposit(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address || '', wei)
+  async getUserTokenBalance(userAddress: string): Promise<number> {
+    const userData = await this.subscriptionPaymentContract?.functions.getUserData(
+      userAddress,
+      this.erc20Contract?.address ?? '',
+    )
+    return this.vendor.convertWeiToEth(userData[0].balance, this.tokenPrecision ?? 18)
   }
 
   /**
    * @remarks
-   * User withdraw from Spheron
-   * @param a - amount
+   * User deposit to Spheron.
+   *
+   * @param amount - amount to deposit
    */
+  async userDeposit(amount: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
+    return this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', wei)
+  }
 
-  async userWithdraw(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
-    return await this.subscriptionPaymentContract?.functions.userWithdraw(this.erc20Contract?.address || '', wei)
+  /**
+   * @remarks
+   * User withdraw from Spheron.
+   *
+   * @param amount - amount to withdraw
+   */
+  async userWithdraw(amount: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
+    return this.subscriptionPaymentContract?.functions.userWithdraw(this.erc20Contract?.address ?? '', wei)
   }
   /**
    * @remarks
@@ -464,25 +493,27 @@ export default class extends Deployed {
   /**
    * @remarks
    * This method is used when we want to update contract parameters
-   * @param p - array of parameters and their values
+   * @param params - array of parameters and their values
    */
-  async upadteParams(p: Array<SubscriptionParameters>): Promise<TxResponse> {
-    const paramArray: Array<string> = []
+  async updateParams(params: SubscriptionParameters[]): Promise<TxResponse> {
+    const paramArray: string[] = []
     const paramValue: Array<number> = []
-    for (let i = 0; i < p.length; i++) {
-      paramArray.push(p[i].param)
-      paramValue.push(this.vendor.convertToBN(p[i].value.toString()))
+    for (const param of params) {
+      paramArray.push(param.param)
+      paramValue.push(this.vendor.convertToBN(param.value.toString()))
     }
     return await this.subscriptionDataContract?.functions.updateParams(paramArray, paramValue)
   }
+
   /**
    * @remarks
    * This method is when we want to delete some parameter
-   * @param d - array of params to delete
+   * @param paramsToDelete - array of params to delete
    */
-  async deleteParams(d: Array<string>): Promise<TxResponse> {
-    return await this.subscriptionDataContract?.functions.deleteParams(d)
+  async deleteParams(paramsToDelete: string[]): Promise<TxResponse> {
+    return await this.subscriptionDataContract?.functions.deleteParams(paramsToDelete)
   }
+
   // Admin Functions
   /**
    * @remarks
@@ -490,7 +521,7 @@ export default class extends Deployed {
    */
   async getTotalTokenBalance(): Promise<any> {
     const wei = await this.subscriptionPaymentContract?.functions.getTotalDeposit(this.erc20Contract?.address || '')
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision ?? 18)
   }
 
   /**
@@ -499,7 +530,7 @@ export default class extends Deployed {
    */
   async getTotalTokenCharges(): Promise<any> {
     const wei = await this.subscriptionPaymentContract?.functions.getTotalCharges(this.erc20Contract?.address || '')
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision ?? 18)
   }
 
   /**
@@ -508,35 +539,35 @@ export default class extends Deployed {
    */
   async getTotalTokenWithdraws(): Promise<any> {
     const wei = await this.subscriptionPaymentContract?.functions.getTotalWithdraws(this.erc20Contract?.address || '')
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+    return this.vendor.convertWeiToEth(wei, this.tokenPrecision ?? 18)
   }
 
   /**
    * @remarks
    * Set treasury address to SubscriptionDepay Contract which receives all deposits to the contract
-   * @param t - treasury address
+   * @param treasuryAddress - treasury address
    */
-  async setTreasury(t: string): Promise<TxResponse> {
-    return await this.subscriptionPaymentContract?.functions.setTreasury(t)
+  async setTreasury(treasuryAddress: string): Promise<TxResponse> {
+    return await this.subscriptionPaymentContract?.functions.setTreasury(treasuryAddress)
   }
 
   /**
    * @remarks
    * Set company address to SubscriptionDepay Contract which receives company earnings from user charges
    * Limited to Admin
-   * @param c - company address
+   * @param companyAddress - company address
    */
-  async setCompany(c: string): Promise<TxResponse> {
-    return await this.subscriptionPaymentContract?.functions.setCompany(c)
+  async setCompany(companyAddress: string): Promise<TxResponse> {
+    return await this.subscriptionPaymentContract?.functions.setCompany(companyAddress)
   }
+
   /**
    * @remarks
    * Move company earnings from Treasury to company address
-   * @param a - amount
+   * @param amount - amount
    */
-
-  async companyWithdraw(a: string): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+  async companyWithdraw(amount: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
     return await this.subscriptionPaymentContract?.functions.companyWithdraw(this.erc20Contract?.address || '', wei)
   }
 }

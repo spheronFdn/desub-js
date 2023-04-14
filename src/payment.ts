@@ -5,10 +5,12 @@ import { TxResponse } from './interfaces'
 import { API_KEY_REQUIRED, INVALID_BICONOMY_KEY } from './errors'
 import { akashTokenId, arweaveTokenId } from './constants/price-feed'
 
-export default class extends Deployed {
+export default class Payment extends Deployed {
   coinMarketCapKey?: string
+
   /**
    * @param vendor - Instance of a Vendor class
+   * @param coinMarketCapKey - Optional CoinMarketCap API key
    */
   constructor(vendor: Vendor, coinMarketCapKey?: string) {
     super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
@@ -17,46 +19,62 @@ export default class extends Deployed {
 
   /**
    * @remarks
-   * This method is when we do not want to charge user with the fee for deployment, but only for build time.
-   * @param u - address of user
-   * @param b - built time (in sec) after deployment completed
-   * @param d - depployment cost by provider  USD
-   * @param providerQuote price of storage provider's token
-   * @param providerCharged tokens of storage provider charged for deploying
-   * @param  provider name of storage provider
+   * This method is used when we do not want to charge the user with the fee for deployment, but only for build time.
+   *
+   * @param userAddress - Address of the user
+   * @param buildTimeInSeconds - Built time (in seconds) after deployment completion
+   * @param deploymentCost - Deployment cost charged by the provider in USD
+   * @param providerQuote - Price of storage provider's token
+   * @param providerCharged - Tokens of storage provider charged for deploying
+   * @param providerName - Name of the storage provider
+   * @returns Promise that resolves with the transaction response
    */
   async paymentWithFee(
-    u: string,
-    b: string,
-    d: string,
+    userAddress: string,
+    buildTimeInSeconds: string,
+    deploymentCost: string,
     providerQuote: any,
     providerCharged: any,
-    provider: string,
+    providerName: string,
   ): Promise<TxResponse> {
-    const wei = this.vendor.convertToWei(d, this.tokenPrecision || 18)
-    const buildTime = this.vendor.convertToBN(b)
-    const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision || 18)
-    const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision || 18)
-    return await this.paymentsContract?.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider)
+    const wei = this.vendor.convertToWei(deploymentCost, this.tokenPrecision ?? 18)
+    const buildTime = this.vendor.convertToBN(buildTimeInSeconds)
+    const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision ?? 18)
+    const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision ?? 18)
+
+    return await this.paymentsContract?.functions.chargeWithProvider(
+      userAddress,
+      buildTime,
+      wei,
+      quote,
+      charge,
+      providerName,
+    )
   }
+
   /**
    * @remarks
-   * This method is when we want to charge user for the fee for deployment as well as for the build time.
-   * @param a - address that is to be charged
-   * @param b - built time (in sec) after deployment completed
-   */
-  async paymentWithoutFee(a: string, b: string): Promise<TxResponse> {
-    const buildTime = this.vendor.convertToBN(b)
-    return await this.paymentsContract?.functions.charge(a, buildTime)
-  }
-  /**
-   * @remarks
-   * This method can be used to updated address of underlying token.
+   * This method is used when we want to charge the user for the fee for deployment as well as for the build time.
    *
-   * @param a - address of token to use for charging users
+   * @param userAddress - Address that is to be charged
+   * @param buildTimeInSeconds - Built time (in seconds) after deployment completion
+   * @returns Promise that resolves with the transaction response
    */
-  async updateUnderlyingToken(a: string): Promise<TxResponse> {
-    return await this.paymentsContract?.functions.updateUnderlyingToken(a)
+  async paymentWithoutFee(userAddress: string, buildTimeInSeconds: string): Promise<TxResponse> {
+    const buildTime = this.vendor.convertToBN(buildTimeInSeconds)
+
+    return await this.paymentsContract?.functions.charge(userAddress, buildTime)
+  }
+
+  /**
+   * @remarks
+   * This method can be used to update the address of the underlying token.
+   *
+   * @param address - Address of the token to use for charging users
+   * @returns Promise that resolves with the transaction response
+   */
+  async updateUnderlyingToken(address: string): Promise<TxResponse> {
+    return await this.paymentsContract?.functions.updateUnderlyingToken(address)
   }
   /**
    * @remarks
@@ -171,16 +189,17 @@ export default class extends Deployed {
   }
   /**
    * @remarks
-   * Update approval for ArGo token
-   * Dont use this function without frontend
+   * This function updates the approval for ArGo token using Biconomy's gasless feature.
+   * It should only be called from the frontend.
    *
-   * @param a - new approval amount.
-   * @param c - chain Id
+   * @param approvalAmount - The new approval amount as a string.
+   * @param chainId - The ID of the blockchain network to use.
+   * @returns A promise that resolves to a transaction response object.
    */
-  async gasslessApproval(a: string, c: number): Promise<TxResponse> {
+  async gasslessApproval(approvalAmount: string, chainId: number): Promise<TxResponse> {
     if (!this.vendor.biconomy) throw new Error(INVALID_BICONOMY_KEY)
 
-    const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18)
+    const wei = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
     const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [this.paymentsContract?.address, wei])
     const userAddress = await this.vendor.signer.getAddress()
     const nonce = await this.getNonceForGaslessERC20(userAddress)
@@ -189,7 +208,7 @@ export default class extends Deployed {
       nonce,
       abiEncodedApprove,
       this.erc20Contract?.address || '',
-      c,
+      chainId,
     )
     const rsv = this.vendor.getSignatureParameters(signedMessage)
     return await this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv)
@@ -222,25 +241,28 @@ export default class extends Deployed {
   }
 
   /**
-   * @remarks
-   * Get given Allowance amount.
+   * Get the allowance amount for the specified user address.
    *
-   * @param a - user address
+   * @remarks
+   * This function converts the allowance amount from wei to ether using the specified token precision or a default value of 18 if not provided.
+   *
+   * @param userAddress - The user address for which to retrieve the allowance amount.
+   * @returns The allowance amount in ether.
    */
-  async getApprovalAmount(a: string): Promise<any> {
-    const wei = await this.erc20Contract?.functions.allowance(a, this.paymentsContract?.address)
-    return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18)
+  async getApprovalAmount(userAddress: string): Promise<number> {
+    const allowanceInWei = await this.erc20Contract?.functions.allowance(userAddress, this.paymentsContract?.address)
+    const allowanceInEth = this.vendor.convertWeiToEth(allowanceInWei, this.tokenPrecision ?? 18)
+    return allowanceInEth
   }
 
   /**
-   * @remarks
-   * Get nonce for gassless transaction on erc20
-   *
-   * @param u user address
+   * Get nonce for gasless transaction on ERC20.
+   * @param userAddress - The user's address.
+   * @returns The nonce.
    */
-  async getNonceForGaslessERC20(u: string): Promise<number> {
-    const nonce = (await this.erc20Contract?.functions.getNonce(u))[0].toNumber()
-    return nonce
+  async getNonceForGaslessERC20(userAddress: string): Promise<number> {
+    const nonce = await this.erc20Contract?.functions.getNonce(userAddress)
+    return nonce?.[0]?.toNumber() ?? 0
   }
 
   /**
