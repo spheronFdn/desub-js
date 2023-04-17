@@ -16,32 +16,32 @@ const constants_1 = require("./constants");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const errors_1 = require("./errors");
 const price_feed_1 = require("./constants/price-feed");
-class default_1 extends deployed_1.default {
+class Payment extends deployed_1.default {
     constructor(vendor, coinMarketCapKey) {
-        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI);
+        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI, constants_1.SUBSCRIPTION_NATIVE_PAYMENT_ABI);
         this.coinMarketCapKey = coinMarketCapKey;
     }
-    paymentWithFee(u, b, d, providerQuote, providerCharged, provider) {
-        var _a;
+    paymentWithFee(userAddress, buildTimeInSeconds, deploymentCost, providerQuote, providerCharged, providerName) {
+        var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = this.vendor.convertToWei(d, this.tokenPrecision || 18);
-            const buildTime = this.vendor.convertToBN(b);
-            const quote = this.vendor.convertToWei(providerQuote, this.tokenPrecision || 18);
-            const charge = this.vendor.convertToWei(providerCharged, this.tokenPrecision || 18);
-            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.chargeWithProvider(u, buildTime, wei, quote, charge, provider));
+            const wei = this.vendor.convertToWei(deploymentCost, (_a = this.tokenPrecision) !== null && _a !== void 0 ? _a : 18);
+            const buildTime = this.vendor.convertToBN(buildTimeInSeconds);
+            const quote = this.vendor.convertToWei(providerQuote, (_b = this.tokenPrecision) !== null && _b !== void 0 ? _b : 18);
+            const charge = this.vendor.convertToWei(providerCharged, (_c = this.tokenPrecision) !== null && _c !== void 0 ? _c : 18);
+            return yield ((_d = this.paymentsContract) === null || _d === void 0 ? void 0 : _d.functions.chargeWithProvider(userAddress, buildTime, wei, quote, charge, providerName));
         });
     }
-    paymentWithoutFee(a, b) {
+    paymentWithoutFee(userAddress, buildTimeInSeconds) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            const buildTime = this.vendor.convertToBN(b);
-            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.charge(a, buildTime));
+            const buildTime = this.vendor.convertToBN(buildTimeInSeconds);
+            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.charge(userAddress, buildTime));
         });
     }
-    updateUnderlyingToken(a) {
+    updateUnderlyingToken(address) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
-            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.updateUnderlyingToken(a));
+            return yield ((_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.functions.updateUnderlyingToken(address));
         });
     }
     updateEscrow(a) {
@@ -114,16 +114,16 @@ class default_1 extends deployed_1.default {
             return yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.paymentsContract) === null || _b === void 0 ? void 0 : _b.address, wei));
         });
     }
-    gasslessApproval(a, c) {
+    gasslessApproval(approvalAmount, chainId) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
             if (!this.vendor.biconomy)
                 throw new Error(errors_1.INVALID_BICONOMY_KEY);
-            const wei = this.vendor.convertToWei(a, this.tokenPrecision || 18);
+            const wei = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18);
             const abiEncodedApprove = this.vendor.abiEncodeErc20Functions('approve', [(_a = this.paymentsContract) === null || _a === void 0 ? void 0 : _a.address, wei]);
             const userAddress = yield this.vendor.signer.getAddress();
             const nonce = yield this.getNonceForGaslessERC20(userAddress);
-            const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', c);
+            const signedMessage = yield this.vendor.signedMessageForTx(userAddress, nonce, abiEncodedApprove, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', chainId);
             const rsv = this.vendor.getSignatureParameters(signedMessage);
             return yield this.sendRawBiconomyERC20Transaction(userAddress, abiEncodedApprove, rsv);
         });
@@ -151,18 +151,19 @@ class default_1 extends deployed_1.default {
             }
         });
     }
-    getApprovalAmount(a) {
-        var _a, _b;
+    getApprovalAmount(userAddress) {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
-            const wei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.allowance(a, (_b = this.paymentsContract) === null || _b === void 0 ? void 0 : _b.address));
-            return this.vendor.convertWeiToEth(wei, this.tokenPrecision || 18);
+            const allowanceInWei = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.allowance(userAddress, (_b = this.paymentsContract) === null || _b === void 0 ? void 0 : _b.address));
+            const allowanceInEth = this.vendor.convertWeiToEth(allowanceInWei, (_c = this.tokenPrecision) !== null && _c !== void 0 ? _c : 18);
+            return allowanceInEth;
         });
     }
-    getNonceForGaslessERC20(u) {
-        var _a;
+    getNonceForGaslessERC20(userAddress) {
+        var _a, _b, _c;
         return __awaiter(this, void 0, void 0, function* () {
-            const nonce = (yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.getNonce(u)))[0].toNumber();
-            return nonce;
+            const nonce = yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.getNonce(userAddress));
+            return (_c = (_b = nonce === null || nonce === void 0 ? void 0 : nonce[0]) === null || _b === void 0 ? void 0 : _b.toNumber()) !== null && _c !== void 0 ? _c : 0;
         });
     }
     getUserBalance(a) {
@@ -254,4 +255,4 @@ class default_1 extends deployed_1.default {
         });
     }
 }
-exports.default = default_1;
+exports.default = Payment;

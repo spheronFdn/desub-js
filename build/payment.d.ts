@@ -1,12 +1,12 @@
 import Deployed from './abstracts/deployed';
 import Vendor from './abstracts/vendor';
 import { TxResponse } from './interfaces';
-export default class extends Deployed {
+export default class Payment extends Deployed {
     coinMarketCapKey?: string;
     constructor(vendor: Vendor, coinMarketCapKey?: string);
-    paymentWithFee(u: string, b: string, d: string, providerQuote: any, providerCharged: any, provider: string): Promise<TxResponse>;
-    paymentWithoutFee(a: string, b: string): Promise<TxResponse>;
-    updateUnderlyingToken(a: string): Promise<TxResponse>;
+    paymentWithFee(userAddress: string, buildTimeInSeconds: string, deploymentCost: string, providerQuote: any, providerCharged: any, providerName: string): Promise<TxResponse>;
+    paymentWithoutFee(userAddress: string, buildTimeInSeconds: string): Promise<TxResponse>;
+    updateUnderlyingToken(address: string): Promise<TxResponse>;
     updateEscrow(a: string): Promise<TxResponse>;
     updateFeederAddress(a: string): Promise<TxResponse>;
     updateStakedToken(a: string): Promise<TxResponse>;
@@ -18,10 +18,10 @@ export default class extends Deployed {
     setGovernanceAddress(h: string): Promise<TxResponse>;
     setManagers(h: Array<string>): Promise<TxResponse>;
     setNewApprovals(a: string): Promise<TxResponse>;
-    gasslessApproval(a: string, c: number): Promise<TxResponse>;
+    gasslessApproval(approvalAmount: string, chainId: number): Promise<TxResponse>;
     sendRawBiconomyERC20Transaction(u: string, f: string, rsv: any): Promise<any>;
-    getApprovalAmount(a: string): Promise<any>;
-    getNonceForGaslessERC20(u: string): Promise<number>;
+    getApprovalAmount(userAddress: string): Promise<number>;
+    getNonceForGaslessERC20(userAddress: string): Promise<number>;
     getUserBalance(a: string): Promise<any>;
     getManagers(): Promise<Array<string>>;
     getGovernanceAddress(): Promise<string>;

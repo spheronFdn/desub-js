@@ -1,4 +1,10 @@
-import { ERC20_ABI, PAYMENT_ABI, SUBSCRIPTION_DATA_ABI, SUBSCRIPTION_PAYMENT_ABI } from './constants'
+import {
+  PAYMENT_ABI,
+  ERC20_ABI,
+  SUBSCRIPTION_PAYMENT_ABI,
+  SUBSCRIPTION_DATA_ABI,
+  SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+} from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
 import { TxResponse } from './interfaces'
@@ -13,7 +19,14 @@ export default class Payment extends Deployed {
    * @param coinMarketCapKey - Optional CoinMarketCap API key
    */
   constructor(vendor: Vendor, coinMarketCapKey?: string) {
-    super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
+    super(
+      vendor,
+      PAYMENT_ABI,
+      ERC20_ABI,
+      SUBSCRIPTION_PAYMENT_ABI,
+      SUBSCRIPTION_DATA_ABI,
+      SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+    )
     this.coinMarketCapKey = coinMarketCapKey
   }
 

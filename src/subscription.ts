@@ -1,7 +1,13 @@
 import { Vendor } from '.'
 import { ethers } from 'ethers'
 import Deployed from './abstracts/deployed'
-import { PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI } from './constants'
+import {
+  PAYMENT_ABI,
+  ERC20_ABI,
+  SUBSCRIPTION_PAYMENT_ABI,
+  SUBSCRIPTION_DATA_ABI,
+  SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+} from './constants'
 import { INVALID_BICONOMY_KEY } from './errors'
 import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
 
@@ -11,7 +17,14 @@ export default class SubscriptionContract extends Deployed {
    * @param vendor - Instance of a Vendor class
    */
   constructor(vendor: Vendor) {
-    super(vendor, PAYMENT_ABI, ERC20_ABI, SUBSCRIPTION_PAYMENT_ABI, SUBSCRIPTION_DATA_ABI)
+    super(
+      vendor,
+      PAYMENT_ABI,
+      ERC20_ABI,
+      SUBSCRIPTION_PAYMENT_ABI,
+      SUBSCRIPTION_DATA_ABI,
+      SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+    )
   }
 
   /**
@@ -315,6 +328,13 @@ export default class SubscriptionContract extends Deployed {
   async userDeposit(amount: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
     return this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', wei)
+  }
+  async userDepositNative(amount: string): Promise<TxResponse> {
+    const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
+    console.log('tttttt', wei)
+    return this.subscriptionNativePaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', wei, {
+      value: wei,
+    })
   }
 
   /**

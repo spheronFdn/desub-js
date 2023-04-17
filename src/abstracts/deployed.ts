@@ -20,6 +20,8 @@ export default abstract class implements Keyed {
   public services: Services
   public subscriptionPaymentAbi: Abi
   public subscriptionPaymentContract?: Contract
+  public subscriptionNativePaymentAbi: Abi
+  public subscriptionNativePaymentContract?: Contract
   public subscriptionDataAbi: Abi
   public subscriptionDataContract?: Contract
   public tokenPrecision?: number
@@ -29,12 +31,20 @@ export default abstract class implements Keyed {
    * @param a - Compiled abi of the payments smart contract this HOC wraps
    * @param e - Compiled abi of ERC20 smart contract this HOC wraps
    */
-  protected constructor(v: Vendor, a: Abi, e: Abi, subscriptionPayments: Abi, subscriptionData: Abi) {
+  protected constructor(
+    v: Vendor,
+    a: Abi,
+    e: Abi,
+    subscriptionPayments: Abi,
+    subscriptionData: Abi,
+    subscriptionNativePayments: Abi,
+  ) {
     this.vendor = v
     this.paymentsAbi = a
     this.erc20Abi = e
     this.subscriptionPaymentAbi = subscriptionPayments
     this.subscriptionDataAbi = subscriptionData
+    this.subscriptionNativePaymentAbi = subscriptionNativePayments
     this.services = new Services()
   }
 
@@ -76,6 +86,11 @@ export default abstract class implements Keyed {
     o?: TransactOpts,
   ): Promise<boolean> {
     this.subscriptionPaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionPaymentAbi, o)
+    this.subscriptionNativePaymentContract = this.vendor.contract(
+      subscriptionPayments,
+      this.subscriptionNativePaymentAbi,
+      o,
+    )
     this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o)
     this.tokenPrecision = p
     this.erc20Contract = this.vendor.contract(e, this.erc20Abi)
