@@ -1,8 +1,8 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/spheronFdn/sdk/blob/main/.github/assets/logo-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://github.com/spheronFdn/sdk/blob/main/.github/assets/logo.svg">
-    <img alt="Spheron" src="https://github.com/spheronFdn/sdk/blob/main/.github/assets/logo.svg" width="250">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/spheronFdn/fns/blob/main/.github/assets/spheron-logo-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/spheronFdn/fns/blob/main/.github/assets/spheron-logo.svg">
+    <img alt="Spheron" src="https://github.com/spheronFdn/fns/blob/main/.github/assets/spheron-logo.svg" width="250">
   </picture>
 </p>
   
@@ -17,7 +17,7 @@
 
 <p  align="center">
 
-<img  src="https://img.shields.io/static/v1?label=npm&message=v2.1.1&color=green" />
+<img  src="https://img.shields.io/static/v1?label=npm&message=v2.2.0&color=green" />
 
 <img  src="https://img.shields.io/static/v1?label=license&message=Apache-2&color=green" />
 
