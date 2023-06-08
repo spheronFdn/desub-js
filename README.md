@@ -17,7 +17,7 @@
 
 <p  align="center">
 
-<img  src="https://img.shields.io/static/v1?label=npm&message=v2.2.0&color=green" />
+<img  src="https://img.shields.io/static/v1?label=npm&message=v2.3.0&color=green" />
 
 <img  src="https://img.shields.io/static/v1?label=license&message=Apache-2&color=green" />
 
