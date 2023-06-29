@@ -13,6 +13,7 @@ export default class SubscriptionContract extends Deployed {
     setDataContract(dataContractAddress: string): Promise<TxResponse>;
     setManagers(newOwners: string[]): Promise<TxResponse>;
     setNewApprovals(approvalAmount: string): Promise<TxResponse>;
+    approveAndDeposit(approvalAmount: string): Promise<TxResponse>;
     gasslessApproval(approvalAmount: string, chainId: number): Promise<TxResponse>;
     gaslessUserAction(a: string, contract: ethers.Contract, erc20: ethers.Contract, biconomy: any): Promise<TxResponse>;
     gaslessUserDeposit(a: string, contract: ethers.Contract, erc20: ethers.Contract, biconomy: any): Promise<TxResponse>;

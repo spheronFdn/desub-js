@@ -78,6 +78,24 @@ class SubscriptionContract extends deployed_1.default {
             return yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, weiAmount));
         });
     }
+    approveAndDeposit(approvalAmount) {
+        var _a, _b, _c, _d, _e;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18);
+                yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, weiAmount));
+                return (_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.userDeposit((_e = (_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) !== null && _e !== void 0 ? _e : '', weiAmount);
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    throw new Error(`Transaction failed: ${error.message}`);
+                }
+                else {
+                    throw new Error(errors_1.TRANSACTION_FAILED);
+                }
+            }
+        });
+    }
     gasslessApproval(approvalAmount, chainId) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
