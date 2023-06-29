@@ -127,10 +127,9 @@ export default class SubscriptionContract extends Deployed {
       if (error instanceof Error) {
         throw new Error(`Transaction failed: ${error.message}`);
       } else {
-        throw new Error(TRANSACTION_FAILED);
+        throw new Error(TRANSACTION_FAILED)
       }
     }
-  }
 
 
   /**
