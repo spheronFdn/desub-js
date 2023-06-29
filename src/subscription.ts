@@ -8,7 +8,7 @@ import {
   SUBSCRIPTION_DATA_ABI,
   SUBSCRIPTION_NATIVE_PAYMENT_ABI,
 } from './constants'
-import { INVALID_BICONOMY_KEY } from './errors'
+import { INVALID_BICONOMY_KEY, TRANSACTION_FAILED } from './errors'
 import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
 
 export default class SubscriptionContract extends Deployed {
@@ -112,6 +112,26 @@ export default class SubscriptionContract extends Deployed {
     const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
     return await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount)
   }
+
+  /**
+   * Token approval and user deposit in one transaction.
+   * Do not use this function without frontend.
+   * @param approvalAmount - Amount of tokens to approve and deposit.
+   */
+  async approveAndDeposit(approvalAmount: string): Promise<TxResponse> {
+    try {
+      const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
+      await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount)
+      return this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', weiAmount)
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Transaction failed: ${error.message}`);
+      } else {
+        throw new Error(TRANSACTION_FAILED);
+      }
+    }
+  }
+
 
   /**
    * Update approval for ERC-20 token.
