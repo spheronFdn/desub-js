@@ -125,12 +125,12 @@ export default class SubscriptionContract extends Deployed {
       return this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', weiAmount)
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(`Transaction failed: ${error.message}`);
+        throw new Error(`Transaction failed: ${error.message}`)
       } else {
         throw new Error(TRANSACTION_FAILED)
       }
     }
-
+  }
 
   /**
    * Update approval for ERC-20 token.
