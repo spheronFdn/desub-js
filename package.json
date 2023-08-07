@@ -40,6 +40,7 @@
     "@ethersproject/contracts": "^5.0.10",
     "@ethersproject/providers": "^5.0.20",
     "@ethersproject/wallet": "^5.0.11",
+    "@pythnetwork/pyth-evm-js": "^1.20.1",
     "axios": "^0.21.1",
     "chai-bignumber": "^3.0.0",
     "dotenv": "^10.0.0",

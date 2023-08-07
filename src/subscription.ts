@@ -7,9 +7,11 @@ import {
   SUBSCRIPTION_PAYMENT_ABI,
   SUBSCRIPTION_DATA_ABI,
   SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+  SUBSCRIPTION_MANTLE_PAYMENT_ABI,
 } from './constants'
 import { INVALID_BICONOMY_KEY, TRANSACTION_FAILED } from './errors'
 import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
+import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js'
 
 export default class SubscriptionContract extends Deployed {
   /**
@@ -24,6 +26,7 @@ export default class SubscriptionContract extends Deployed {
       SUBSCRIPTION_PAYMENT_ABI,
       SUBSCRIPTION_DATA_ABI,
       SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+      SUBSCRIPTION_MANTLE_PAYMENT_ABI,
     )
   }
 
@@ -296,7 +299,6 @@ export default class SubscriptionContract extends Deployed {
             resolve(tx)
           })
           .onEvent(this.vendor.biconomy.ERROR, (error: string) => {
-            console.log(error)
             reject(error)
           })
       })
@@ -350,7 +352,6 @@ export default class SubscriptionContract extends Deployed {
   }
   async userDepositNative(amount: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
-    console.log('tttttt', wei)
     return this.subscriptionNativePaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', wei, {
       value: wei,
     })
@@ -480,6 +481,32 @@ export default class SubscriptionContract extends Deployed {
         this.erc20Contract?.address || '',
       )
     }
+  }
+  /**
+   * @remarks
+   * this method is used when we want to charge user for the subscrption he will be buying on mantle chain
+   * @param u - address of user
+   * @param d - array of parameters and their values
+   * @param priceId - price id of the token
+   */
+  async makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceId: string): Promise<TxResponse> {
+    const connection = new EvmPriceServiceConnection('https://xc-testnet.pyth.network') // See Price Service endpoints section below for other endpoints
+
+    const priceIds = [priceId]
+    const priceUpdateData = await connection.getPriceFeedsUpdateData(priceIds)
+    const paramArray: Array<string> = []
+    const paramValue: Array<number> = []
+    for (let i = 0; i < d.length; i++) {
+      paramArray.push(d[i].param)
+      paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
+    }
+    return await this.subscriptionMantlePaymentContract?.functions.chargeUser(
+      u,
+      paramArray,
+      paramValue,
+      this.erc20Contract?.address || '',
+      priceUpdateData,
+    )
   }
   /**
    * @remarks
