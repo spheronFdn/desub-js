@@ -135,6 +135,30 @@ export default class SubscriptionContract extends Deployed {
     }
   }
 
+  async approveAndDepositMantle(approvalAmount: string): Promise<TxResponse> {
+    try {
+      const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
+
+      await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount, {
+        gasLimit: 100000,
+      })
+
+      return await this.subscriptionPaymentContract?.functions.userDeposit(
+        this.erc20Contract?.address ?? '',
+        weiAmount,
+        {
+          gasLimit: 100000,
+        },
+      )
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Transaction failed: ${error.message}`)
+      } else {
+        throw new Error(TRANSACTION_FAILED)
+      }
+    }
+  }
+
   /**
    * Update approval for ERC-20 token.
    * Do not use this function without frontend.
