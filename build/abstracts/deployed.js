@@ -14,13 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const services_1 = __importDefault(require("../services/services"));
 class default_1 {
-    constructor(v, a, e, subscriptionPayments, subscriptionData, subscriptionNativePayments) {
+    constructor(v, a, e, subscriptionPayments, subscriptionData, subscriptionNativePayments, subscriptionMantlePayments) {
         this.vendor = v;
         this.paymentsAbi = a;
         this.erc20Abi = e;
         this.subscriptionPaymentAbi = subscriptionPayments;
         this.subscriptionDataAbi = subscriptionData;
         this.subscriptionNativePaymentAbi = subscriptionNativePayments;
+        this.subscriptionMantlePaymentAbi = subscriptionMantlePayments;
         this.services = new services_1.default();
     }
     at(a, e, o) {
@@ -39,6 +40,7 @@ class default_1 {
         return __awaiter(this, void 0, void 0, function* () {
             this.subscriptionPaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionPaymentAbi, o);
             this.subscriptionNativePaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionNativePaymentAbi, o);
+            this.subscriptionMantlePaymentContract = this.vendor.contract(subscriptionPayments, this.subscriptionMantlePaymentAbi, o);
             this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o);
             this.tokenPrecision = p;
             this.erc20Contract = this.vendor.contract(e, this.erc20Abi);

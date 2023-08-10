@@ -16,9 +16,10 @@ const ethers_1 = require("ethers");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
+const pyth_evm_js_1 = require("@pythnetwork/pyth-evm-js");
 class SubscriptionContract extends deployed_1.default {
     constructor(vendor) {
-        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI, constants_1.SUBSCRIPTION_NATIVE_PAYMENT_ABI);
+        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI, constants_1.SUBSCRIPTION_NATIVE_PAYMENT_ABI, constants_1.SUBSCRIPTION_MANTLE_PAYMENT_ABI);
     }
     updateEscrow(escrowAddress) {
         var _a;
@@ -85,6 +86,28 @@ class SubscriptionContract extends deployed_1.default {
                 const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18);
                 yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, weiAmount));
                 return (_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.userDeposit((_e = (_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) !== null && _e !== void 0 ? _e : '', weiAmount);
+            }
+            catch (error) {
+                if (error instanceof Error) {
+                    throw new Error(`Transaction failed: ${error.message}`);
+                }
+                else {
+                    throw new Error(errors_1.TRANSACTION_FAILED);
+                }
+            }
+        });
+    }
+    approveAndDepositMantle(approvalAmount) {
+        var _a, _b, _c, _d, _e;
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18);
+                yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, weiAmount, {
+                    gasLimit: 100000,
+                }));
+                return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.userDeposit((_e = (_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) !== null && _e !== void 0 ? _e : '', weiAmount, {
+                    gasLimit: 100000,
+                }));
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -176,7 +199,6 @@ class SubscriptionContract extends deployed_1.default {
                         resolve(tx);
                     }))
                         .onEvent(this.vendor.biconomy.ERROR, (error) => {
-                        console.log(error);
                         reject(error);
                     });
                 });
@@ -215,7 +237,6 @@ class SubscriptionContract extends deployed_1.default {
         var _a, _b, _c, _d;
         return __awaiter(this, void 0, void 0, function* () {
             const wei = this.vendor.convertToWei(amount, (_a = this.tokenPrecision) !== null && _a !== void 0 ? _a : 18);
-            console.log('tttttt', wei);
             return (_b = this.subscriptionNativePaymentContract) === null || _b === void 0 ? void 0 : _b.functions.userDeposit((_d = (_c = this.erc20Contract) === null || _c === void 0 ? void 0 : _c.address) !== null && _d !== void 0 ? _d : '', wei, {
                 value: wei,
             });
@@ -302,6 +323,21 @@ class SubscriptionContract extends deployed_1.default {
             else {
                 return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.chargeUser(u, paramArray, paramValue, ((_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) || ''));
             }
+        });
+    }
+    makeChargeMantle(u, d, priceId) {
+        var _a, _b;
+        return __awaiter(this, void 0, void 0, function* () {
+            const connection = new pyth_evm_js_1.EvmPriceServiceConnection('https://xc-testnet.pyth.network');
+            const priceIds = [priceId];
+            const priceUpdateData = yield connection.getPriceFeedsUpdateData(priceIds);
+            const paramArray = [];
+            const paramValue = [];
+            for (let i = 0; i < d.length; i++) {
+                paramArray.push(d[i].param);
+                paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
+            }
+            return yield ((_a = this.subscriptionMantlePaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', priceUpdateData));
         });
     }
     addTokens(d) {

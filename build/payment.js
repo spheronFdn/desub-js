@@ -18,7 +18,7 @@ const errors_1 = require("./errors");
 const price_feed_1 = require("./constants/price-feed");
 class Payment extends deployed_1.default {
     constructor(vendor, coinMarketCapKey) {
-        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI, constants_1.SUBSCRIPTION_NATIVE_PAYMENT_ABI);
+        super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI, constants_1.SUBSCRIPTION_NATIVE_PAYMENT_ABI, constants_1.SUBSCRIPTION_MANTLE_PAYMENT_ABI);
         this.coinMarketCapKey = coinMarketCapKey;
     }
     paymentWithFee(userAddress, buildTimeInSeconds, deploymentCost, providerQuote, providerCharged, providerName) {

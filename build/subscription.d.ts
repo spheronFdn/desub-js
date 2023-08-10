@@ -14,6 +14,7 @@ export default class SubscriptionContract extends Deployed {
     setManagers(newOwners: string[]): Promise<TxResponse>;
     setNewApprovals(approvalAmount: string): Promise<TxResponse>;
     approveAndDeposit(approvalAmount: string): Promise<TxResponse>;
+    approveAndDepositMantle(approvalAmount: string): Promise<TxResponse>;
     gasslessApproval(approvalAmount: string, chainId: number): Promise<TxResponse>;
     gaslessUserAction(a: string, contract: ethers.Contract, erc20: ethers.Contract, biconomy: any): Promise<TxResponse>;
     gaslessUserDeposit(a: string, contract: ethers.Contract, erc20: ethers.Contract, biconomy: any): Promise<TxResponse>;
@@ -40,6 +41,7 @@ export default class SubscriptionContract extends Deployed {
     getDiscountSlabs(): Promise<any>;
     getDataContract(): Promise<any>;
     makeCharge(u: string, d: Array<SubscriptionParameters>, gp?: string): Promise<TxResponse>;
+    makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceId: string): Promise<TxResponse>;
     addTokens(d: Array<TokenData>): Promise<TxResponse>;
     removeTokens(d: Array<string>): Promise<TxResponse>;
     changeUsdPrecision(n: number): Promise<TxResponse>;
