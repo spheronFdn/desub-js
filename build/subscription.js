@@ -16,7 +16,6 @@ const ethers_1 = require("ethers");
 const deployed_1 = __importDefault(require("./abstracts/deployed"));
 const constants_1 = require("./constants");
 const errors_1 = require("./errors");
-const pyth_evm_js_1 = require("@pythnetwork/pyth-evm-js");
 class SubscriptionContract extends deployed_1.default {
     constructor(vendor) {
         super(vendor, constants_1.PAYMENT_ABI, constants_1.ERC20_ABI, constants_1.SUBSCRIPTION_PAYMENT_ABI, constants_1.SUBSCRIPTION_DATA_ABI, constants_1.SUBSCRIPTION_NATIVE_PAYMENT_ABI, constants_1.SUBSCRIPTION_MANTLE_PAYMENT_ABI);
@@ -325,19 +324,18 @@ class SubscriptionContract extends deployed_1.default {
             }
         });
     }
-    makeChargeMantle(u, d, priceId) {
+    makeChargeMantle(u, d, priceUpdateData) {
         var _a, _b;
         return __awaiter(this, void 0, void 0, function* () {
-            const connection = new pyth_evm_js_1.EvmPriceServiceConnection('https://xc-testnet.pyth.network');
-            const priceIds = [priceId];
-            const priceUpdateData = yield connection.getPriceFeedsUpdateData(priceIds);
             const paramArray = [];
             const paramValue = [];
             for (let i = 0; i < d.length; i++) {
                 paramArray.push(d[i].param);
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
-            return yield ((_a = this.subscriptionMantlePaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', priceUpdateData));
+            return yield ((_a = this.subscriptionMantlePaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', priceUpdateData, {
+                gasLimit: 100000,
+            }));
         });
     }
     addTokens(d) {

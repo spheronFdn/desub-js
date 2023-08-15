@@ -41,7 +41,7 @@ export default class SubscriptionContract extends Deployed {
     getDiscountSlabs(): Promise<any>;
     getDataContract(): Promise<any>;
     makeCharge(u: string, d: Array<SubscriptionParameters>, gp?: string): Promise<TxResponse>;
-    makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceId: string): Promise<TxResponse>;
+    makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceUpdateData: string[]): Promise<TxResponse>;
     addTokens(d: Array<TokenData>): Promise<TxResponse>;
     removeTokens(d: Array<string>): Promise<TxResponse>;
     changeUsdPrecision(n: number): Promise<TxResponse>;

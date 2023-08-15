@@ -11,7 +11,6 @@ import {
 } from './constants'
 import { INVALID_BICONOMY_KEY, TRANSACTION_FAILED } from './errors'
 import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
-import { EvmPriceServiceConnection } from '@pythnetwork/pyth-evm-js'
 
 export default class SubscriptionContract extends Deployed {
   /**
@@ -513,11 +512,7 @@ export default class SubscriptionContract extends Deployed {
    * @param d - array of parameters and their values
    * @param priceId - price id of the token
    */
-  async makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceId: string): Promise<TxResponse> {
-    const connection = new EvmPriceServiceConnection('https://xc-testnet.pyth.network') // See Price Service endpoints section below for other endpoints
-
-    const priceIds = [priceId]
-    const priceUpdateData = await connection.getPriceFeedsUpdateData(priceIds)
+  async makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceUpdateData: string[]): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
@@ -530,6 +525,9 @@ export default class SubscriptionContract extends Deployed {
       paramValue,
       this.erc20Contract?.address || '',
       priceUpdateData,
+      {
+        gasLimit: 100000,
+      },
     )
   }
   /**
