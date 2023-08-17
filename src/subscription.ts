@@ -134,19 +134,19 @@ export default class SubscriptionContract extends Deployed {
     }
   }
 
-  async approveAndDepositMantle(approvalAmount: string): Promise<TxResponse> {
+  async approveAndDepositWithGasLimit(approvalAmount: string): Promise<TxResponse> {
     try {
       const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
 
       await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount, {
-        gasLimit: 100000,
+        gasLimit: 1000000000,
       })
 
       return await this.subscriptionPaymentContract?.functions.userDeposit(
         this.erc20Contract?.address ?? '',
         weiAmount,
         {
-          gasLimit: 100000,
+          gasLimit: 1000000000,
         },
       )
     } catch (error) {
@@ -507,6 +507,31 @@ export default class SubscriptionContract extends Deployed {
   }
   /**
    * @remarks
+   * this method is used when we want to charge user for the subscrption he will be buying with gas limit
+   * @param u - address of user
+   * @param d - array of parameters and their values
+   * @param mf - max gas fee
+   * @param m - max priority fee
+   */
+  async makeChargeWithGasLimit(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
+    const paramArray: Array<string> = []
+    const paramValue: Array<number> = []
+    for (let i = 0; i < d.length; i++) {
+      paramArray.push(d[i].param)
+      paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
+    }
+    return await this.subscriptionPaymentContract?.functions.chargeUser(
+      u,
+      paramArray,
+      paramValue,
+      this.erc20Contract?.address || '',
+      {
+        gasLimit: 1000000000,
+      },
+    )
+  }
+  /**
+   * @remarks
    * this method is used when we want to charge user for the subscrption he will be buying on mantle chain
    * @param u - address of user
    * @param d - array of parameters and their values
@@ -526,7 +551,7 @@ export default class SubscriptionContract extends Deployed {
       this.erc20Contract?.address || '',
       priceUpdateData,
       {
-        gasLimit: 100000,
+        gasLimit: 1000000000,
       },
     )
   }

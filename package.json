@@ -35,11 +35,11 @@
     "build": "rm -rf ./build && tsc -p ./tsbuild.json"
   },
   "dependencies": {
-    "@biconomy/mexa": "2.0.33",
-    "@ethersproject/abstract-signer": "^5.0.12",
-    "@ethersproject/contracts": "^5.0.10",
-    "@ethersproject/providers": "^5.0.20",
-    "@ethersproject/wallet": "^5.0.11",
+    "@biconomy/mexa": "3.0.6",
+    "@ethersproject/abstract-signer": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.10",
+    "@ethersproject/providers": "^5.7.2",
+    "@ethersproject/wallet": "^5.7.0",
     "axios": "^0.21.1",
     "chai-bignumber": "^3.0.0",
     "dotenv": "^10.0.0",

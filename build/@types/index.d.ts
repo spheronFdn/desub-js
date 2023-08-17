@@ -1,2 +1,2 @@
-export declare type Nos = number | string;
-export declare type Abi = Array<any>;
+export type Nos = number | string;
+export type Abi = Array<any>;
