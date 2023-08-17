@@ -102,10 +102,10 @@ class SubscriptionContract extends deployed_1.default {
             try {
                 const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18);
                 yield ((_a = this.erc20Contract) === null || _a === void 0 ? void 0 : _a.functions.approve((_b = this.subscriptionPaymentContract) === null || _b === void 0 ? void 0 : _b.address, weiAmount, {
-                    gasLimit: 1000000000,
+                    gasLimit: 300000,
                 }));
                 return yield ((_c = this.subscriptionPaymentContract) === null || _c === void 0 ? void 0 : _c.functions.userDeposit((_e = (_d = this.erc20Contract) === null || _d === void 0 ? void 0 : _d.address) !== null && _e !== void 0 ? _e : '', weiAmount, {
-                    gasLimit: 1000000000,
+                    gasLimit: 300000,
                 }));
             }
             catch (error) {
@@ -334,7 +334,7 @@ class SubscriptionContract extends deployed_1.default {
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
             return yield ((_a = this.subscriptionPaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', {
-                gasLimit: 1000000000,
+                gasLimit: 300000,
             }));
         });
     }
@@ -348,7 +348,7 @@ class SubscriptionContract extends deployed_1.default {
                 paramValue.push(this.vendor.convertToBN(d[i].value.toString()));
             }
             return yield ((_a = this.subscriptionMantlePaymentContract) === null || _a === void 0 ? void 0 : _a.functions.chargeUser(u, paramArray, paramValue, ((_b = this.erc20Contract) === null || _b === void 0 ? void 0 : _b.address) || '', priceUpdateData, {
-                gasLimit: 1000000000,
+                gasLimit: 300000,
             }));
         });
     }

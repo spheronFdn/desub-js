@@ -139,14 +139,14 @@ export default class SubscriptionContract extends Deployed {
       const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
 
       await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount, {
-        gasLimit: 1000000000,
+        gasLimit: 300000,
       })
 
       return await this.subscriptionPaymentContract?.functions.userDeposit(
         this.erc20Contract?.address ?? '',
         weiAmount,
         {
-          gasLimit: 1000000000,
+          gasLimit: 300000,
         },
       )
     } catch (error) {
@@ -526,7 +526,7 @@ export default class SubscriptionContract extends Deployed {
       paramValue,
       this.erc20Contract?.address || '',
       {
-        gasLimit: 1000000000,
+        gasLimit: 300000,
       },
     )
   }
@@ -551,7 +551,7 @@ export default class SubscriptionContract extends Deployed {
       this.erc20Contract?.address || '',
       priceUpdateData,
       {
-        gasLimit: 1000000000,
+        gasLimit: 300000,
       },
     )
   }
