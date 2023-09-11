@@ -22,6 +22,8 @@ export default abstract class implements Keyed {
   public subscriptionPaymentContract?: Contract
   public subscriptionNativePaymentAbi: Abi
   public subscriptionNativePaymentContract?: Contract
+  public subscriptionMantlePaymentAbi: Abi
+  public subscriptionMantlePaymentContract?: Contract
   public subscriptionDataAbi: Abi
   public subscriptionDataContract?: Contract
   public tokenPrecision?: number
@@ -38,6 +40,7 @@ export default abstract class implements Keyed {
     subscriptionPayments: Abi,
     subscriptionData: Abi,
     subscriptionNativePayments: Abi,
+    subscriptionMantlePayments: Abi,
   ) {
     this.vendor = v
     this.paymentsAbi = a
@@ -45,6 +48,7 @@ export default abstract class implements Keyed {
     this.subscriptionPaymentAbi = subscriptionPayments
     this.subscriptionDataAbi = subscriptionData
     this.subscriptionNativePaymentAbi = subscriptionNativePayments
+    this.subscriptionMantlePaymentAbi = subscriptionMantlePayments
     this.services = new Services()
   }
 
@@ -89,6 +93,11 @@ export default abstract class implements Keyed {
     this.subscriptionNativePaymentContract = this.vendor.contract(
       subscriptionPayments,
       this.subscriptionNativePaymentAbi,
+      o,
+    )
+    this.subscriptionMantlePaymentContract = this.vendor.contract(
+      subscriptionPayments,
+      this.subscriptionMantlePaymentAbi,
       o,
     )
     this.subscriptionDataContract = this.vendor.contract(subscriptionData, this.subscriptionDataAbi, o)

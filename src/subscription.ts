@@ -7,6 +7,7 @@ import {
   SUBSCRIPTION_PAYMENT_ABI,
   SUBSCRIPTION_DATA_ABI,
   SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+  SUBSCRIPTION_MANTLE_PAYMENT_ABI,
 } from './constants'
 import { INVALID_BICONOMY_KEY, TRANSACTION_FAILED } from './errors'
 import { SubscriptionParameters, TokenData, TxResponse } from './interfaces'
@@ -24,6 +25,7 @@ export default class SubscriptionContract extends Deployed {
       SUBSCRIPTION_PAYMENT_ABI,
       SUBSCRIPTION_DATA_ABI,
       SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+      SUBSCRIPTION_MANTLE_PAYMENT_ABI,
     )
   }
 
@@ -123,6 +125,30 @@ export default class SubscriptionContract extends Deployed {
       const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
       await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount)
       return this.subscriptionPaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', weiAmount)
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Transaction failed: ${error.message}`)
+      } else {
+        throw new Error(TRANSACTION_FAILED)
+      }
+    }
+  }
+
+  async approveAndDepositWithGasLimit(approvalAmount: string): Promise<TxResponse> {
+    try {
+      const weiAmount = this.vendor.convertToWei(approvalAmount, this.tokenPrecision || 18)
+
+      await this.erc20Contract?.functions.approve(this.subscriptionPaymentContract?.address, weiAmount, {
+        gasLimit: 300000,
+      })
+
+      return await this.subscriptionPaymentContract?.functions.userDeposit(
+        this.erc20Contract?.address ?? '',
+        weiAmount,
+        {
+          gasLimit: 300000,
+        },
+      )
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Transaction failed: ${error.message}`)
@@ -296,7 +322,6 @@ export default class SubscriptionContract extends Deployed {
             resolve(tx)
           })
           .onEvent(this.vendor.biconomy.ERROR, (error: string) => {
-            console.log(error)
             reject(error)
           })
       })
@@ -350,7 +375,6 @@ export default class SubscriptionContract extends Deployed {
   }
   async userDepositNative(amount: string): Promise<TxResponse> {
     const wei = this.vendor.convertToWei(amount, this.tokenPrecision ?? 18)
-    console.log('tttttt', wei)
     return this.subscriptionNativePaymentContract?.functions.userDeposit(this.erc20Contract?.address ?? '', wei, {
       value: wei,
     })
@@ -480,6 +504,54 @@ export default class SubscriptionContract extends Deployed {
         this.erc20Contract?.address || '',
       )
     }
+  }
+  /**
+   * @remarks
+   * this method is used when we want to charge user for the subscrption he will be buying with gas limit
+   * @param u - address of user
+   * @param d - array of parameters and their values
+   */
+  async makeChargeWithGasLimit(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
+    const paramArray: Array<string> = []
+    const paramValue: Array<number> = []
+    for (let i = 0; i < d.length; i++) {
+      paramArray.push(d[i].param)
+      paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
+    }
+    return await this.subscriptionPaymentContract?.functions.chargeUser(
+      u,
+      paramArray,
+      paramValue,
+      this.erc20Contract?.address || '',
+      {
+        gasLimit: 300000,
+      },
+    )
+  }
+  /**
+   * @remarks
+   * this method is used when we want to charge user for the subscrption he will be buying on mantle or linea chain
+   * @param u - address of user
+   * @param d - array of parameters and their values
+   * @param priceUpdateData - Array of price update data(Pyth Oracle Data)
+   */
+  async makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceUpdateData: string[]): Promise<TxResponse> {
+    const paramArray: Array<string> = []
+    const paramValue: Array<number> = []
+    for (let i = 0; i < d.length; i++) {
+      paramArray.push(d[i].param)
+      paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
+    }
+    return await this.subscriptionMantlePaymentContract?.functions.chargeUser(
+      u,
+      paramArray,
+      paramValue,
+      this.erc20Contract?.address || '',
+      priceUpdateData,
+      {
+        gasLimit: 300000,
+      },
+    )
   }
   /**
    * @remarks

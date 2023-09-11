@@ -4,6 +4,7 @@ import {
   SUBSCRIPTION_PAYMENT_ABI,
   SUBSCRIPTION_DATA_ABI,
   SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+  SUBSCRIPTION_MANTLE_PAYMENT_ABI,
 } from './constants'
 import Deployed from './abstracts/deployed'
 import Vendor from './abstracts/vendor'
@@ -26,6 +27,7 @@ export default class Payment extends Deployed {
       SUBSCRIPTION_PAYMENT_ABI,
       SUBSCRIPTION_DATA_ABI,
       SUBSCRIPTION_NATIVE_PAYMENT_ABI,
+      SUBSCRIPTION_MANTLE_PAYMENT_ABI,
     )
     this.coinMarketCapKey = coinMarketCapKey
   }
