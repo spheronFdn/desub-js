@@ -510,8 +510,6 @@ export default class SubscriptionContract extends Deployed {
    * this method is used when we want to charge user for the subscrption he will be buying with gas limit
    * @param u - address of user
    * @param d - array of parameters and their values
-   * @param mf - max gas fee
-   * @param m - max priority fee
    */
   async makeChargeWithGasLimit(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
     const paramArray: Array<string> = []
@@ -532,10 +530,10 @@ export default class SubscriptionContract extends Deployed {
   }
   /**
    * @remarks
-   * this method is used when we want to charge user for the subscrption he will be buying on mantle chain
+   * this method is used when we want to charge user for the subscrption he will be buying on mantle or linea chain
    * @param u - address of user
    * @param d - array of parameters and their values
-   * @param priceId - price id of the token
+   * @param priceUpdateData - Array of price update data(Pyth Oracle Data)
    */
   async makeChargeMantle(u: string, d: Array<SubscriptionParameters>, priceUpdateData: string[]): Promise<TxResponse> {
     const paramArray: Array<string> = []
