@@ -1,6 +1,6 @@
 {
   "name": "@spheron/desub-js",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Typescript library for working with the decentralised subscription contracts in Spheron",
   "main": "build/index.js",
   "types": "build/index.d.ts",
