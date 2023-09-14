@@ -114,3 +114,5 @@ dist
 
 # Idea configuration files
 .idea
+
+build/
