@@ -1,6 +1,6 @@
 {
   "name": "@spheron/desub-js",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Typescript library for working with the decentralised subscription contracts in Spheron",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -37,8 +37,8 @@
   "dependencies": {
     "@biconomy/mexa": "3.0.6",
     "@ethersproject/abstract-signer": "^5.7.0",
-    "@ethersproject/contracts": "^5.7.10",
-    "@ethersproject/providers": "^5.7.2",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/providers": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "axios": "^0.21.1",
     "chai-bignumber": "^3.0.0",
@@ -46,7 +46,7 @@
     "lodash.clonedeep": "^4.5.0"
   },
   "peerDependencies": {
-    "ethers": ">= 5.7.1"
+    "ethers": "5.7.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.14",
