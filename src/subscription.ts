@@ -553,6 +553,38 @@ export default class SubscriptionContract extends Deployed {
       },
     )
   }
+
+  /**
+   * @remarks
+   * this method is used when we want to charge user for the subscrption he will be buying on mantle or linea chain
+   * @param u - address of user
+   * @param d - array of parameters and their values
+   * @param priceUpdateData - Array of price update data(Pyth Oracle Data)
+   * @param gasLimit - gas limit
+   */
+  async makeChargeMantleWithGasLimit(
+    u: string,
+    d: Array<SubscriptionParameters>,
+    priceUpdateData: string[],
+    gasLimit: number,
+  ): Promise<TxResponse> {
+    const paramArray: Array<string> = []
+    const paramValue: Array<number> = []
+    for (let i = 0; i < d.length; i++) {
+      paramArray.push(d[i].param)
+      paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
+    }
+    return await this.subscriptionMantlePaymentContract?.functions.chargeUser(
+      u,
+      paramArray,
+      paramValue,
+      this.erc20Contract?.address || '',
+      priceUpdateData,
+      {
+        gasLimit,
+      },
+    )
+  }
   /**
    * @remarks
    * this method is used to add new tokens to the subscription contract
