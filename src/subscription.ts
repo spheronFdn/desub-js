@@ -510,23 +510,33 @@ export default class SubscriptionContract extends Deployed {
    * this method is used when we want to charge user for the subscrption he will be buying with gas limit
    * @param u - address of user
    * @param d - array of parameters and their values
+   * @param gasLimit - gas limit for the tx
    */
-  async makeChargeWithGasLimit(u: string, d: Array<SubscriptionParameters>): Promise<TxResponse> {
+  async makeChargeWithGasLimit(u: string, d: Array<SubscriptionParameters>, gasLimit?: number): Promise<TxResponse> {
     const paramArray: Array<string> = []
     const paramValue: Array<number> = []
     for (let i = 0; i < d.length; i++) {
       paramArray.push(d[i].param)
       paramValue.push(this.vendor.convertToBN(d[i].value.toString()))
     }
-    return await this.subscriptionPaymentContract?.functions.chargeUser(
-      u,
-      paramArray,
-      paramValue,
-      this.erc20Contract?.address || '',
-      {
-        gasLimit: 300000,
-      },
-    )
+    if (gasLimit) {
+      return await this.subscriptionPaymentContract?.functions.chargeUser(
+        u,
+        paramArray,
+        paramValue,
+        this.erc20Contract?.address || '',
+        {
+          gasLimit,
+        },
+      )
+    } else {
+      return await this.subscriptionPaymentContract?.functions.chargeUser(
+        u,
+        paramArray,
+        paramValue,
+        this.erc20Contract?.address || '',
+      )
+    }
   }
   /**
    * @remarks
